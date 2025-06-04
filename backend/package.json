@@ -1,0 +1,23 @@
+{
+  "name": "api_rest_auth_crud_jwt_cookie_project",
+  "version": "1.0.0",
+  "description": "Aprendiendo a aplicar JWT, Cookie session & Auth",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon src/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Andres Silva",
+  "license": "ISC",
+  "dependencies": {
+    "@prisma/client": "^6.7.0",
+    "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "nodemon": "^3.1.10",
+    "prisma": "^6.7.0"
+  }
+}
