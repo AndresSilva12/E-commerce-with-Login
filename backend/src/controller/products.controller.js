@@ -2,15 +2,9 @@ import prisma from "../db.js";
 
 export const createProduct = async(req, res) => {
     try{
-        const {code, name, description, price, brand} = req.body
+        /* const {code, name, description, price, brand} = req.body */
         const newProduct = await prisma.products.create({
-            data: {
-                code: code,
-                name: name,
-                description: description,
-                price: price,
-                brand: brand
-            }
+            data: req.body
         })
         return res.json(newProduct)
     }
