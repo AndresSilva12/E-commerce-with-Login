@@ -1,4 +1,3 @@
-import { error } from "zod/v4/locales/ar.js"
 import { idCuidSchema, productSchema, updateProductSchema } from "../../../validation/productSchema.js"
 import prisma from "../db.js" 
 
@@ -22,6 +21,8 @@ export const validateProduct = async(req, res, next) => {
 
 export const validateUpdateProduct = async(req, res, next) => {
     try {
+        const productSelected = req.product
+
         const parsed = updateProductSchema.safeParse(req.body)
         if (!parsed.success) {
             const errors = {}
@@ -32,18 +33,9 @@ export const validateUpdateProduct = async(req, res, next) => {
             return res.status(400).json({errors})
         }
         const {code} = parsed.data
-        const parsedId = idCuidSchema.safeParse(req.params.id)
-        if (!parsedId.success) return res.status(400).json({error: "El id seleccionado no es válido", parsedId})
-        const product = await prisma.products.findUnique({
-            where:{
-                id: parsedId.data
-            }
-        })
-
-        if (!product) return res.status(404).json({error: "El producto no existe"})
 
         if (code){
-            if (code !== product.code){
+            if (code !== productSelected.code){
                 const codeExist = await prisma.products.findUnique({
                     where: {
                         code: code
@@ -57,6 +49,28 @@ export const validateUpdateProduct = async(req, res, next) => {
         next()
     } catch (error) {
         console.log(error)
-        return res.status(500).json({error: "Error interno al validar actualizacion de producto"})
+        return res.status(500).json({error: "Error interno del servidor"})
+    }
+}
+
+export const validateProductExist = async(req, res, next) => {
+    try {
+        const idParsed = idCuidSchema.safeParse(req.params.id)
+        if (!idParsed.success) return res.status(400).json({error: "ID de producto no válido"})
+        
+        const product = await prisma.products.findUnique({
+            where: {
+                id: idParsed.data
+            }
+        })
+
+        if (!product) return res.status(404).json({error: "El producto no existe"})
+
+        req.product = product
+
+        next()
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({error: "Error interno durante la operacion"})
     }
 }
