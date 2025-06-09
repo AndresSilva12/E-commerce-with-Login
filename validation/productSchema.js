@@ -1,6 +1,4 @@
 import {z} from "zod";
-import { id } from "zod/v4/locales";
-console.log("schema cargado con 2 caracteres")
 
 export const productSchema = z.object({
     code: z.string({

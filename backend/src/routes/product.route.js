@@ -8,9 +8,9 @@ router.get('/products', getAllProducts)
 
 router.post('/products', validateProduct ,createProduct)
 
-router.get('/products/:id', getOneProduct)
+router.get('/products/:id',validateProductExist, getOneProduct)
 
-router.delete('/products/:id', deleteProduct)
+router.delete('/products/:id',validateProductExist ,deleteProduct)
 
 router.put('/products/:id',validateProductExist, validateUpdateProduct, updateProduct)
 
