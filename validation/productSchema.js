@@ -1,4 +1,5 @@
 import {z} from "zod";
+import { id } from "zod/v4/locales";
 console.log("schema cargado con 2 caracteres")
 
 export const productSchema = z.object({
@@ -27,3 +28,7 @@ export const productSchema = z.object({
     ,
     description: z.string().trim().optional()
 })
+
+export const updateProductSchema = productSchema.partial()
+
+export const idCuidSchema = z.string().cuid("El id no es válido")
