@@ -26,20 +26,22 @@ model users {
 
 model products {
   id String @id @default(cuid())
-  code String @unique
   name String
   description String?
-  price Float
+  purchasePrice Float
+  salePrice Float
   brand String
   variants productVariant[]
 }
 
 model productVariant {
   id String @id @default(cuid())
+  code String @unique
   size String
   color String
   stock Int
   productId String
+  createdAt DateTime  @default(now())
   product products @relation(fields: [productId], references: [id])
   @@unique([productId, size, color])
 }

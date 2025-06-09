@@ -32,18 +32,6 @@ export const validateUpdateProduct = async(req, res, next) => {
 
             return res.status(400).json({errors})
         }
-        const {code} = parsed.data
-
-        if (code){
-            if (code !== productSelected.code){
-                const codeExist = await prisma.products.findUnique({
-                    where: {
-                        code: code
-                    }
-                })
-                if (codeExist) return res.status(400).json({error: "El codigo ya está en uso"})
-            }
-        }
 
         req.body = parsed.data
         next()

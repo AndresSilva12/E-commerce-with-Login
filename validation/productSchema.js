@@ -1,12 +1,6 @@
 import {z} from "zod";
 
 export const productSchema = z.object({
-    code: z.string({
-        required_error: "El código es obligatorio",
-        invalid_type_error: "El código debe ser una cadena de texto"
-    }).trim()
-    .min(2, "Debe tener almenos 2 caracteres")
-    ,
     name: z.string({
         required_error: "El nombre es obligatorio",
         invalid_type_error: "El nombre debe ser una cadena de texto"
@@ -14,8 +8,12 @@ export const productSchema = z.object({
     .regex(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/, "Debe incluir solo letras y espacios")
     .min(2, "Debe tener almenos 2 caracteres")
     ,
-    price: z.number({
-        required_error: "El precio es obligatorio"
+    purchasePrice: z.number({
+        required_error: "El precio de compra es obligatorio"
+    })
+    ,
+    salePrice: z.number({
+        required_error: "El precio de venta es obligatorio"
     })
     ,
     brand: z.string({
