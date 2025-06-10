@@ -42,6 +42,6 @@ model productVariant {
   stock Int
   productId String
   createdAt DateTime  @default(now())
-  product products @relation(fields: [productId], references: [id])
+  product products @relation(fields: [productId], references: [id], onDelete: Cascade)
   @@unique([productId, size, color])
 }

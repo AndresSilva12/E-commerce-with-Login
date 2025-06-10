@@ -1,8 +1,20 @@
 import {Router} from 'express'
-import { createProductVariant } from '../controller/productVariant.controller.js';
+import { createVariant, deleteAllVariantsByProduct, deleteVariant, getAllVariants, getAllVariantsByProduct, getOnlyOneVariant, updateVariant } from '../controller/productVariant.controller.js';
 
-const router = new Router()
+const router = Router()
 
-router.post('/variants', createProductVariant)
+router.post('/variants', createVariant)
+
+router.get('/variants', getAllVariants)
+
+router.get('/variants/id/:id', getOnlyOneVariant)
+
+router.get('/variants/product/:productId', getAllVariantsByProduct)
+
+router.delete('/variants/id/:id', deleteVariant)
+
+router.delete('/variants/product/:productId', deleteAllVariantsByProduct)
+
+router.put('/variants/:id', updateVariant)
 
 export default router
