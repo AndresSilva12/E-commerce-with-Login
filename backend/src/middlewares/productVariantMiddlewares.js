@@ -40,6 +40,7 @@ export const validateVariantExist = async(req, res, next) => {
 
 export const validateUpdateVariant = async(req, res, next) => {
     try {
+        const {code} = req.body
         const parsed = updateVariantSchema.safeParse(req.body)
         if (!parsed.success) {
             const errors = {}
@@ -47,6 +48,15 @@ export const validateUpdateVariant = async(req, res, next) => {
                 errors[err.path] = err.message
             }
             return res.status(400).json(errors)
+        }
+
+        if (code && code !== req.variant.code) {
+            const codeExist = await prisma.productVariant.findUnique({
+                where: {
+                    code: code
+                }
+            })
+            if (codeExist) return res.status(400).json({error: "Ese código ya se encuentra en uso"})
         }
         
         req.body= parsed.data
