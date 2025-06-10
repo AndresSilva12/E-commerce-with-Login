@@ -37,3 +37,5 @@ export const variantSchema = z.object({
 })
 
 export const updateVariantSchema = variantSchema.partial()
+
+export const idVariantSchema = z.string().cuid("El id no es válido")
