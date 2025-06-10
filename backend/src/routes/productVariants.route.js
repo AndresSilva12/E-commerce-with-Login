@@ -1,9 +1,10 @@
 import {Router} from 'express'
 import { createVariant, deleteAllVariantsByProduct, deleteVariant, getAllVariants, getAllVariantsByProduct, getOnlyOneVariant, updateVariant } from '../controller/productVariant.controller.js';
+import { validateCreateVariant } from '../middlewares/productVariantMiddlewares.js';
 
 const router = Router()
 
-router.post('/variants', createVariant)
+router.post('/variants', validateCreateVariant, createVariant)
 
 router.get('/variants', getAllVariants)
 
