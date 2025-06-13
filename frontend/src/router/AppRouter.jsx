@@ -7,6 +7,7 @@ import LoginPage from '../pages/LoginPage';
 import NavBar from '../components/NavBar';
 import ProtectedRoutes from '../components/ProtectedRoutes';
 import GuestOnlyRoute from '../components/GuestOnlyRoute';
+import FormProductsPage from '../pages/FormProductsPage';
 
 function AppRouter () {
     return (
@@ -24,6 +25,12 @@ function AppRouter () {
                         <Dashboard/>
                     </ProtectedRoutes>
                 }/>
+                <Route path='/formProducts' element={
+                    <ProtectedRoutes>
+                        <FormProductsPage/>
+                    </ProtectedRoutes>
+                }
+                />
                 <Route path='/users' element={
                     <ProtectedRoutes>
                         <UsersPage/>

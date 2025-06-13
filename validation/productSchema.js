@@ -5,16 +5,17 @@ export const productSchema = z.object({
         required_error: "El nombre es obligatorio",
         invalid_type_error: "El nombre debe ser una cadena de texto"
     }).trim()
-    .regex(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/, "Debe incluir solo letras y espacios")
+    .min(1, "El nombre del producto es obligatorio")
     .min(2, "Debe tener almenos 2 caracteres")
+    .regex(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/, "Debe incluir solo letras y espacios")
     ,
-    purchasePrice: z.number({
-        required_error: "El precio de compra es obligatorio"
-    })
+    purchasePrice: z.coerce.number()
+    .min(1, "El precio de compra es obligatorio")
+    .gte(1, "El precio de compra debe ser mayor a 0")
     ,
-    salePrice: z.number({
-        required_error: "El precio de venta es obligatorio"
-    })
+    salePrice: z.coerce.number()
+    .min(1, "El precio de venta es obligatorio")
+    .gte(1, "El precio de venta debe ser mayor a 0")
     ,
     brand: z.string({
         required_error: "La marca es obligatoria"
