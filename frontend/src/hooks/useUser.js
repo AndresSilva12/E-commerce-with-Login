@@ -1,6 +1,5 @@
 import { useState } from "react"
 
-
 export function useUser () {
   const [users, setUsers] = useState([])
 
