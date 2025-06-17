@@ -16,9 +16,10 @@ function FormProductsPage() {
     })
 
     useEffect(() => {
-        fetchProducts()
-        setProductUpdate(null)
-    }, [])
+        if (productUpdate == null){
+            fetchProducts()
+        }
+    }, [productUpdate])
 
     const onValid= (formProduct) => {
         createProduct(formProduct)
@@ -26,6 +27,11 @@ function FormProductsPage() {
 
     const onInvalid= () => {
         notify('error','Por favor ingrese todos los datos')
+    }
+
+    const onUpdate= () => {
+        setProductUpdate(null)
+        notify('success', 'Producto actualizado correctamente!')
     }
 
 
@@ -84,7 +90,7 @@ function FormProductsPage() {
                     </div>
                 ))}
             </div>
-            <ProductModal productUpdate={productUpdate} setProductUpdate={setProductUpdate}/>
+            <ProductModal productUpdate={productUpdate} onClose={()=>{setProductUpdate(null)}} onUpdate={()=> {onUpdate()}}/>
             <ToastContainer/>
         </>
     )

@@ -2,10 +2,9 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import {useForm} from 'react-hook-form'
 import { updateProductSchema } from '../../../validation/productSchema.js'
 import { useEffect} from 'react'
-import {ToastContainer} from 'react-toastify'
 import { useProducts } from '../hooks/useProducts.js'
 
-function ProductModal({productUpdate, setProductUpdate}) {
+function ProductModal({productUpdate, onClose, onUpdate}) {
     const {updateProduct} = useProducts()
     const {register, handleSubmit, reset, formState: {errors}} = useForm({
         mode: 'onChange',
@@ -18,15 +17,13 @@ function ProductModal({productUpdate, setProductUpdate}) {
 
     const onSubmit = handleSubmit((data) => {
         updateProduct(data, productUpdate)
-        setTimeout(()=> {
-            setProductUpdate(null)
-        }, 5000)
+        onUpdate()
     })
 
 
     return productUpdate ? (
         <div className='flex flex-col h-screen w-screen fixed top-0 left-0' style={{backgroundColor: 'rgb(0,0,0,0.6)'}}>
-            <button onClick={() => {setProductUpdate(null)}}>X</button>
+            <button onClick={onClose}>X</button>
             <form onSubmit={onSubmit}>
                 <div>
                     <label htmlFor='name'>Nombre</label>
@@ -53,7 +50,6 @@ function ProductModal({productUpdate, setProductUpdate}) {
                     <input type="text" autoComplete="description" id= "description" {...register("description")}/>
                 </div>
                 <button type='submit'>Actualizar</button>
-            <ToastContainer/>
             </form>
         </div>
     ): (<></>)

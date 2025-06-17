@@ -47,11 +47,7 @@ export function useProducts () {
             body: JSON.stringify(formUpdateProduct)
         })
         const data = await res.json()
-        fetchProducts()
-        notify('success', 'Producto actualizado correctamente!')
-        /* setTimeout(()=> {
-            setProductUpdate(null)
-        }, 5000) */
+        console.log("Producto actualizado:", data)
     }
 
 
