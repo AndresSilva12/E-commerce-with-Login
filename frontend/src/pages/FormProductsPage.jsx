@@ -7,11 +7,12 @@ import ProductModal from '../components/ProductModal.jsx'
 import ProductForm from '../components/ProductForm.jsx'
 
 function FormProductsPage() {
+    const [modal, setModal] = useState(false)
     const [productUpdate, setProductUpdate] = useState(null)
     const {createProduct, deleteProduct, fetchProducts, products} = useProducts()
 
     useEffect(() => {
-        if (productUpdate == null){
+        if (productUpdate === null){
             fetchProducts()
         }
     }, [productUpdate])
@@ -20,9 +21,15 @@ function FormProductsPage() {
         createProduct(formProduct)
     }
 
+    const handleUpdate = (product) => {
+        setModal(true)
+        setProductUpdate(product)
+    }
+
     const onUpdate= () => {
         setProductUpdate(null)
         notify('success', 'Producto actualizado correctamente!')
+        setModal(false)
     }
 
     return (
@@ -40,12 +47,12 @@ function FormProductsPage() {
                             <p>Precio de compra: {product.purchasePrice}</p>
                             <p>Precio de venta: {product.salePrice}</p>
                         </div>
-                        <button className="bg-green-900" onClick={() => {setProductUpdate(product)}}>Editar</button>
+                        <button className="bg-green-900" onClick={() => {handleUpdate(product)}}>Editar</button>
                         <button className="bg-red-900" onClick={() => {deleteProduct(product.id)}}>Eliminar</button>
                     </div>
                 ))}
             </div>
-            <ProductModal productUpdate={productUpdate} onClose={()=>{setProductUpdate(null)}} onUpdate={()=> {onUpdate()}}/>
+            <ProductModal productUpdate={productUpdate} onClose={()=>{setModal(false)}} onUpdate={()=> {onUpdate()}} modal={modal}/>
             <ToastContainer/>
         </>
     )
