@@ -53,6 +53,7 @@ export function useProducts () {
                 body: JSON.stringify(formUpdateProduct)
             })
             const data = await res.json()
+            notify('success', 'Producto actualizado con éxito')
         } catch (error) {
             console.log("Error interno del servidor durante el proceso")
         }
