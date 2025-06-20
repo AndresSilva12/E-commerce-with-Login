@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { notify } from "../utils/notifyToast"
+import { notify } from "../utils/notifyToast.js"
 
 export function useVariants () {
     const [variants, setVariants] = useState([])
@@ -39,13 +39,13 @@ export function useVariants () {
         notify('success', 'Variante eliminada con éxito')
     }
 
-    const updateVariant = async(variant) =>  {
+    const updateVariant = async(formData, variant) =>  {
         const res = await fetch(`http://localhost:3000/api/variants/${variant.id}`,{
             method: 'PUT',
             headers: {
                 "Content-type": "application/json"
             },
-            body: JSON.stringify(variant)
+            body: JSON.stringify(formData)
         })
         const data = await res.json()
         notify('success', 'Variante actualizada con éxito')
