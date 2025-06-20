@@ -23,7 +23,7 @@ export const variantSchema = z.object({
     .regex(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/, "El color solo puede incluir letras y espacios")
     .min(1, "El color es obligatorio")
     ,
-    stock: z.number({
+    stock: z.coerce.number({
         required_error: "La cantidad en stock es obligatorio",
         invalid_type_error: "Formato no valido"
     })
