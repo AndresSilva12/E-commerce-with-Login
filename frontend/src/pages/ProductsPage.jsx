@@ -30,19 +30,19 @@ function ProductsPage () {
                     <div key={product.id} >
                         <div className="flex justify-between items-center mb-5">
                             <div className= "flex justify-between items-center gap-5">
-                                <p>Nombre: {product.name}</p>
-                                <p>Marca: {product.brand}</p>
+                                <p>Nombre:<br/>{product.name}</p>
+                                <p>Marca:<br/>{product.brand}</p>
                             </div>
-                            <div className= "flex justify-between items-center">
-                                <p>Precio de compra: ${product.purchasePrice}</p>
-                                <p>Precio de venta: ${product.salePrice}</p>
+                            <div className= "flex justify-between items-center gap-5">
+                                <p>Precio de compra:<br/>${product.purchasePrice}</p>
+                                <p>Precio de venta:<br/>${product.salePrice}</p>
                             </div>
                             <button className="bg-green-900" onClick={() => {handleUpdate(product)}}>Editar</button>
                             <button className="bg-red-900" onClick={() => {deleteProduct(product.id)}}>Eliminar</button>
                         </div>
 
                         {product.variants && product.variants.map((variant)=> (
-                            <div key={variant.id} className="flex justify-center gap-3">
+                            <div key={variant.id} className="flex justify-center gap-3 bg-neutral-700 m-1">
                                 <p>Code: {variant.code}</p>
                                 <p>Size: {variant.size}</p>
                                 <p>Color: {variant.color}</p>
