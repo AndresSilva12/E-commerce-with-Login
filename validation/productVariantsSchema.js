@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 export const variantSchema = z.object({
+    id: z.string().cuid().optional(),
     code: z.string({
         required_error: "El código es obligatorio",
         invalid_type_error: "El codigo debe ser formato texto"
@@ -37,5 +38,7 @@ export const variantSchema = z.object({
 })
 
 export const updateVariantSchema = variantSchema.partial()
+
+export const variantSchemaWithOutProductId = variantSchema.omit({productId: true})
 
 export const idVariantSchema = z.string().cuid("El id no es válido")

@@ -1,12 +1,15 @@
 import { AuthProvider } from './context/AuthContext'
 import './App.css'
 import AppRouter from './router/AppRouter'
+import { ProductProvider } from './context/ProductContext'
 
 function App() {
   return(
     <>
       <AuthProvider>
-        <AppRouter className= "w-full h-full"></AppRouter>
+        <ProductProvider>
+          <AppRouter className= "w-full h-full"></AppRouter>
+        </ProductProvider>
       </AuthProvider>
     </>
   )

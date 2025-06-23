@@ -1,22 +1,16 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import ProductFormModal from "../components/ProductFormModal";
-import { productSchema, updateProductSchema } from "../../../validation/productSchema";
 import { ToastContainer } from "react-toastify";
-import { useProducts } from "../hooks/useProducts";
+import { useProducts } from "../context/ProductContext";
 
 function ProductsPage () {
     const [modal, setModal] = useState(false)
     const [modalCreate, setModalCreate] = useState(false)
     const [productUpdate, setProductUpdate] = useState(null)
-    const {createProduct, deleteProduct, fetchProducts, products} = useProducts()
+    const {products, deleteProduct} = useProducts()
 
-    useEffect(()=> {
-        if (productUpdate === null){
-            fetchProducts()
-        }
-    }, [productUpdate])
 
-    const onSubmit = (action) => {
+    const onSubmit = () => {
         setProductUpdate(null)
         setModal(false)
     }
@@ -45,19 +39,18 @@ function ProductsPage () {
                             <p>Precio de compra: {product.purchasePrice}</p>
                             <p>Precio de venta: {product.salePrice}</p>
                         </div>
+                        {product.variants && product.variants.map((variant)=> (
+                            <div key={variant.id}>
+                                <p>Code {variant.code}</p>
+                            </div>
+                        ))}
                         <button className="bg-green-900" onClick={() => {handleUpdate(product)}}>Editar</button>
                         <button className="bg-red-900" onClick={() => {deleteProduct(product.id)}}>Eliminar</button>
                     </div>
                 ))}
             </div>
             <button className="fixed bottom-0 right-0 p-2 bg-blue-600 rounded-full" onClick={handleCreate}>+</button>
-            {modal && modalCreate && (
-                <ProductFormModal action="Crear" onClose={() => {setModal(false)}} schema={productSchema} onSubmit={() =>{onSubmit("creado")}}/>
-            )}
-            {modal && !modalCreate && (
-                <ProductFormModal productUpdate={productUpdate} action="Actualizar" onClose={() => {setModal(false)}} schema={updateProductSchema} onSubmit={() =>{onSubmit("actualizado")}} defaultValues={productUpdate}/>
-            )}
-            
+            {modal && (<ProductFormModal modalCreate={modalCreate} productUpdate={productUpdate} onClose={() => {setModal(false)}} onSubmit={() =>{onSubmit()}}/>)}
             
             <ToastContainer/>
         </>

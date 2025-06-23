@@ -1,4 +1,5 @@
 import {z} from "zod";
+import { variantSchema } from "./productVariantsSchema.js";
 
 export const productSchema = z.object({
     name: z.string({
@@ -23,7 +24,8 @@ export const productSchema = z.object({
     .regex(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/, "Debe incluir solo letras y espacios")
     .min(2, "Debe tener almenos 2 caracteres")
     ,
-    description: z.string().trim().optional()
+    description: z.string().trim().optional(),
+    variants: z.array(variantSchema.omit({productId:true})).default([])
 })
 
 export const updateProductSchema = productSchema.partial()

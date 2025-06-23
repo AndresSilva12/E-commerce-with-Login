@@ -1,14 +1,16 @@
-import { useState } from "react"
-import { notify } from '../utils/notifyToast.js'
+import { createContext, useEffect, useState, useContext } from "react";
+import { notify } from "../utils/notifyToast.js";
 
-export function useProducts () {
+const ProductContext = createContext()
+
+export function ProductProvider ({children}) {
     const [products, setProducts] = useState([])
 
     const fetchProducts = async() => {
         try {
             const res = await fetch('http://localhost:3000/api/products')
             const data = await res.json()
-            setProducts(data)
+            setProducts([...data])
         } catch (error) {
             console.log("Error interno del servidor durante el proceso")
         }
@@ -53,17 +55,25 @@ export function useProducts () {
                 body: JSON.stringify(formUpdateProduct)
             })
             const data = await res.json()
+            setProducts(prev => prev.map(p => p.id === data.id ? data : p))
             notify('success', 'Producto actualizado con éxito')
+            return data
         } catch (error) {
             console.log("Error interno del servidor durante el proceso")
         }
     }
 
-    return{
-        createProduct,
-        fetchProducts,
-        deleteProduct,
-        updateProduct,
-        products
-    }
+    useEffect(()=>{
+        fetchProducts()
+    }, [])
+
+    return(
+        <ProductContext.Provider value={{products, createProduct, fetchProducts, deleteProduct, updateProduct}}>
+            {children}
+        </ProductContext.Provider>
+    )
+}
+
+export function useProducts() {
+    return useContext(ProductContext)
 }
