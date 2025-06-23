@@ -6,7 +6,7 @@ import { notify } from '../utils/notifyToast.js'
 import VariantModal from './VariantModal.jsx'
 import { productSchema, updateProductSchema } from '../../../validation/productSchema.js'
 
-function ProductFormModal({productUpdate, onClose, onSubmit}) {
+function ProductModal({productUpdate, onClose, onSubmit}) {
     const {register, handleSubmit, reset, formState: {errors}} = useForm({
         mode: 'onChange',
         resolver: zodResolver(productUpdate ? updateProductSchema : productSchema),
@@ -106,4 +106,4 @@ function ProductFormModal({productUpdate, onClose, onSubmit}) {
     )
 }
 
-export default ProductFormModal;
+export default ProductModal;
