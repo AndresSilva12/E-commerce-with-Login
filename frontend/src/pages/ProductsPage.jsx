@@ -1,11 +1,10 @@
 import { useState } from "react";
-import ProductFormModal from "../components/ProductFormModal";
 import { ToastContainer } from "react-toastify";
 import { useProducts } from "../context/ProductContext";
+import ProductFormModal from "../components/ProductFormModal";
 
 function ProductsPage () {
     const [modal, setModal] = useState(false)
-    const [modalCreate, setModalCreate] = useState(false)
     const [productUpdate, setProductUpdate] = useState(null)
     const {products, deleteProduct} = useProducts()
 
@@ -17,13 +16,11 @@ function ProductsPage () {
 
     const handleUpdate = (product) => {
         setProductUpdate(product)
-        setModalCreate(false)
         setModal(true)
     }
 
     const handleCreate = () => {
-        setProductUpdate('')
-        setModalCreate(true)
+        setProductUpdate(null)
         setModal(true)
     }
     return(
@@ -50,7 +47,7 @@ function ProductsPage () {
                 ))}
             </div>
             <button className="fixed bottom-0 right-0 p-2 bg-blue-600 rounded-full" onClick={handleCreate}>+</button>
-            {modal && (<ProductFormModal modalCreate={modalCreate} productUpdate={productUpdate} onClose={() => {setModal(false)}} onSubmit={() =>{onSubmit()}}/>)}
+            {modal && (<ProductFormModal productUpdate={productUpdate} onClose={() => {setModal(false)}} onSubmit={() =>{onSubmit()}}/>)}
             
             <ToastContainer/>
         </>

@@ -6,10 +6,10 @@ import { notify } from '../utils/notifyToast.js'
 import VariantModal from './VariantModal.jsx'
 import { productSchema, updateProductSchema } from '../../../validation/productSchema.js'
 
-function ProductFormModal({productUpdate, modalCreate, onClose, onSubmit}) {
+function ProductFormModal({productUpdate, onClose, onSubmit}) {
     const {register, handleSubmit, reset, formState: {errors}} = useForm({
         mode: 'onChange',
-        resolver: zodResolver(modalCreate ? productSchema : updateProductSchema),
+        resolver: zodResolver(productUpdate ? updateProductSchema : productSchema),
         defaultValues: productUpdate
     })
     const {updateProduct, createProduct} = useProducts()
@@ -17,7 +17,7 @@ function ProductFormModal({productUpdate, modalCreate, onClose, onSubmit}) {
     const [variants, setVariants] = useState([])
 
     useEffect(()=> {
-        if (productUpdate.variants){
+        if (productUpdate && productUpdate.variants){
             setVariants(productUpdate.variants)
         }
     },[])
@@ -30,12 +30,9 @@ function ProductFormModal({productUpdate, modalCreate, onClose, onSubmit}) {
     const onValid = (data) => {
         const fullProduct = {
             ...data,
-            variants: variants.length > 0 ? variants : []}
-        if (!modalCreate){
-            updateProduct(fullProduct, productUpdate)
-        }else{
-            createProduct(fullProduct)
+            variants: variants.length > 0 ? variants : []
         }
+        productUpdate ? updateProduct(fullProduct, productUpdate) : createProduct(fullProduct)
         onSubmit()
     }
 
@@ -90,7 +87,7 @@ function ProductFormModal({productUpdate, modalCreate, onClose, onSubmit}) {
                         <input type="text" autoComplete="description" id="description" {...register("description")}/>
                     </div>
                     
-                    <button type="submit">{modalCreate ? 'Crear' : 'Actualizar'}</button>
+                    <button type="submit">{productUpdate ? 'Actualizar' : 'Crear'}</button>
                 </form>
 
                 {modalVariant && <VariantModal createVariant={createVariant} closeModal={()=> {setModalVariant(false)}}/>}
