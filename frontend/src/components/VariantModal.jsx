@@ -3,14 +3,16 @@ import {useForm} from 'react-hook-form'
 import { notify } from '../utils/notifyToast.js'
 import { variantSchemaWithOutProductId } from '../../../validation/productVariantsSchema.js'
 
-function VariantModal({createVariant, closeModal}){
+function VariantModal({onSubmitVariant, variantUpdate, closeModal}){
     const {register, handleSubmit, formState: {errors}} = useForm({
         mode: 'onChange',
-        resolver: zodResolver(variantSchemaWithOutProductId)
+        resolver: zodResolver(variantUpdate ? variantSchemaWithOutProductId.partial() : variantSchemaWithOutProductId),
+        defaultValues: variantUpdate
     })
 
     const isValid = (data) => {
-        createVariant(data)
+        variantUpdate ? data.id = variantUpdate.id : null
+        onSubmitVariant(data)
         notify('success', 'Variante creada bien!')
     }
 
@@ -52,7 +54,7 @@ function VariantModal({createVariant, closeModal}){
                         {errors.stock && <span className="text-red-500">{errors.stock.message}</span>}
                     </div> 
                 </div>
-                <button className="m-0 flex justify-center items-center w-20 bg-gray-700" type="submit">Crear Variante</button>
+                <button className="m-0 flex justify-center items-center w-20 bg-gray-700" type="submit">{variantUpdate ? 'Actualizar' : 'Crear'}</button>
             </form>
     )
 }

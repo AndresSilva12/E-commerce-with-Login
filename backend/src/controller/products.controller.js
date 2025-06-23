@@ -81,10 +81,7 @@ export const updateProduct = async(req, res) => {
         const id = req.params.id
         const {code, name, description, purchasePrice, salePrice, brand, variants} = req.body
         const updateVariants = variants.filter(variant => variant.id)
-        console.log("U",updateVariants)
         const newVariants = variants.filter(variant => !variant.id)
-        console.log("N",newVariants)
-
 
         for (const variant of updateVariants){
             await prisma.productVariant.update({
@@ -121,7 +118,6 @@ export const updateProduct = async(req, res) => {
                 variants: true
             }
         })
-        console.log(productUpdated)
         return res.json(productUpdated)
     }
     catch (error) {

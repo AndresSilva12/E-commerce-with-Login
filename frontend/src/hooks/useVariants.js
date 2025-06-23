@@ -27,15 +27,15 @@ export function useVariants () {
         }
     }
 
-    const deleteVariant = async(variant) => {
-        const res = await fetch(`http://localhost:3000/api/variants/id/${variant.id}`,{
+    const deleteVariant = async(id) => {
+        const res = await fetch(`http://localhost:3000/api/variants/id/${id}`,{
             method: 'DELETE',
             headers: {
                 "Content-type": "application/json"
             }
         })
         const data = await res.json()
-        setVariants((prev) => (prev.filter((p) => p.id !== variant.id)))
+        setVariants((prev) => (prev.filter((p) => p.id !== id)))
         notify('success', 'Variante eliminada con éxito')
     }
 

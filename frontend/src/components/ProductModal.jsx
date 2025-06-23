@@ -3,8 +3,9 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useEffect, useState } from 'react'
 import {useForm} from 'react-hook-form'
 import { notify } from '../utils/notifyToast.js'
-import VariantModal from './VariantModal.jsx'
 import { productSchema, updateProductSchema } from '../../../validation/productSchema.js'
+import VariantModal from './VariantModal.jsx'
+import { useVariants } from '../hooks/useVariants.js'
 
 function ProductModal({productUpdate, onClose, onSubmit}) {
     const {register, handleSubmit, reset, formState: {errors}} = useForm({
@@ -13,8 +14,10 @@ function ProductModal({productUpdate, onClose, onSubmit}) {
         defaultValues: productUpdate
     })
     const {updateProduct, createProduct} = useProducts()
+    const {deleteVariant} = useVariants()
     const [modalVariant, setModalVariant] = useState(false)
     const [variants, setVariants] = useState([])
+    const [variantUpdate, setVariantUpdate] = useState()
 
     useEffect(()=> {
         if (productUpdate && productUpdate.variants){
@@ -40,13 +43,28 @@ function ProductModal({productUpdate, onClose, onSubmit}) {
         notify('error','Por favor ingrese todos los datos')
     }
 
-    const handleCreate = () => {
-        setModalVariant(true)
+    const onSubmitVariant = (data) => {
+        variantUpdate ? setVariants((prev => prev.map(p => p.id === data.id ? data : p))) : setVariants((prev) => [...prev, data])
+        setModalVariant(false)
     }
 
     const createVariant = (data) =>  {
         setVariants((prev) => [...prev, data])
         setModalVariant(false)
+    }
+
+    const handleCreate = () => {
+        setVariantUpdate(null)
+        setModalVariant(true)
+    }
+
+    const handleDelete = (id) => {
+        setVariants((prev => prev.filter(p => p.id !== id)))
+        deleteVariant(id)
+    }
+    const handleUpdate = (variant) => {
+        setVariantUpdate(variant)
+        setModalVariant(true)
     }
 
     return (
@@ -90,11 +108,16 @@ function ProductModal({productUpdate, onClose, onSubmit}) {
                     <button type="submit">{productUpdate ? 'Actualizar' : 'Crear'}</button>
                 </form>
 
-                {modalVariant && <VariantModal createVariant={createVariant} closeModal={()=> {setModalVariant(false)}}/>}
+                {modalVariant && <VariantModal onSubmitVariant={onSubmitVariant} variantUpdate={variantUpdate} closeModal={()=> {setModalVariant(false)}}/>}
                 <section className="w-full flex flex-col items-center justify-center m-auto gap-4">
                     {variants.map((variant) => (
                         <div key={variant.code} className="flex items-center justify-center gap-4">
-                            <p>{variant.code}</p>
+                            <p>Code: {variant.code}</p>
+                            <p>Size: {variant.size}</p>
+                            <p>Color: {variant.color}</p>
+                            <p>Stock: {variant.stock}</p>
+                            <button onClick={() => {handleUpdate(variant)}}>Editar</button>
+                            <button onClick={() => {handleDelete(variant.id)}}>Eliminar</button>
                         </div>
                     ))}
                 </section>
