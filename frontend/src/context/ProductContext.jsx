@@ -3,10 +3,10 @@ import { notify } from "../utils/notifyToast.js";
 
 const ProductContext = createContext()
 
-export function ProductProvider ({children}) {
+export function ProductProvider({ children }) {
     const [products, setProducts] = useState([])
 
-    const fetchProducts = async() => {
+    const fetchProducts = async () => {
         try {
             const res = await fetch('http://localhost:3000/api/products')
             const data = await res.json()
@@ -16,8 +16,8 @@ export function ProductProvider ({children}) {
         }
     }
 
-    const createProduct = async(formProduct) => {
-        try{
+    const createProduct = async (formProduct) => {
+        try {
             const res = await fetch('http://localhost:3000/api/products', {
                 method: 'POST',
                 headers: {
@@ -28,26 +28,26 @@ export function ProductProvider ({children}) {
             const data = await res.json()
             setProducts((prev) => [...prev, data])
             notify('success', 'Producto creado con éxito')
-        } catch(error){
+        } catch (error) {
             notify('error', 'No se pudo crear el producto')
         }
     }
 
-    const deleteProduct = async(id) => {
-        try{
+    const deleteProduct = async (id) => {
+        try {
             const res = await fetch(`http://localhost:3000/api/products/${id}`, {
                 method: 'DELETE'
             })
             const data = await res.json()
             setProducts(prev => prev.filter(p => p.id != id))
-        } catch (error){
+        } catch (error) {
             console.log("Error interno del servidor durante el proceso")
         }
     }
 
-    const updateProduct = async(formUpdateProduct, productUpdate) => {
+    const updateProduct = async (formUpdateProduct, productUpdate) => {
         try {
-            const res = await fetch(`http://localhost:3000/api/products/${productUpdate.id}`,{
+            const res = await fetch(`http://localhost:3000/api/products/${productUpdate.id}`, {
                 method: 'PUT',
                 headers: {
                     "Content-Type": "application/json"
@@ -63,12 +63,12 @@ export function ProductProvider ({children}) {
         }
     }
 
-    useEffect(()=>{
+    useEffect(() => {
         fetchProducts()
     }, [])
 
-    return(
-        <ProductContext.Provider value={{products, createProduct, fetchProducts, deleteProduct, updateProduct}}>
+    return (
+        <ProductContext.Provider value={{ products, createProduct, fetchProducts, deleteProduct, updateProduct }}>
             {children}
         </ProductContext.Provider>
     )

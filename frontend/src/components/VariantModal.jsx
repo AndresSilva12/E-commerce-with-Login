@@ -2,8 +2,11 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import {useForm} from 'react-hook-form'
 import { notify } from '../utils/notifyToast.js'
 import { variantSchemaWithOutProductId } from '../../../validation/productVariantsSchema.js'
+import { useState } from 'react'
 
 function VariantModal({onSubmitVariant, variantUpdate, closeModal}){
+    const [image, setImage] = useState(null)
+
     const {register, handleSubmit, formState: {errors}} = useForm({
         mode: 'onChange',
         resolver: zodResolver(variantUpdate ? variantSchemaWithOutProductId.partial() : variantSchemaWithOutProductId),
@@ -11,7 +14,13 @@ function VariantModal({onSubmitVariant, variantUpdate, closeModal}){
     })
 
     const isValid = (data) => {
-        variantUpdate ? data.id = variantUpdate.id : null
+        if (variantUpdate){
+            data.id = variantUpdate.id
+        }
+        if (image){
+            data.image = image
+        }
+
         onSubmitVariant(data)
         notify('success', 'Variante creada bien!')
     }
@@ -53,6 +62,7 @@ function VariantModal({onSubmitVariant, variantUpdate, closeModal}){
                         </div>
                         {errors.stock && <span className="text-red-500">{errors.stock.message}</span>}
                     </div> 
+                    <input type="file" accept='image/*' onChange={(e)=> {setImage(e.target.files[0])}}/>
                 </div>
                 <button className="m-0 flex justify-center items-center w-20 bg-gray-700" type="submit">{variantUpdate ? 'Actualizar' : 'Crear'}</button>
             </form>

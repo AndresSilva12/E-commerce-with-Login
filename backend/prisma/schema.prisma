@@ -41,6 +41,7 @@ model productVariant {
   color String
   stock Int
   productId String
+  image String
   createdAt DateTime  @default(now())
   product products @relation(fields: [productId], references: [id], onDelete: Cascade)
   @@unique([productId, size, color])
