@@ -38,7 +38,6 @@ function ProductModal({ productUpdate, onClose, onSubmit }) {
         for (const variant of fullProduct.variants) {
             if (variant.image instanceof File) {
                 const imageUrl = await uploadImage(variant.image)
-                console.log(imageUrl)
                 variant.image = imageUrl
             }
         }

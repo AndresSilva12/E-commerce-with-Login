@@ -10,6 +10,7 @@ import { fileURLToPath } from "url";
 
 const _filename = fileURLToPath(import.meta.url);
 const _dirname = path.dirname(_filename);
+const PORT = process.env.PORT || 3000;
 
 const App = express();
 
@@ -35,5 +36,5 @@ App.use("/api", product);
 App.use("/api", variants);
 
 App.listen(3000, () => {
-  console.log('Servidor Iniciado en "http://localhost:3000" ...');
+  console.log(`Servidor Iniciado en "http://localhost:${PORT}" ...`);
 });
