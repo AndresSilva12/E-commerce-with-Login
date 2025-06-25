@@ -24,7 +24,7 @@ App.use(express.json());
 
 App.use(cookieParser());
 
-App.post("/api", upload);
+App.use("/api", upload);
 
 App.use("/uploads", express.static(path.join(_dirname, "..", "uploads")));
 
