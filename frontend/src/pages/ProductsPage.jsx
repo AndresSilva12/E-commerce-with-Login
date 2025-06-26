@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ToastContainer } from "react-toastify";
 import { useProducts } from "../context/ProductContext";
 import ProductModal from "../components/ProductModal";
+import { deleteAlert } from "../utils/deleteAlert";
 
 function ProductsPage() {
     const [modal, setModal] = useState(false)
@@ -16,6 +17,10 @@ function ProductsPage() {
     const handleUpdate = (product) => {
         setProductUpdate(product)
         setModal(true)
+    }
+
+    const handleDelete = (id) => {
+        deleteAlert({ deleteFunction: () => deleteProduct(id), type: "Product" })
     }
 
     const handleCreate = () => {
@@ -38,7 +43,7 @@ function ProductsPage() {
                                 <p>Precio de venta:<br />${product.salePrice}</p>
                             </div>
                             <button className="bg-green-900" onClick={() => { handleUpdate(product) }}>Editar</button>
-                            <button className="bg-red-900" onClick={() => { deleteProduct(product.id) }}>Eliminar</button>
+                            <button className="bg-red-900" onClick={() => { handleDelete(product.id) }}>Eliminar</button>
                         </div>
 
                         {product.variants && product.variants.map((variant) => (
