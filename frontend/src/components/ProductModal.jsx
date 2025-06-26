@@ -6,6 +6,7 @@ import { notify } from '../utils/notifyToast.js'
 import { productSchema, updateProductSchema } from '../../../validation/productSchema.js'
 import VariantModal from './VariantModal.jsx'
 import { useVariants } from '../hooks/useVariants.js'
+import { deleteAlert } from '../utils/deleteAlert.js'
 
 function ProductModal({ productUpdate, onClose, onSubmit }) {
     const { register, handleSubmit, reset, formState: { errors } } = useForm({
@@ -74,8 +75,13 @@ function ProductModal({ productUpdate, onClose, onSubmit }) {
     }
 
     const handleDelete = (id) => {
-        setVariants((prev => prev.filter(p => p.id !== id)))
-        deleteVariant(id)
+        deleteAlert({
+            deleteFunction: () => {
+                deleteVariant(id)
+                setVariants((prev => prev.filter(p => p.id !== id)))
+            },
+            type: "Variant"
+        })
     }
     const handleUpdate = (variant) => {
         setVariantUpdate(variant)
