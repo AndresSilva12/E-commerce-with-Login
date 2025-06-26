@@ -9,7 +9,7 @@ import { useVariants } from '../hooks/useVariants.js'
 import { deleteAlert } from '../utils/deleteAlert.js'
 
 function ProductModal({ productUpdate, onClose, onSubmit }) {
-    const { register, handleSubmit, reset, formState: { errors } } = useForm({
+    const { register, handleSubmit, reset, formState: { errors }, watch } = useForm({
         mode: 'onChange',
         resolver: zodResolver(productUpdate ? updateProductSchema : productSchema),
         defaultValues: productUpdate
@@ -19,6 +19,8 @@ function ProductModal({ productUpdate, onClose, onSubmit }) {
     const [modalVariant, setModalVariant] = useState(false)
     const [variants, setVariants] = useState([])
     const [variantUpdate, setVariantUpdate] = useState()
+    const purchasePrice = watch("purchasePrice")
+    const salePrice = watch("salePrice")
 
     useEffect(() => {
         if (productUpdate && productUpdate.variants) {
@@ -26,6 +28,11 @@ function ProductModal({ productUpdate, onClose, onSubmit }) {
         }
     }, [])
 
+    useEffect(() => {
+        if (purchasePrice && salePrice && Number(purchasePrice) > Number(salePrice)) {
+            notify('warning', 'Esta acción puede generar pérdidas en el sistema!')
+        }
+    }, [purchasePrice, salePrice])
 
     useEffect(() => {
         if (productUpdate) reset(productUpdate)
@@ -125,6 +132,7 @@ function ProductModal({ productUpdate, onClose, onSubmit }) {
                         <label htmlFor="description">Descripcion (Opcional)</label>
                         <input type="text" autoComplete="description" id="description" {...register("description")} />
                     </div>
+
 
                     <button type="submit">{productUpdate ? 'Actualizar' : 'Crear'}</button>
                 </form>
