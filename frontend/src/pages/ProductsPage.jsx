@@ -39,8 +39,8 @@ function ProductsPage() {
                                 <p>Marca:<br />{product.brand}</p>
                             </div>
                             <div className="flex justify-between items-center gap-5">
-                                <p>Precio de compra:<br />${product.purchasePrice}</p>
-                                <p>Precio de venta:<br />${product.salePrice}</p>
+                                <p>Precio de compra:<br />${new Intl.NumberFormat("es-AR").format(product.purchasePrice)}</p>
+                                <p>Precio de venta:<br />${new Intl.NumberFormat("es-AR").format(product.salePrice)}</p>
                             </div>
                             <button className="bg-green-900" onClick={() => { handleUpdate(product) }}>Editar</button>
                             <button className="bg-red-900" onClick={() => { handleDelete(product.id) }}>Eliminar</button>

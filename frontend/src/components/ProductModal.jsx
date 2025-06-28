@@ -35,7 +35,9 @@ function ProductModal({ productUpdate, onClose, onSubmit }) {
     }, [purchasePrice, salePrice])
 
     useEffect(() => {
-        if (productUpdate) reset(productUpdate)
+        if (productUpdate) {
+            reset(productUpdate)
+        }
     }, [productUpdate, reset])
 
     const onValid = async (data) => {
@@ -49,6 +51,7 @@ function ProductModal({ productUpdate, onClose, onSubmit }) {
                 variant.image = imageUrl
             }
         }
+        console.log(fullProduct)
         productUpdate
             ? updateProduct(fullProduct, productUpdate)
             : createProduct(fullProduct)
