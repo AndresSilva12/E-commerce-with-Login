@@ -1,5 +1,6 @@
 import { createContext, useEffect, useState, useContext } from "react";
 import { notify } from "../utils/notifyToast.js";
+import { error } from "zod/v4/locales/ar.js";
 
 const ProductContext = createContext()
 
@@ -16,7 +17,7 @@ export function ProductProvider({ children }) {
         }
     }
 
-    const createProduct = async (formProduct) => {
+    const createProduct = async (formProduct, setError) => {
         try {
             const res = await fetch('http://localhost:3000/api/products', {
                 method: 'POST',
@@ -26,10 +27,32 @@ export function ProductProvider({ children }) {
                 body: JSON.stringify(formProduct)
             })
             const data = await res.json()
+            if (!res.ok) {
+                for (const [field, message] of Object.entries(data.errors)) {
+                    if (field === 'variants') {
+                        for (const [code, messageVariant] of Object.entries(data.errors.variants)) {
+                            setError(`variants.${code}`, {
+                                type: "server",
+                                message: messageVariant
+                            })
+                        }
+                    } else {
+                        setError(field, {
+                            type: "server",
+                            message: message
+                        })
+                    }
+                }
+                return { success: false, errors: data.errors || 'Error Desconocido' }
+
+            }
+
             setProducts((prev) => [...prev, data])
             notify('success', 'Producto creado con éxito')
+            return { success: true }
         } catch (error) {
             notify('error', 'No se pudo crear el producto')
+            return { success: false, errors: { general: 'Error interno del servidor' } };
         }
     }
 
@@ -45,7 +68,7 @@ export function ProductProvider({ children }) {
         }
     }
 
-    const updateProduct = async (formUpdateProduct, productUpdate) => {
+    const updateProduct = async (formUpdateProduct, productUpdate, setError) => {
         try {
             const res = await fetch(`http://localhost:3000/api/products/${productUpdate.id}`, {
                 method: 'PUT',
@@ -55,9 +78,27 @@ export function ProductProvider({ children }) {
                 body: JSON.stringify(formUpdateProduct)
             })
             const data = await res.json()
+            if (!res.ok) {
+                for (const [field, message] of Object.entries(data.errors)) {
+                    if (field === 'variants') {
+                        for (const [code, messageVariant] of Object.entries(data.errors.variants)) {
+                            setError(`variants.${code}`, {
+                                type: "server",
+                                message: messageVariant
+                            })
+                        }
+                    } else {
+                        setError(field, {
+                            type: "server",
+                            message: message
+                        })
+                    }
+                }
+                return { success: false, errors: data.errors || 'Error Desconocido' }
+            }
             setProducts(prev => prev.map(p => p.id === data.id ? data : p))
             notify('success', 'Producto actualizado con éxito')
-            return data
+            return { success: true }
         } catch (error) {
             console.log("Error interno del servidor durante el proceso")
         }

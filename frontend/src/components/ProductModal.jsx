@@ -9,7 +9,7 @@ import { useVariants } from '../hooks/useVariants.js'
 import { deleteAlert } from '../utils/deleteAlert.js'
 
 function ProductModal({ productUpdate, onClose, onSubmit }) {
-    const { register, handleSubmit, reset, formState: { errors }, watch } = useForm({
+    const { register, handleSubmit, reset, formState: { errors }, setError, watch } = useForm({
         mode: 'onChange',
         resolver: zodResolver(productUpdate ? updateProductSchema : productSchema),
         defaultValues: productUpdate
@@ -24,7 +24,11 @@ function ProductModal({ productUpdate, onClose, onSubmit }) {
 
     useEffect(() => {
         if (productUpdate && productUpdate.variants) {
-            setVariants(productUpdate.variants)
+            const variantsWithLocalId = productUpdate.variants.map(v => ({
+                ...v,
+                localId: v.id || crypto.randomUUID()
+            }))
+            setVariants(variantsWithLocalId)
         }
     }, [])
 
@@ -43,7 +47,7 @@ function ProductModal({ productUpdate, onClose, onSubmit }) {
     const onValid = async (data) => {
         const fullProduct = {
             ...data,
-            variants: variants.length > 0 ? variants : []
+            variants: variants.length > 0 ? variants.map(({ localId, ...rest }) => rest) : []
         }
         for (const variant of fullProduct.variants) {
             if (variant.image instanceof File) {
@@ -52,9 +56,12 @@ function ProductModal({ productUpdate, onClose, onSubmit }) {
             }
         }
         console.log(fullProduct)
-        productUpdate
-            ? updateProduct(fullProduct, productUpdate)
-            : createProduct(fullProduct)
+        const result = productUpdate ? await updateProduct(fullProduct, productUpdate, setError) : await createProduct(fullProduct, setError)
+
+        if (!result.success) {
+            notify('error', 'Ya existe un producto similar')
+            return
+        }
         onSubmit()
     }
 
@@ -75,7 +82,9 @@ function ProductModal({ productUpdate, onClose, onSubmit }) {
     }
 
     const onSubmitVariant = (data) => {
-        variantUpdate ? setVariants((prev => prev.map(p => p.id === data.id ? data : p))) : setVariants((prev) => [...prev, data])
+        variantUpdate
+            ? setVariants((prev => prev.map(p => p.localId === data.localId ? data : p)))
+            : setVariants((prev) => [...prev, data])
         setModalVariant(false)
     }
 
@@ -84,11 +93,11 @@ function ProductModal({ productUpdate, onClose, onSubmit }) {
         setModalVariant(true)
     }
 
-    const handleDelete = (id) => {
+    const handleDelete = (code) => {
         deleteAlert({
             deleteFunction: () => {
-                deleteVariant(id)
-                setVariants((prev => prev.filter(p => p.id !== id)))
+                deleteVariant(code)
+                setVariants((prev => prev.filter(p => p.code !== code)))
             },
             type: "Variant"
         })
@@ -143,14 +152,15 @@ function ProductModal({ productUpdate, onClose, onSubmit }) {
                 {modalVariant && <VariantModal onSubmitVariant={onSubmitVariant} variantUpdate={variantUpdate} closeModal={() => { setModalVariant(false) }} />}
                 <section className="w-full flex flex-col items-center justify-center m-auto gap-4">
                     {variants.map((variant) => (
-                        <div key={variant.code} className="flex items-center justify-center gap-4">
+                        <div key={variant.localId} className="flex items-center justify-center gap-4">
+                            {errors.variants && errors.variants[variant.code] && <span className="text-red-600">{errors.variants[variant.code].message}</span>}
                             <p>Code: {variant.code}</p>
                             <p>Size: {variant.size}</p>
                             <p>Color: {variant.color}</p>
                             <p>Stock: {variant.stock}</p>
                             {variant.image && <img src={typeof variant.image === 'string' ? variant.image : URL.createObjectURL(variant.image)} className="w-20 h-20 object-cover" />}
                             <button onClick={() => { handleUpdate(variant) }}>Editar</button>
-                            <button onClick={() => { handleDelete(variant.id) }}>Eliminar</button>
+                            <button onClick={() => { handleDelete(variant.localId) }}>Eliminar</button>
                         </div>
                     ))}
                 </section>

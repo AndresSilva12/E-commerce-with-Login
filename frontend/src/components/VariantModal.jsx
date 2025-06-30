@@ -15,16 +15,12 @@ function VariantModal({ onSubmitVariant, variantUpdate, closeModal }) {
     })
 
     const isValid = (data) => {
-        if (variantUpdate) {
-            data.id = variantUpdate.id
-        }
         if (image) {
             data.image = image
         }
-
-        onSubmitVariant(data)
-        notify('success', `Variante ${variantUpdate ? 'actualizada' : 'creada'} correctamente!`)
+        data.localId = variantUpdate?.localId || crypto.randomUUID()
         setImage(null)
+        onSubmitVariant(data)
     }
 
     const isInvalid = () => {
@@ -38,7 +34,6 @@ function VariantModal({ onSubmitVariant, variantUpdate, closeModal }) {
             return
         }
         const file = e.target.files[0]
-        console.log(file)
         setImage(file)
     }
 
