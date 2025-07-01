@@ -4,17 +4,27 @@ import { notify } from '../utils/notifyToast.js'
 import { variantSchemaWithOutProductId } from '../../../validation/productVariantsSchema.js'
 import { useState, useRef } from 'react'
 
-function VariantModal({ onSubmitVariant, variantUpdate, closeModal }) {
+function VariantModal({ onSubmitVariant, variants, variantUpdate, closeModal }) {
     const [image, setImage] = useState(null)
     const fileInputRef = useRef(null)
 
-    const { register, handleSubmit, formState: { errors } } = useForm({
+    const { register, handleSubmit, formState: { errors }, setError } = useForm({
         mode: 'onChange',
         resolver: zodResolver(variantUpdate ? variantSchemaWithOutProductId.partial() : variantSchemaWithOutProductId),
         defaultValues: variantUpdate
     })
 
     const isValid = (data) => {
+        for (const variant of variants) {
+            if (data.code === variant.code && variantUpdate?.localId !== variant.localId) {
+                const message = "éste código ya está en uso"
+                setError("code", {
+                    type: "server",
+                    message: message
+                })
+                return notify('error', message)
+            }
+        }
         if (image) {
             data.image = image
         }
