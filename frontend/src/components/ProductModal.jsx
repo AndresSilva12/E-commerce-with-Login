@@ -102,6 +102,7 @@ function ProductModal({ productUpdate, onClose, onSubmit }) {
             type: "Variant"
         })
     }
+
     const handleUpdate = (variant) => {
         setVariantUpdate(variant)
         setModalVariant(true)
@@ -149,7 +150,7 @@ function ProductModal({ productUpdate, onClose, onSubmit }) {
                     <button type="submit">{productUpdate ? 'Actualizar' : 'Crear'}</button>
                 </form>
 
-                {modalVariant && <VariantModal onSubmitVariant={onSubmitVariant} variantUpdate={variantUpdate} closeModal={() => { setModalVariant(false) }} />}
+                {modalVariant && <VariantModal onSubmitVariant={onSubmitVariant} variants={variants} variantUpdate={variantUpdate} closeModal={() => { setModalVariant(false) }} />}
                 <section className="w-full flex flex-col items-center justify-center m-auto gap-4">
                     {variants.map((variant) => (
                         <div key={variant.localId} className="flex items-center justify-center gap-4">
