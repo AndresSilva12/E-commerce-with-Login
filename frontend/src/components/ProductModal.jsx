@@ -93,11 +93,11 @@ function ProductModal({ productUpdate, onClose, onSubmit }) {
         setModalVariant(true)
     }
 
-    const handleDelete = (code) => {
+    const handleDelete = (id) => {
         deleteAlert({
             deleteFunction: () => {
-                deleteVariant(code)
-                setVariants((prev => prev.filter(p => p.code !== code)))
+                deleteVariant(id)
+                setVariants((prev => prev.filter(p => p.localId !== id)))
             },
             type: "Variant"
         })
