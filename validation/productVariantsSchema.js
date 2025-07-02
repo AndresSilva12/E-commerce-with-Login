@@ -42,8 +42,10 @@ export const variantSchema = z.object({
       invalid_type_error: "Formato no valido",
     })
     .trim()
-    .min(1, "El id es obligatorio"),
-  image: z.string().optional(),
+    .min(1, "El id es obligatorio")
+  ,
+  image: z.union([z.string(), z.any()]).optional()
+  ,
 });
 
 export const updateVariantSchema = variantSchema.partial();
