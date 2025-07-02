@@ -10,6 +10,30 @@ export function useVariants () {
         setVariants(data)
     }
 
+    const getOneVariant = async(variant, setError) => {
+        try{
+            const res = await fetch(`http://localhost:3000/api/variants/${variant.code}/check`,{
+                method: 'POST',
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(variant)
+            })
+            const data = await res.json()
+            if (!res.ok){
+                setError("code", {
+                    type: "server",
+                    message: data.message
+                })
+                return {success: false, error: data.message}
+            }
+            return {success: true}
+        }
+        catch(error){
+            console.log(error)
+        }
+    }
+
     const createVariant = async(formData) => {
         try {
             const res = await fetch('http://localhost:3000/api/variants', {
@@ -56,6 +80,7 @@ export function useVariants () {
         fetchVariants,
         createVariant,
         deleteVariant,
-        updateVariant
+        updateVariant,
+        getOneVariant
     }
 }

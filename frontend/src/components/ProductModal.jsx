@@ -86,6 +86,7 @@ function ProductModal({ productUpdate, onClose, onSubmit }) {
             ? setVariants((prev => prev.map(p => p.localId === data.localId ? data : p)))
             : setVariants((prev) => [...prev, data])
         setModalVariant(false)
+        console.log("data en product Modal", data)
     }
 
     const handleCreate = () => {

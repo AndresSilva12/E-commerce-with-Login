@@ -3,10 +3,12 @@ import { useForm } from 'react-hook-form'
 import { notify } from '../utils/notifyToast.js'
 import { variantSchemaWithOutProductId } from '../../../validation/productVariantsSchema.js'
 import { useState, useRef } from 'react'
+import { useVariants } from '../hooks/useVariants.js'
 
 function VariantModal({ onSubmitVariant, variants, variantUpdate, closeModal }) {
     const [image, setImage] = useState(null)
     const fileInputRef = useRef(null)
+    const { getOneVariant } = useVariants()
 
     const { register, handleSubmit, formState: { errors }, setError } = useForm({
         mode: 'onChange',
@@ -14,7 +16,7 @@ function VariantModal({ onSubmitVariant, variants, variantUpdate, closeModal }) 
         defaultValues: variantUpdate
     })
 
-    const isValid = (data) => {
+    const isValid = async (data) => {
         for (const variant of variants) {
             if (data.code === variant.code && variantUpdate?.localId !== variant.localId) {
                 const message = "éste código ya está en uso"
@@ -25,15 +27,27 @@ function VariantModal({ onSubmitVariant, variants, variantUpdate, closeModal }) 
                 return notify('error', message)
             }
         }
+        data.localId = variantUpdate?.localId || crypto.randomUUID()
+
+        console.log("data en variant Modal antes del check", data)
+
+        const result = await getOneVariant(data, setError)
+        if (!result.success) {
+            notify('error', 'ese codigo ya tiene dueño')
+            return
+        }
+
         if (image) {
             data.image = image
         }
-        data.localId = variantUpdate?.localId || crypto.randomUUID()
+
+
         setImage(null)
         onSubmitVariant(data)
     }
 
-    const isInvalid = () => {
+    const isInvalid = (data) => {
+        console.log(data)
         notify('error', 'Por favor ingrese todos los datos')
     }
 

@@ -1,12 +1,14 @@
 import {Router} from 'express'
 import { createVariant, deleteAllVariantsByProduct, deleteVariant, getAllVariants, getAllVariantsByProduct, getOnlyOneVariant, updateVariant } from '../controller/productVariant.controller.js';
-import { validateCreateVariant, validateUpdateVariant, validateVariantExist } from '../middlewares/productVariantMiddlewares.js';
+import { validateCreateVariant, validateUpdateVariant, validateVariantExist, validateUniqueCode } from '../middlewares/productVariantMiddlewares.js';
 
 const router = Router()
 
 router.post('/variants', validateCreateVariant, createVariant)
 
 router.get('/variants', getAllVariants)
+
+router.post('/variants/:code/check', validateUniqueCode)
 
 router.get('/variants/id/:id', validateVariantExist, getOnlyOneVariant)
 
