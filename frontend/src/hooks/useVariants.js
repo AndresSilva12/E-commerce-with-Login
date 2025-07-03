@@ -1,7 +1,9 @@
 import { useState } from "react"
 import { notify } from "../utils/notifyToast.js"
+import { useProducts } from "../context/ProductContext.jsx"
 
 export function useVariants () {
+    const {fetchProducts} = useProducts()
     const [variants, setVariants] = useState([])
 
     const fetchVariants = async() => {
@@ -60,6 +62,7 @@ export function useVariants () {
         })
         const data = await res.json()
         setVariants((prev) => (prev.filter((p) => p.id !== id)))
+        fetchProducts()
         notify('success', 'Variante eliminada con éxito')
     }
 

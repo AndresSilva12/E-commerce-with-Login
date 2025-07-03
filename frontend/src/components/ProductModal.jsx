@@ -55,7 +55,6 @@ function ProductModal({ productUpdate, onClose, onSubmit }) {
                 variant.image = imageUrl
             }
         }
-        console.log(fullProduct)
         const result = productUpdate ? await updateProduct(fullProduct, productUpdate, setError) : await createProduct(fullProduct, setError)
 
         if (!result.success) {
@@ -86,7 +85,6 @@ function ProductModal({ productUpdate, onClose, onSubmit }) {
             ? setVariants((prev => prev.map(p => p.localId === data.localId ? data : p)))
             : setVariants((prev) => [...prev, data])
         setModalVariant(false)
-        console.log("data en product Modal", data)
     }
 
     const handleCreate = () => {
@@ -94,11 +92,14 @@ function ProductModal({ productUpdate, onClose, onSubmit }) {
         setModalVariant(true)
     }
 
-    const handleDelete = (id) => {
+    const handleDelete = (variant) => {
         deleteAlert({
             deleteFunction: () => {
-                deleteVariant(id)
-                setVariants((prev => prev.filter(p => p.localId !== id)))
+                if (variant.id) {
+                    deleteVariant(variant.localId)
+                    console.log("eliminando variante que ya se encontraba en la database")
+                }
+                setVariants((prev => prev.filter(p => p.localId !== variant.localId)))
             },
             type: "Variant"
         })
@@ -162,7 +163,7 @@ function ProductModal({ productUpdate, onClose, onSubmit }) {
                             <p>Stock: {variant.stock}</p>
                             {variant.image && <img src={typeof variant.image === 'string' ? variant.image : URL.createObjectURL(variant.image)} className="w-20 h-20 object-cover" />}
                             <button onClick={() => { handleUpdate(variant) }}>Editar</button>
-                            <button onClick={() => { handleDelete(variant.localId) }}>Eliminar</button>
+                            <button onClick={() => { handleDelete(variant) }}>Eliminar</button>
                         </div>
                     ))}
                 </section>

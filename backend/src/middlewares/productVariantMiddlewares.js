@@ -76,9 +76,7 @@ export const validateUniqueCode = async(req, res) => {
                 code: code
             }
         })
-        console.log("code", code, "variantId", variantId, "codeExist", codeExist)
         if (codeExist && codeExist.id !== variantId) return res.status(400).json({message: "Ese código ya se encuentra en uso"})
-        /* if (variantId && codeExist.id !== variantId ||  codeExist && variantId == null) return res.status(400).json({message: "Ese código ya se encuentra en uso"}) */
 
         return res.status(200).json({success: true})
     }

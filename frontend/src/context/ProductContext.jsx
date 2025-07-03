@@ -1,6 +1,6 @@
 import { createContext, useEffect, useState, useContext } from "react";
 import { notify } from "../utils/notifyToast.js";
-import { error } from "zod/v4/locales/ar.js";
+import isEqual from 'lodash.isequal'
 
 const ProductContext = createContext()
 
@@ -70,6 +70,18 @@ export function ProductProvider({ children }) {
 
     const updateProduct = async (formUpdateProduct, productUpdate, setError) => {
         try {
+            const productUpdateWithoutId = {}
+
+            for (const [field, value] of Object.entries(productUpdate)) {
+                if (field !== 'id') {
+                    productUpdateWithoutId[field] = value
+                }
+            }
+
+            if (isEqual(formUpdateProduct, productUpdateWithoutId)) {
+                return { success: true }
+            }
+
             const res = await fetch(`http://localhost:3000/api/products/${productUpdate.id}`, {
                 method: 'PUT',
                 headers: {
@@ -100,7 +112,7 @@ export function ProductProvider({ children }) {
             notify('success', 'Producto actualizado con éxito')
             return { success: true }
         } catch (error) {
-            console.log("Error interno del servidor durante el proceso")
+            console.log("Error interno del servidor durante el proceso", error)
         }
     }
 

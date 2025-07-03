@@ -29,8 +29,6 @@ function VariantModal({ onSubmitVariant, variants, variantUpdate, closeModal }) 
         }
         data.localId = variantUpdate?.localId || crypto.randomUUID()
 
-        console.log("data en variant Modal antes del check", data)
-
         const result = await getOneVariant(data, setError)
         if (!result.success) {
             notify('error', 'ese codigo ya tiene dueño')
