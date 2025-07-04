@@ -57,6 +57,7 @@ export const deleteAllVariantsByProduct = async(req, res) => {
 export const updateVariant = async(req, res) => {
     try {
         const idParsed = req.params.id
+
         const variantUpdated = await prisma.productVariant.update({
             where: {
                 id: idParsed

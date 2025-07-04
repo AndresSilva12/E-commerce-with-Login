@@ -15,7 +15,7 @@ function ProductModal({ productUpdate, onClose, onSubmit }) {
         defaultValues: productUpdate
     })
     const { updateProduct, createProduct } = useProducts()
-    const { deleteVariant } = useVariants()
+    const { deleteVariant, updateVariant, createVariant } = useVariants()
     const [modalVariant, setModalVariant] = useState(false)
     const [variants, setVariants] = useState([])
     const [variantUpdate, setVariantUpdate] = useState()
@@ -80,7 +80,16 @@ function ProductModal({ productUpdate, onClose, onSubmit }) {
         return data.url
     }
 
-    const onSubmitVariant = (data) => {
+    const onSubmitVariant = async (data) => {
+        if (productUpdate) {
+            const imageUrl = variantUpdate.image === data.image ? data.image : await uploadImage(data.image)
+            const fullVariant = {
+                ...data,
+                image: imageUrl,
+                productId: productUpdate.id
+            }
+            variantUpdate ? updateVariant(fullVariant, variantUpdate) : createVariant(fullVariant)
+        }
         variantUpdate
             ? setVariants((prev => prev.map(p => p.localId === data.localId ? data : p)))
             : setVariants((prev) => [...prev, data])
@@ -97,7 +106,6 @@ function ProductModal({ productUpdate, onClose, onSubmit }) {
             deleteFunction: () => {
                 if (variant.id) {
                     deleteVariant(variant.localId)
-                    console.log("eliminando variante que ya se encontraba en la database")
                 }
                 setVariants((prev => prev.filter(p => p.localId !== variant.localId)))
             },
