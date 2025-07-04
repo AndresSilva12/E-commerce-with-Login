@@ -35,17 +35,13 @@ function VariantModal({ onSubmitVariant, variants, variantUpdate, closeModal }) 
             return
         }
 
-        if (image) {
-            data.image = image
-        }
-
+        data.image = image || variantUpdate?.image
 
         setImage(null)
         onSubmitVariant(data)
     }
 
-    const isInvalid = (data) => {
-        console.log(data)
+    const isInvalid = () => {
         notify('error', 'Por favor ingrese todos los datos')
     }
 

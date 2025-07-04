@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { notify } from "../utils/notifyToast.js"
 import { useProducts } from "../context/ProductContext.jsx"
+import isEqual from 'lodash.isequal'
 
 export function useVariants () {
     const {fetchProducts} = useProducts()
@@ -45,8 +46,12 @@ export function useVariants () {
                 },
                 body: JSON.stringify(formData)
             })
+            if (!res.ok){
+                console.log("Se rompio todo", res)
+            }
             const data = await res.json()
             setVariants((prev)=> [...prev, data])
+            fetchProducts()
             notify('success', 'Variante creada con éxito!')
         } catch (error) {
             console.log(error)
@@ -67,15 +72,28 @@ export function useVariants () {
     }
 
     const updateVariant = async(formData, variant) =>  {
-        const res = await fetch(`http://localhost:3000/api/variants/${variant.id}`,{
-            method: 'PUT',
-            headers: {
-                "Content-type": "application/json"
-            },
-            body: JSON.stringify(formData)
-        })
-        const data = await res.json()
-        notify('success', 'Variante actualizada con éxito')
+        try {
+            const {createdAt, ...variantWithoutCreatedAt} = variant
+            if (isEqual(formData, variantWithoutCreatedAt)){
+                return {success: true}
+            }
+            const res = await fetch(`http://localhost:3000/api/variants/${variant.id}`,{
+                method: 'PUT',
+                headers: {
+                    "Content-type": "application/json"
+                },
+                body: JSON.stringify(formData)
+            })
+            const data = await res.json()
+            if (!res.ok) {
+                return {success: false, errors: data.errors}
+            }
+            fetchProducts()
+            notify('success', 'Variante actualizada con éxito')
+        }
+        catch (error){
+            return res.status(400).json({error: error})
+        }
     }
 
     return{
