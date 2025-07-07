@@ -82,7 +82,16 @@ function ProductModal({ productUpdate, onClose, onSubmit }) {
 
     const onSubmitVariant = async (data) => {
         if (productUpdate) {
-            const imageUrl = variantUpdate.image === data.image ? data.image : await uploadImage(data.image)
+            const imageUrl =
+                variantUpdate
+                    ? variantUpdate.image === data.image
+                        ? data.image
+                        : data.image instanceof File
+                            ? await uploadImage(data.image)
+                            : data.image
+                    : data.image instanceof File
+                        ? await uploadImage(data.image)
+                        : data.image
             const fullVariant = {
                 ...data,
                 image: imageUrl,
@@ -115,6 +124,7 @@ function ProductModal({ productUpdate, onClose, onSubmit }) {
 
     const handleUpdate = (variant) => {
         setVariantUpdate(variant)
+        console.log(variant)
         setModalVariant(true)
     }
 
