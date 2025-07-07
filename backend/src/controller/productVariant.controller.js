@@ -1,3 +1,5 @@
+import path from "path";
+import fs from "fs";
 import prisma from '../db.js'
 
 export const createVariant = async(req, res) => {
@@ -31,6 +33,9 @@ export const deleteVariant = async(req, res) => {
                 id: idParsed
             }
         })
+        const urlSplit = variantDeleted.image.split('/uploads/')[1]
+        const imageRute= path.join(process.cwd(), 'uploads', urlSplit)
+        await fs.promises.unlink(imageRute)
         return res.json(variantDeleted)
     } catch (error) {
         console.log(error)
