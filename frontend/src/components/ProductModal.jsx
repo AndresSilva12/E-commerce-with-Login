@@ -7,6 +7,7 @@ import { productSchema, updateProductSchema } from '../../../validation/productS
 import VariantModal from './VariantModal.jsx'
 import { useVariants } from '../hooks/useVariants.js'
 import { deleteAlert } from '../utils/deleteAlert.js'
+import isEqual from 'lodash.isequal'
 
 function ProductModal({ productUpdate, onClose, onSubmit }) {
     const { register, handleSubmit, reset, formState: { errors }, setError, watch } = useForm({
@@ -81,6 +82,13 @@ function ProductModal({ productUpdate, onClose, onSubmit }) {
     }
 
     const onSubmitVariant = async (data) => {
+        if (variantUpdate && 'id' in variantUpdate) {
+            const { productId, ...variantWithoutProductId } = variantUpdate
+            if (isEqual(data, variantWithoutProductId)) {
+                setModalVariant(false)
+                return
+            }
+        }
         if (productUpdate) {
             const imageUrl =
                 variantUpdate
@@ -97,11 +105,20 @@ function ProductModal({ productUpdate, onClose, onSubmit }) {
                 image: imageUrl,
                 productId: productUpdate.id
             }
-            variantUpdate ? updateVariant(fullVariant, variantUpdate) : createVariant(fullVariant)
+            if (variantUpdate) {
+                await updateVariant(fullVariant, variantUpdate)
+                setVariants((prev => prev.map(p => p.localId === data.localId ? { ...fullVariant, id: variantUpdate.id } : p)))
+            } else {
+                const resultVariant = await createVariant(fullVariant)
+                if (resultVariant?.id) {
+                    setVariants(prev => [...prev.filter(p => p.localId !== data.localId), { ...fullVariant, id: resultVariant.id }])
+                }
+            }
+        } else {
+            variantUpdate
+                ? setVariants((prev => prev.map(p => p.localId === data.localId ? data : p)))
+                : setVariants((prev) => [...prev, data])
         }
-        variantUpdate
-            ? setVariants((prev => prev.map(p => p.localId === data.localId ? data : p)))
-            : setVariants((prev) => [...prev, data])
         setModalVariant(false)
     }
 
@@ -114,7 +131,7 @@ function ProductModal({ productUpdate, onClose, onSubmit }) {
         deleteAlert({
             deleteFunction: () => {
                 if (variant.id) {
-                    deleteVariant(variant.localId)
+                    deleteVariant(variant.id)
                 }
                 setVariants((prev => prev.filter(p => p.localId !== variant.localId)))
             },
@@ -124,7 +141,6 @@ function ProductModal({ productUpdate, onClose, onSubmit }) {
 
     const handleUpdate = (variant) => {
         setVariantUpdate(variant)
-        console.log(variant)
         setModalVariant(true)
     }
 
