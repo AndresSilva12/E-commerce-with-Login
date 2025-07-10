@@ -19,7 +19,7 @@ function VariantModal({ onSubmitVariant, variants, variantUpdate, closeModal }) 
     const isValid = async (data) => {
         for (const variant of variants) {
             if (data.code === variant.code && variantUpdate?.localId !== variant.localId) {
-                const message = "éste código ya está en uso"
+                const message = "Este código ya está en uso"
                 setError("code", {
                     type: "server",
                     message: message
@@ -31,7 +31,7 @@ function VariantModal({ onSubmitVariant, variants, variantUpdate, closeModal }) 
 
         const result = await getOneVariant(data, setError)
         if (!result.success) {
-            notify('error', 'ese codigo ya tiene dueño')
+            notify('error', 'Este código ya está en uso')
             return
         }
 

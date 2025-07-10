@@ -50,9 +50,8 @@ export function useVariants () {
                 console.log("Se rompio todo", res)
             }
             const data = await res.json()
-            setVariants((prev)=> [...prev, data])
-            fetchProducts()
             notify('success', 'Variante creada con éxito!')
+            return {id: data.id}
         } catch (error) {
             console.log(error)
         }
