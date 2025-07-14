@@ -2,7 +2,7 @@ import { useState } from "react";
 import { ToastContainer } from "react-toastify";
 import { useProducts } from "../context/ProductContext";
 import ProductModal from "../components/ProductModal";
-import { deleteAlert } from "../utils/deleteAlert";
+import { deleteAlert } from "../utils/alerts";
 
 function ProductsPage() {
     const [modal, setModal] = useState(false)
