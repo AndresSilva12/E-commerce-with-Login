@@ -1,13 +1,14 @@
 import { useProducts } from '../context/ProductContext.jsx'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useForm } from 'react-hook-form'
 import { notify } from '../utils/notifyToast.js'
 import { productSchema, updateProductSchema } from '../../../validation/productSchema.js'
 import VariantModal from './VariantModal.jsx'
 import { useVariants } from '../hooks/useVariants.js'
-import { deleteAlert } from '../utils/deleteAlert.js'
-import isEqual from 'lodash.isequal'
+import { deleteAlert, lossAlert } from '../utils/alerts.js'
+import { uploadImage } from '../utils/uploads.js'
+import VariantCard from './VariantCard.jsx'
 
 function ProductModal({ productUpdate, onClose, onSubmit }) {
     const { register, handleSubmit, reset, formState: { errors }, setError, watch } = useForm({
@@ -16,12 +17,13 @@ function ProductModal({ productUpdate, onClose, onSubmit }) {
         defaultValues: productUpdate
     })
     const { updateProduct, createProduct } = useProducts()
-    const { deleteVariant, updateVariant, createVariant } = useVariants()
+    const { deleteVariant, submitVariant } = useVariants()
     const [modalVariant, setModalVariant] = useState(false)
-    const [variants, setVariants] = useState([])
     const [variantUpdate, setVariantUpdate] = useState()
+    const [variants, setVariants] = useState([])
     const purchasePrice = watch("purchasePrice")
     const salePrice = watch("salePrice")
+    const modalRef = useRef(null)
 
     useEffect(() => {
         if (productUpdate && productUpdate.variants) {
@@ -34,18 +36,17 @@ function ProductModal({ productUpdate, onClose, onSubmit }) {
     }, [])
 
     useEffect(() => {
-        if (purchasePrice && salePrice && Number(purchasePrice) > Number(salePrice)) {
-            notify('warning', 'Esta acción puede generar pérdidas en el sistema!')
-        }
-    }, [purchasePrice, salePrice])
-
-    useEffect(() => {
         if (productUpdate) {
             reset(productUpdate)
         }
     }, [productUpdate, reset])
 
     const onValid = async (data) => {
+        if (purchasePrice && salePrice && Number(purchasePrice) > Number(salePrice)) {
+            const resultAlert = await lossAlert()
+            if (!resultAlert.success) return
+
+        }
         const fullProduct = {
             ...data,
             variants: variants.length > 0 ? variants.map(({ localId, ...rest }) => rest) : []
@@ -59,7 +60,7 @@ function ProductModal({ productUpdate, onClose, onSubmit }) {
         const result = productUpdate ? await updateProduct(fullProduct, productUpdate, setError) : await createProduct(fullProduct, setError)
 
         if (!result.success) {
-            notify('error', 'Ya existe un producto similar')
+            notify('error', result.error || 'Error al guardar el producto')
             return
         }
         onSubmit()
@@ -69,57 +70,9 @@ function ProductModal({ productUpdate, onClose, onSubmit }) {
         notify('error', 'Por favor ingrese todos los datos')
     }
 
-    const uploadImage = async (file) => {
-        const formData = new FormData()
-        formData.append('image', file)
-
-        const res = await fetch('http://localhost:3000/api/upload', {
-            method: 'POST',
-            body: formData
-        })
-        const data = await res.json()
-        return data.url
-    }
 
     const onSubmitVariant = async (data) => {
-        if (variantUpdate && 'id' in variantUpdate) {
-            const { productId, ...variantWithoutProductId } = variantUpdate
-            if (isEqual(data, variantWithoutProductId)) {
-                setModalVariant(false)
-                return
-            }
-        }
-        if (productUpdate) {
-            const imageUrl =
-                variantUpdate
-                    ? variantUpdate.image === data.image
-                        ? data.image
-                        : data.image instanceof File
-                            ? await uploadImage(data.image)
-                            : data.image
-                    : data.image instanceof File
-                        ? await uploadImage(data.image)
-                        : data.image
-            const fullVariant = {
-                ...data,
-                image: imageUrl,
-                productId: productUpdate.id
-            }
-            if (variantUpdate) {
-                await updateVariant(fullVariant, variantUpdate)
-                setVariants((prev => prev.map(p => p.localId === data.localId ? { ...fullVariant, id: variantUpdate.id } : p)))
-            } else {
-                const resultVariant = await createVariant(fullVariant)
-                if (resultVariant?.id) {
-                    setVariants(prev => [...prev.filter(p => p.localId !== data.localId), { ...fullVariant, id: resultVariant.id }])
-                }
-            }
-        } else {
-            variantUpdate
-                ? setVariants((prev => prev.map(p => p.localId === data.localId ? data : p)))
-                : setVariants((prev) => [...prev, data])
-        }
-        setModalVariant(false)
+        submitVariant({ data, variantUpdate, productUpdate, setModalVariant, setVariants })
     }
 
     const handleCreate = () => {
@@ -144,8 +97,14 @@ function ProductModal({ productUpdate, onClose, onSubmit }) {
         setModalVariant(true)
     }
 
+    const handleOutsideClick = (e) => {
+        if (modalRef.current && e.target === modalRef.current) {
+            onClose()
+        }
+    }
+
     return (
-        <div className='flex flex-col h-screen w-screen fixed top-0 left-0' style={{ backgroundColor: 'rgb(0,0,0,0.6)' }}>
+        <div className='flex flex-col h-screen w-screen fixed top-0 left-0' style={{ backgroundColor: 'rgb(0,0,0,0.6)' }} ref={modalRef} onClick={handleOutsideClick}>
             <button className="fixed top-0 right-0" onClick={onClose}>X</button>
             <div className="bg-gray-400">
                 <form onSubmit={handleSubmit(onValid, onInvalid)} className="flex flex-col pt-20 mx-10 gap-2">
@@ -189,16 +148,7 @@ function ProductModal({ productUpdate, onClose, onSubmit }) {
                 {modalVariant && <VariantModal onSubmitVariant={onSubmitVariant} variants={variants} variantUpdate={variantUpdate} closeModal={() => { setModalVariant(false) }} />}
                 <section className="w-full flex flex-col items-center justify-center m-auto gap-4">
                     {variants.map((variant) => (
-                        <div key={variant.localId} className="flex items-center justify-center gap-4">
-                            {errors.variants && errors.variants[variant.code] && <span className="text-red-600">{errors.variants[variant.code].message}</span>}
-                            <p>Code: {variant.code}</p>
-                            <p>Size: {variant.size}</p>
-                            <p>Color: {variant.color}</p>
-                            <p>Stock: {variant.stock}</p>
-                            {variant.image && <img src={typeof variant.image === 'string' ? variant.image : URL.createObjectURL(variant.image)} className="w-20 h-20 object-cover" />}
-                            <button onClick={() => { handleUpdate(variant) }}>Editar</button>
-                            <button onClick={() => { handleDelete(variant) }}>Eliminar</button>
-                        </div>
+                        <VariantCard variant={variant} errors={errors} onEdit={handleUpdate} onDelete={handleDelete} key={variant.localId} />
                     ))}
                 </section>
             </div>

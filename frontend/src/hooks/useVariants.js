@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { notify } from "../utils/notifyToast.js"
 import { useProducts } from "../context/ProductContext.jsx"
+import { uploadImage } from '../utils/uploads.js'
 import isEqual from 'lodash.isequal'
 
 export function useVariants () {
@@ -95,12 +96,50 @@ export function useVariants () {
         }
     }
 
+    const submitVariant = async({ setModalVariant, setVariants, productUpdate, variantUpdate, data }) => {
+        const resolveImage = async(image, prevImage) => {
+            if (image === prevImage) return image
+            if (image instanceof File) return await uploadImage(image)
+            return image
+        }
+
+        if (variantUpdate && 'id' in variantUpdate) {
+            const { productId, ...variantWithoutProductId } = variantUpdate
+            if (isEqual(data, variantWithoutProductId)) {
+                setModalVariant(false)
+                return
+            }
+        }
+
+        const fullVariant = {...data}
+        if (productUpdate) {
+            fullVariant.productId = productUpdate.id
+            fullVariant.image = await resolveImage(data.image, variantUpdate?.image)
+
+            if (variantUpdate) {
+                await updateVariant(fullVariant, variantUpdate)
+                setVariants((prev => prev.map(p => p.localId === data.localId ? { ...fullVariant, id: variantUpdate.id } : p)))
+            } else {
+                const resultVariant = await createVariant(fullVariant)
+                if (resultVariant?.id) {
+                    setVariants(prev => [...prev.filter(p => p.localId !== data.localId), { ...fullVariant, id: resultVariant.id }])
+                }
+            }
+        } else {
+            variantUpdate
+                ? setVariants((prev => prev.map(p => p.localId === data.localId ? data : p)))
+                : setVariants((prev) => [...prev, data])
+        }
+        setModalVariant(false)
+    }
+
     return{
         variants,
         fetchVariants,
         createVariant,
         deleteVariant,
         updateVariant,
-        getOneVariant
+        getOneVariant,
+        submitVariant
     }
 }

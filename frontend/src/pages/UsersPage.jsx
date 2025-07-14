@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext } from 'react'
-import Modal from '../components/Modal'
+import UserModal from '../components/UserModal.jsx'
 import Swal from 'sweetalert2'
 import { useUser } from '../hooks/useUser.js'
 import { useNavigate } from 'react-router-dom'
@@ -18,19 +18,19 @@ function UsersPage() {
 
     const handleDelete = (id) => {
         Swal.fire({
-            title: "Are you sure?",
-            text: "You won't be able to revert this!",
+            title: "Está seguro que desea eliminar su cuenta?",
+            text: "Esta acción no puede revertirse!",
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#3085d6",
             cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, delete it!"
+            confirmButtonText: "Yes, elimínalo!"
         }).then((result) => {
             if (result.isConfirmed) {
                 deleteUser(id, setIsAuthenticated, navigate).then(() => {
                     Swal.fire({
-                        title: "Deleted!",
-                        text: "Your user has been deleted.",
+                        title: "Eliminado!",
+                        text: "Tu cuenta a sido eliminada.",
                         icon: "success"
                     })
                 })
@@ -58,7 +58,7 @@ function UsersPage() {
                 </div>
             ))}
 
-            {editUser && (<Modal user={editUser} fetchUsers={() => { fetchUsers() }} onClose={() => { setEditUser(null) }} />)}
+            {editUser && (<UserModal user={editUser} onClose={() => { setEditUser(null) }} />)}
         </>
     )
 }
