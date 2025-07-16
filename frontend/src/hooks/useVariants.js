@@ -5,7 +5,7 @@ import { uploadImage } from '../utils/uploads.js'
 import isEqual from 'lodash.isequal'
 
 export function useVariants () {
-    const {fetchProducts} = useProducts()
+    const { addVariantToProduct, fetchProducts, deleteVariantToProduct, updateVariantToProduct} = useProducts()
     const [variants, setVariants] = useState([])
 
     const fetchVariants = async() => {
@@ -48,7 +48,7 @@ export function useVariants () {
                 body: JSON.stringify(formData)
             })
             if (!res.ok){
-                console.log("Se rompio todo", res)
+                console.log("Hubo un error durante la creación", res)
             }
             const data = await res.json()
             notify('success', 'Variante creada con éxito!')
@@ -67,7 +67,7 @@ export function useVariants () {
         })
         const data = await res.json()
         setVariants((prev) => (prev.filter((p) => p.id !== id)))
-        fetchProducts()
+        await deleteVariantToProduct(data.productId, id)
         notify('success', 'Variante eliminada con éxito')
     }
 
@@ -88,11 +88,11 @@ export function useVariants () {
             if (!res.ok) {
                 return {success: false, errors: data.errors}
             }
-            fetchProducts()
+            await updateVariantToProduct(data.productId, data.id, data)
             notify('success', 'Variante actualizada con éxito')
         }
         catch (error){
-            return res.status(400).json({error: error})
+            return {success: false}
         }
     }
 
@@ -122,7 +122,13 @@ export function useVariants () {
             } else {
                 const resultVariant = await createVariant(fullVariant)
                 if (resultVariant?.id) {
-                    setVariants(prev => [...prev.filter(p => p.localId !== data.localId), { ...fullVariant, id: resultVariant.id }])
+                    const newVariant = {
+                        ...fullVariant,
+                        id: resultVariant.id
+                    }
+                    setVariants(prev => [...prev.filter(p => p.localId !== data.localId), newVariant])
+
+                    await addVariantToProduct(productUpdate.id, newVariant)
                 }
             }
         } else {
