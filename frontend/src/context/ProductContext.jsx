@@ -116,12 +116,24 @@ export function ProductProvider({ children }) {
         }
     }
 
+    const addVariantToProduct = (productId, newVariant) => {
+        setProducts(prev => prev.map(product => product.id === productId ? { ...product, variants: [...product.variants, newVariant] } : product))
+    }
+
+    const deleteVariantToProduct = (productId, variantId) => {
+        setProducts(prev => prev.map(product => product.id === productId ? { ...product, variants: product.variants.filter(v => v.id !== variantId) } : product))
+    }
+
+    const updateVariantToProduct = (productId, variantId, variantUpdated) => {
+        setProducts(prev => prev.map(product => product.id === productId ? { ...product, variants: product.variants.map(v => v.id === variantId ? variantUpdated : v) } : product))
+    }
+
     useEffect(() => {
         fetchProducts()
     }, [])
 
     return (
-        <ProductContext.Provider value={{ products, createProduct, fetchProducts, deleteProduct, updateProduct }}>
+        <ProductContext.Provider value={{ products, createProduct, fetchProducts, deleteProduct, updateProduct, addVariantToProduct, deleteVariantToProduct, updateVariantToProduct }}>
             {children}
         </ProductContext.Provider>
     )
