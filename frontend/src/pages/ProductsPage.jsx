@@ -1,23 +1,37 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ToastContainer } from "react-toastify";
 import { useProducts } from "../context/ProductContext";
 import ProductModal from "../components/ProductModal";
+import VariantModal from '../components/VariantModal'
 import { deleteAlert } from "../utils/alerts";
-import { Button, Card, Image, Text, Grid, Accordion, Span, HStack, Badge, Avatar } from "@chakra-ui/react"
+import { Button, Card, Image, Text, Grid, Accordion, Span, HStack, Badge, Avatar, Box } from "@chakra-ui/react"
+import Modal from "../components/Modal";
+import { useVariants } from '../hooks/useVariants.js'
 
 function ProductsPage() {
-    const [modal, setModal] = useState(false)
     const [productUpdate, setProductUpdate] = useState(null)
     const { products, deleteProduct } = useProducts()
+    const { deleteVariant, submitVariant } = useVariants()
+    const [variants, setVariants] = useState([])
+    const [variantUpdate, setVariantUpdate] = useState()
+
+    useEffect(() => {
+        if (productUpdate && productUpdate.variants) {
+            const variantsWithLocalId = productUpdate.variants.map(v => ({
+                ...v,
+                localId: v.id || crypto.randomUUID()
+            }))
+            setVariants(variantsWithLocalId)
+        }
+    }, [])
+
 
     const onSubmit = () => {
         setProductUpdate(null)
-        setModal(false)
     }
 
     const handleUpdate = (product) => {
         setProductUpdate(product)
-        setModal(true)
     }
 
     const handleDelete = (id) => {
@@ -26,30 +40,49 @@ function ProductsPage() {
 
     const handleCreate = () => {
         setProductUpdate(null)
-        setModal(true)
+    }
+
+    const onSubmitVariant = async (data) => {
+        submitVariant({ data, variantUpdate, productUpdate, setVariants })
+    }
+
+    const handleVariantUpdate = (variant) => {
+        setVariantUpdate(variant)
     }
 
     return (
         <>
-
             {products.map((product) => (
-                <Accordion.Root collapsible key={product.id}>
+                <Accordion.Root collapsible key={product.id} size="sm">
                     <Accordion.Item >
-                        <Accordion.ItemTrigger>
-                            <Avatar.Root shape="rounded">
-                                <Avatar.Image src={product.variants[0].image} />
-                                <Avatar.Fallback name={product.name} />
-                            </Avatar.Root>
-                            <Span flex="1">{product.name} {product.brand}</Span>
-                            <Accordion.ItemIndicator />
-                        </Accordion.ItemTrigger>
+                        <Box display="flex">
+                            <Accordion.ItemTrigger>
+                                <Avatar.Root shape="rounded">
+                                    {product.variants[0] &&
+                                        <Avatar.Image src={product.variants[0].image} />
+                                    }
+                                    <Avatar.Fallback name={product.name} />
+                                </Avatar.Root>
+                                <Span flex="1">{product.name} {product.brand}</Span>
+                                <Accordion.ItemIndicator />
+                            </Accordion.ItemTrigger>
+                            <Modal trigger={<Button variant="solid" onClick={() => { handleUpdate(product) }}>Editar</Button>}>
+                                {({ closeModal }) => (
+                                    <ProductModal productUpdate={productUpdate} onSubmit={() => {
+                                        onSubmit()
+                                        closeModal()
+                                    }} />
+                                )}
+                            </Modal>
+                            <Button variant="ghost" onClick={() => { handleDelete(product.id) }}>Eliminar</Button>
+                        </Box>
                         <Accordion.ItemContent>
-                            <Grid templateColumns="repeat(3, 1fr)" gap="6" >
+                            <Grid templateColumns="repeat(10, 1fr)" >
                                 {product.variants && product.variants.map((variant) => (
 
-                                    <Card.Root maxW="sm" size="sm" overflow="hidden" key={variant.id} >
-                                        <Image src={variant.image} h="auto" w="full" fit="contain" />
-                                        <Card.Body gap="2">
+                                    <Card.Root maxW="200px" size="sm" overflow="hidden" key={variant.id} >
+                                        <Image src={variant.image} h="100px" w="300px" fit="contain" />
+                                        <Card.Body>
                                             <Card.Title>{product.name} {product.brand}</Card.Title>
                                             <Card.Description>{product.description}</Card.Description>
                                             <HStack mt="1">
@@ -58,9 +91,16 @@ function ProductsPage() {
                                             </HStack>
                                             <Text textStyle="2xl" fontWeight="medium" letterSpacing="tight" mt="2">${new Intl.NumberFormat("es-AR").format(product.purchasePrice)}</Text>
                                         </Card.Body>
-                                        <Card.Footer gap="2">
-                                            <Button variant="solid" onClick={() => { handleUpdate(product) }}>Editar</Button>
-                                            <Button variant="ghost" onClick={() => { handleDelete(product.id) }}>Eliminar</Button>
+                                        <Card.Footer>
+                                            <Modal trigger={<Button flex="1" onClick={() => handleVariantUpdate(variant)}>Editar</Button>}>
+                                                {({ closeModal }) => (
+                                                    <VariantModal onSubmitVariant={(data) => {
+                                                        onSubmitVariant(data)
+                                                        closeModal()
+                                                    }} variants={variants} variantUpdate={variantUpdate} />
+                                                )}
+                                            </Modal>
+                                            <Button flex="1" onClick={() => deleteVariant(variant, setVariants)}>Eliminaar</Button>
                                         </Card.Footer>
                                     </Card.Root>
                                 ))}
@@ -70,8 +110,14 @@ function ProductsPage() {
                 </Accordion.Root>
             ))}
 
-            <button className="fixed bottom-0 right-0 p-2 bg-blue-600 rounded-full" onClick={handleCreate}>+</button>
-            {modal && (<ProductModal productUpdate={productUpdate} onClose={() => { setModal(false) }} onSubmit={() => { onSubmit() }} />)}
+            <Modal trigger={<button onClick={handleCreate}>+</button>}>
+                {({ closeModal }) => (
+                    <ProductModal productUpdate={productUpdate} onSubmit={() => {
+                        onSubmit()
+                        closeModal()
+                    }} />
+                )}
+            </Modal>
 
             <ToastContainer />
         </>

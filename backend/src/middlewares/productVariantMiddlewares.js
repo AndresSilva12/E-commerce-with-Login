@@ -70,13 +70,13 @@ export const validateUpdateVariant = async(req, res, next) => {
 export const validateUniqueCode = async(req, res) => {
     try{
         const code = req.params.code
-        const variantId = req.body.localId
+        const {id} = req.body
         const codeExist = await prisma.productVariant.findUnique({
             where: {
                 code: code
             }
         })
-        if (codeExist && codeExist.id !== variantId) return res.status(400).json({message: "Ese código ya se encuentra en uso"})
+        if (codeExist && codeExist.id !== id) return res.status(400).json({message: "Ese código ya se encuentra en uso"})
 
         return res.status(200).json({success: true})
     }

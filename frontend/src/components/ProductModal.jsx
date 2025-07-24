@@ -8,9 +8,10 @@ import VariantModal from './VariantModal.jsx'
 import { useVariants } from '../hooks/useVariants.js'
 import { deleteAlert, lossAlert } from '../utils/alerts.js'
 import { uploadImage } from '../utils/uploads.js'
-import VariantCard from './VariantCard.jsx'
+import Modal from "./Modal.jsx";
+import { Button, Accordion, Box, Avatar, Span } from "@chakra-ui/react"
 
-function ProductModal({ productUpdate, onClose, onSubmit }) {
+function ProductModal({ productUpdate, onSubmit }) {
     const { register, handleSubmit, reset, formState: { errors }, setError, watch } = useForm({
         mode: 'onChange',
         resolver: zodResolver(productUpdate ? updateProductSchema : productSchema),
@@ -18,12 +19,10 @@ function ProductModal({ productUpdate, onClose, onSubmit }) {
     })
     const { updateProduct, createProduct } = useProducts()
     const { deleteVariant, submitVariant } = useVariants()
-    const [modalVariant, setModalVariant] = useState(false)
     const [variantUpdate, setVariantUpdate] = useState()
     const [variants, setVariants] = useState([])
     const purchasePrice = watch("purchasePrice")
     const salePrice = watch("salePrice")
-    const modalRef = useRef(null)
 
     useEffect(() => {
         if (productUpdate && productUpdate.variants) {
@@ -72,40 +71,19 @@ function ProductModal({ productUpdate, onClose, onSubmit }) {
 
 
     const onSubmitVariant = async (data) => {
-        submitVariant({ data, variantUpdate, productUpdate, setModalVariant, setVariants })
+        submitVariant({ data, variantUpdate, productUpdate, setVariants })
     }
 
     const handleCreate = () => {
         setVariantUpdate(null)
-        setModalVariant(true)
-    }
-
-    const handleDelete = (variant) => {
-        deleteAlert({
-            deleteFunction: () => {
-                if (variant.id) {
-                    deleteVariant(variant.id)
-                }
-                setVariants((prev => prev.filter(p => p.localId !== variant.localId)))
-            },
-            type: "Variant"
-        })
     }
 
     const handleUpdate = (variant) => {
         setVariantUpdate(variant)
-        setModalVariant(true)
-    }
-
-    const handleOutsideClick = (e) => {
-        if (modalRef.current && e.target === modalRef.current) {
-            onClose()
-        }
     }
 
     return (
-        <div className='flex flex-col h-screen w-screen fixed top-0 left-0' style={{ backgroundColor: 'rgb(0,0,0,0.6)' }} ref={modalRef} onClick={handleOutsideClick}>
-            <button className="fixed top-0 right-0" onClick={onClose}>X</button>
+        <div>
             <div className="bg-gray-400">
                 <form onSubmit={handleSubmit(onValid, onInvalid)} className="flex flex-col pt-20 mx-10 gap-2">
                     <div className="flex justify-between">
@@ -141,19 +119,49 @@ function ProductModal({ productUpdate, onClose, onSubmit }) {
                         <input type="text" autoComplete="description" id="description" {...register("description")} />
                     </div>
 
-
-                    <button type="submit">{productUpdate ? 'Actualizar' : 'Crear'}</button>
+                    <Button type="submit">{productUpdate ? 'Actualizar' : 'Crear'}</Button>
                 </form>
 
-                {modalVariant && <VariantModal onSubmitVariant={onSubmitVariant} variants={variants} variantUpdate={variantUpdate} closeModal={() => { setModalVariant(false) }} />}
                 <section className="w-full flex flex-col items-center justify-center m-auto gap-4">
-                    {variants.map((variant) => (
-                        <VariantCard variant={variant} errors={errors} onEdit={handleUpdate} onDelete={handleDelete} key={variant.localId} />
+                    {productUpdate && variants.map((variant) => (
+                        <Accordion.Root collapsible key={variant.id} size="sm">
+                            <Accordion.Item >
+                                <Box display="flex">
+                                    <Accordion.ItemTrigger>
+                                        <Avatar.Root shape="rounded">
+                                            <Avatar.Image src={variant.image} />
+                                            <Avatar.Fallback name={productUpdate.name} />
+                                        </Avatar.Root>
+                                        <Span flex="1">{productUpdate.name} {productUpdate.brand}</Span>
+                                        <Accordion.ItemIndicator />
+                                    </Accordion.ItemTrigger>
+                                    <Modal trigger={<Button variant="solid" onClick={() => { handleUpdate(variant) }}>Editar</Button>}>
+                                        {({ closeModal }) => (
+                                            <VariantModal onSubmitVariant={(data) => {
+                                                onSubmitVariant(data)
+                                                closeModal()
+                                            }} variants={variants} variantUpdate={variantUpdate} />
+                                        )}
+                                    </Modal>
+                                    <Button variant="ghost" onClick={() => { deleteVariant(variant, setVariants) }}>Eliminar</Button>
+                                </Box>
+                                <Accordion.ItemContent>
+
+                                </Accordion.ItemContent>
+                            </Accordion.Item>
+                        </Accordion.Root>
                     ))}
                 </section>
             </div>
 
-            {!modalVariant && <button onClick={() => { handleCreate() }} className='bg-blue-600'>Agregar Variante</button>}
+            <Modal trigger={<button onClick={() => { handleCreate() }} >Agregar Variante</button>}>
+                {({ closeModal }) => (
+                    <VariantModal onSubmitVariant={(data) => {
+                        onSubmitVariant(data)
+                        closeModal()
+                    }} variants={variants} variantUpdate={variantUpdate} />
+                )}
+            </Modal>
 
         </div>
     )

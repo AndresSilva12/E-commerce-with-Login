@@ -4,8 +4,9 @@ import { notify } from '../utils/notifyToast.js'
 import { variantSchemaWithOutProductId } from '../../../validation/productVariantsSchema.js'
 import { useState, useRef } from 'react'
 import { useVariants } from '../hooks/useVariants.js'
+import { Button } from "@chakra-ui/react"
 
-function VariantModal({ onSubmitVariant, variants, variantUpdate, closeModal }) {
+function VariantModal({ onSubmitVariant, variants, variantUpdate }) {
     const [image, setImage] = useState(null)
     const fileInputRef = useRef(null)
     const { getOneVariant } = useVariants()
@@ -57,7 +58,6 @@ function VariantModal({ onSubmitVariant, variants, variantUpdate, closeModal }) 
 
     return (
         <form onSubmit={handleSubmit(isValid, isInvalid)} className="bg-gray-600 text-black m-auto flex flex-col justify-center items-center w-2/3 gap-2 px-100 py-5">
-            <button className="bg-red-600" onClick={closeModal}>X</button>
             <div className="justify-center flex gap-2">
                 <div className="flex flex-col justify-between">
                     <div className="flex gap-4">
@@ -95,7 +95,7 @@ function VariantModal({ onSubmitVariant, variants, variantUpdate, closeModal }) 
                     <p className="mt-1 text-sm text-gray-500">SVG, PNG, JPG or GIF (MAX. 800x400px).</p>
                 </div>
             </div>
-            <button className="m-0 flex justify-center items-center w-20 bg-gray-700" type="submit">{variantUpdate ? 'Actualizar' : 'Crear'}</button>
+            <Button className="m-0 flex justify-center items-center w-20 bg-gray-700" type="submit">{variantUpdate ? 'Actualizar' : 'Crear'}</Button>
         </form>
     )
 }

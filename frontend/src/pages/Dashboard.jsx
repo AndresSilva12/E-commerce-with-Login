@@ -1,8 +1,11 @@
-function Dashboard(){
+import { Button, CloseButton, Dialog, Portal } from "@chakra-ui/react"
+
+
+function Dashboard() {
 
     return (
         <>
-            <h1>Dashboard</h1>
+            Dashboard
         </>
     )
 }
