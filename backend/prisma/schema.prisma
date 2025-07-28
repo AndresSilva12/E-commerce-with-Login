@@ -68,7 +68,7 @@ model stockEntryItem {
   quantity Int
   variantId String
   stockEntryId String
-  entry stockEntry @relation(fields: [stockEntryId], references: [id])
+  entry stockEntry @relation(fields: [stockEntryId], references: [id], onDelete: Cascade)
   variant productVariant @relation(fields: [variantId], references: [id])
 }
 
