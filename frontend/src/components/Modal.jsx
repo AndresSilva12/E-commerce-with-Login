@@ -19,7 +19,7 @@ function Modal({ trigger, children }) {
                     <Dialog.Positioner>
                         <Dialog.Content>
                             <Dialog.Header>
-                                <Dialog.Title>Modal</Dialog.Title>
+                                <Dialog.Title>Modal de edición/creación</Dialog.Title>
                             </Dialog.Header>
                             <Dialog.Body>
                                 {typeof children === 'function' ? children({ closeModal }) : children}

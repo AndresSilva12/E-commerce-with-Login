@@ -9,7 +9,7 @@ import { useVariants } from '../hooks/useVariants.js'
 import { deleteAlert, lossAlert } from '../utils/alerts.js'
 import { uploadImage } from '../utils/uploads.js'
 import Modal from "./Modal.jsx";
-import { Button, Accordion, Box, Avatar, Span } from "@chakra-ui/react"
+import { Button, Accordion, Box, Avatar, Span, Field, Fieldset, Input, InputGroup, NumberInput, Text, Stack } from "@chakra-ui/react"
 
 function ProductModal({ productUpdate, onSubmit }) {
     const { register, handleSubmit, reset, formState: { errors }, setError, watch } = useForm({
@@ -84,42 +84,59 @@ function ProductModal({ productUpdate, onSubmit }) {
 
     return (
         <div>
-            <div className="bg-gray-400">
-                <form onSubmit={handleSubmit(onValid, onInvalid)} className="flex flex-col pt-20 mx-10 gap-2">
-                    <div className="flex justify-between">
-                        <label htmlFor="name">Nombre</label>
-                        <div className="flex gap-4">
-                            {errors.name && <span className="text-red-600">{errors.name.message}</span>}
-                            <input type="text" autoComplete="name" id="name" {...register("name")} />
-                        </div>
-                    </div>
-                    <div className="flex justify-between">
-                        <label htmlFor="purchasePrice">Precio de compra</label>
-                        <div className="flex gap-4">
-                            {errors.purchasePrice && <span className="text-red-600">{errors.purchasePrice.message}</span>}
-                            <input type="number" autoComplete="purchasePrice" id="purchasePrice" {...register("purchasePrice")} />
-                        </div>
-                    </div>
-                    <div className="flex justify-between">
-                        <label htmlFor="salePrice">Precio de venta</label>
-                        <div className="flex gap-4">
-                            {errors.salePrice && <span className="text-red-600">{errors.salePrice.message}</span>}
-                            <input type="number" autoComplete="salePrice" id="salePrice" {...register("salePrice")} />
-                        </div>
-                    </div>
-                    <div className="flex justify-between">
-                        <label htmlFor="brand">Marca</label>
-                        <div className="flex gap-4">
-                            {errors.brand && <span className="text-red-600">{errors.brand.message}</span>}
-                            <input type="text" autoComplete="brand" id="brand" {...register("brand")} />
-                        </div>
-                    </div>
-                    <div className="flex justify-between">
-                        <label htmlFor="description">Descripcion (Opcional)</label>
-                        <input type="text" autoComplete="description" id="description" {...register("description")} />
-                    </div>
+            <div>
+                <form onSubmit={handleSubmit(onValid, onInvalid)}>
+                    <Fieldset.Root size="lg" maxW="md">
+                        <Fieldset.Content>
+                            <Box display="flex">
+                                <Field.Root>
+                                    <Field.Label>Name</Field.Label>
+                                    <Input {...register("name")} width="200px" />
+                                    {errors.name && <span className="text-red-600">{errors.name.message}</span>}
+                                </Field.Root>
 
-                    <Button type="submit">{productUpdate ? 'Actualizar' : 'Crear'}</Button>
+                                <Field.Root>
+                                    <Field.Label>Brand</Field.Label>
+                                    <Input {...register("brand")} width="200px" />
+                                    {errors.brand && <span className="text-red-600">{errors.brand.message}</span>}
+                                </Field.Root>
+                            </Box>
+
+                            <Box display="flex">
+                                <Field.Root>
+                                    <Field.Label>Purchase Price</Field.Label>
+                                    <NumberInput.Root defaultValue="10" width="200px" {...register("purchasePrice")}>
+                                        <NumberInput.Control />
+                                        <InputGroup startElement="$">
+                                            <NumberInput.Input />
+                                        </InputGroup>
+                                    </NumberInput.Root>
+                                    {errors.purchasePrice && <span className="text-red-600">{errors.purchasePrice.message}</span>}
+                                </Field.Root>
+
+                                <Field.Root>
+                                    <Field.Label>Sale Price</Field.Label>
+                                    <NumberInput.Root defaultValue="10" width="200px" {...register("salePrice")}>
+                                        <NumberInput.Control />
+                                        <InputGroup startElement="$">
+                                            <NumberInput.Input />
+                                        </InputGroup>
+                                    </NumberInput.Root>
+                                    {errors.salePrice && <span className="text-red-600">{errors.salePrice.message}</span>}
+                                </Field.Root>
+                            </Box>
+
+                            <Field.Root>
+                                <Field.Label>Description</Field.Label>
+                                <Input {...register("description")} />
+                            </Field.Root>
+
+                        </Fieldset.Content>
+
+                        <Button type="submit" alignSelf="flex-start" >
+                            {productUpdate ? 'Actualizar' : 'Crear'}
+                        </Button>
+                    </Fieldset.Root>
                 </form>
 
                 <section className="w-full flex flex-col items-center justify-center m-auto gap-4">
@@ -132,8 +149,11 @@ function ProductModal({ productUpdate, onSubmit }) {
                                             <Avatar.Image src={variant.image} />
                                             <Avatar.Fallback name={productUpdate.name} />
                                         </Avatar.Root>
-                                        <Span flex="1">{productUpdate.name} {productUpdate.brand}</Span>
-                                        <Accordion.ItemIndicator />
+                                        <Stack gap="1">
+                                            <Span flex="1">{productUpdate.name} {productUpdate.brand}</Span>
+                                            <Text fontSize="sm" color="fg.muted">Codigo: {variant.code} Size: {variant.size}</Text>
+                                            <Text fontSize="sm" color="fg.muted">Color: {variant.color} Stock: {variant.stock}</Text>
+                                        </Stack>
                                     </Accordion.ItemTrigger>
                                     <Modal trigger={<Button variant="solid" onClick={() => { handleUpdate(variant) }}>Editar</Button>}>
                                         {({ closeModal }) => (

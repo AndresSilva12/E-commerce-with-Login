@@ -6,12 +6,14 @@ import { userSchema } from '../../../validation/userSchema'
 import { useUser } from '../hooks/useUser.js'
 import { ToastContainer } from 'react-toastify'
 import { notify } from '../utils/notifyToast.js'
+import { Button, Card, Field, Input, Stack, Box, NumberInput } from "@chakra-ui/react"
+import { PasswordInput } from "../components/ui/password-input"
 
 function RegisterPage() {
   const { createUser } = useUser()
   const navigate = useNavigate()
   const { register, handleSubmit, formState: { errors }, setError } = useForm({
-    mode: 'onChange',
+    mode: 'onSubmit',
     resolver: zodResolver(userSchema)
   })
 
@@ -25,74 +27,64 @@ function RegisterPage() {
 
   return (
     <>
-      <h1>API REST AUTH CRUD JWT Project's</h1>
+      <Box display="flex" justifyContent="center" height="90vh" alignItems="center">
+        <Card.Root width="1/3" margin="auto">
+          <Card.Body >
+            <form onSubmit={handleSubmit(onValid, onInvalid)} >
+              <Stack align="flex-start" maxW="sm" >
+                <Field.Root invalid={!!errors.username} >
+                  <Field.Label>Username</Field.Label>
+                  <Input {...register("username")} size="sm" />
+                  <Field.ErrorText>{errors.username?.message}</Field.ErrorText>
+                </Field.Root>
 
-      <h2>Create a New User</h2>
-      <form onSubmit={handleSubmit(onValid, onInvalid)} className='flex flex-col text-center gap-2'>
-        <div className='flex justify-between'>
-          <label htmlFor="username">Nombre de usuario</label>
-          <div className='flex gap-4'>
-            {errors.username && <span className='text-start text-red-600'>{errors.username.message}</span>}
-            <input id='username' className='bg-white text-black' autoComplete="username" type="text" {...register("username")} />
-          </div>
-        </div>
+                <Field.Root invalid={!!errors.password} >
+                  <Field.Label>Password</Field.Label>
+                  <PasswordInput {...register("password")} size="sm" />
+                  <Field.ErrorText>{errors.password?.message}</Field.ErrorText>
+                </Field.Root>
 
-        <div className='flex justify-between'>
-          <label htmlFor="password">Contraseña</label>
-          <div className='flex gap-4'>
-            {errors.password && <span className='text-start text-red-600'>{errors.password.message}</span>}
-            <input id='password' className='bg-white text-black' autoComplete="new-password" type="password" {...register("password")}
-            />
-          </div>
-        </div>
+                <Field.Root invalid={!!errors.email} >
+                  <Field.Label>Email</Field.Label>
+                  <Input {...register("email")} size="sm" placeholder="me@example.com" />
+                  <Field.ErrorText>{errors.email?.message}</Field.ErrorText>
+                </Field.Root>
 
-        <div className='flex justify-between'>
-          <label htmlFor="email">Email</label>
-          <div className='flex gap-4'>
-            {errors.email && <span className='text-start text-red-600'>{errors.email.message}</span>}
-            <input id='email' className='bg-white text-black' autoComplete="email" type="text" {...register("email")}
-            />
-          </div>
-        </div>
+                <Field.Root invalid={!!errors.phoneNumber} >
+                  <Field.Label>PhoneNumber</Field.Label>
+                  <Input {...register("phoneNumber")} size="sm" />
+                  <Field.ErrorText>{errors.phoneNumber?.message}</Field.ErrorText>
+                </Field.Root>
 
-        <div className='flex justify-between'>
-          <label htmlFor="phoneNumber">Numero de teléfono</label>
-          <div className='flex gap-4'>
-            {errors.phoneNumber && <span className='text-start text-red-600'>{errors.phoneNumber.message}</span>}
-            <input id='phoneNumber' className={`bg-white text-black rounded px-2 py-1 outline-none ${errors.phoneNumber ? 'border border-red-600 focus:border focus:border-red-600' : ''}`} autoComplete="tel" type="number" {...register("phoneNumber")}
-            />
-          </div>
-        </div>
+                <Box display="flex" width="full" gap="4">
+                  <Field.Root invalid={!!errors.name} >
+                    <Field.Label>Name</Field.Label>
+                    <Input {...register("name")} size="sm" />
+                    <Field.ErrorText>{errors.name?.message}</Field.ErrorText>
+                  </Field.Root>
 
-        <div className='flex justify-between'>
-          <label htmlFor="name">Nombre</label>
-          <div className='flex gap-4'>
-            {errors.name && <span className='text-start text-red-600'>{errors.name.message}</span>}
-            <input id='name' className='bg-white text-black' autoComplete="name" type="text" {...register("name")}
-            />
-          </div>
-        </div>
+                  <Field.Root invalid={!!errors.lastName} >
+                    <Field.Label>LastName</Field.Label>
+                    <Input {...register("lastName")} size="sm" />
+                    <Field.ErrorText>{errors.lastName?.message}</Field.ErrorText>
+                  </Field.Root>
+                </Box>
 
-        <div className='flex justify-between'>
-          <label htmlFor="lastName">Apellido</label>
-          <div className='flex gap-4'>
-            {errors.lastName && <span className='text-start text-red-600'>{errors.lastName.message}</span>}
-            <input id='lastName' className='bg-white text-black' autoComplete="lastName" type="text" {...register("lastName")}
-            />
-          </div>
-        </div>
+                <Field.Root invalid={!!errors.age} >
+                  <Field.Label>Age</Field.Label>
+                  <NumberInput.Root defaultValue="10" >
+                    <NumberInput.Control />
+                    <NumberInput.Input  {...register("age")} />
+                  </NumberInput.Root>
+                  <Field.ErrorText>{errors.age?.message}</Field.ErrorText>
+                </Field.Root>
 
-        <div className='flex justify-between'>
-          <label htmlFor="age">Edad</label>
-          <div className='flex gap-4'>
-            {errors.age && <span className='text-start text-red-600'>{errors.age.message}</span>}
-            <input id='age' className='bg-white text-black' autoComplete="age" type="number" {...register("age")}
-            />
-          </div>
-        </div>
-
-        <button type='submit'>Crear Usuario</button>
-      </form>
+                <Button type="submit">Submit</Button>
+              </Stack>
+            </form>
+          </Card.Body>
+        </Card.Root>
+      </Box>
       <ToastContainer />
     </>
   )

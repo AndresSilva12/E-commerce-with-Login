@@ -100,7 +100,7 @@ function NavBar() {
                         direction={'row'}
                         spacing={6}>
                         <Button as={'a'} fontSize={'sm'} color={'white'}
-                            bg={'pink.400'} fontWeight={400} onClick={() => { handleLogout() }}>
+                            colorPalette="teal" fontWeight={400} onClick={() => { handleLogout() }}>
                             Logout
                         </Button>
                     </Stack>
@@ -116,12 +116,12 @@ function NavBar() {
                             Register
                         </Button>
                         <Button
+                            colorPalette="teal"
                             as={'a'}
                             display={{ base: 'none', md: 'inline-flex' }}
                             fontSize={'sm'}
                             fontWeight={600}
                             color={'white'}
-                            bg={'pink.400'}
                             href={'/login'}
                             _hover={{
                                 bg: 'pink.300',

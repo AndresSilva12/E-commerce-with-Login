@@ -53,9 +53,9 @@ function ProductsPage() {
     return (
         <>
             {products.map((product) => (
-                <Accordion.Root collapsible key={product.id} size="sm">
+                <Accordion.Root collapsible key={product.id} size="sm" padding="10px">
                     <Accordion.Item >
-                        <Box display="flex">
+                        <Box display="flex" gap="4">
                             <Accordion.ItemTrigger>
                                 <Avatar.Root shape="rounded">
                                     {product.variants[0] &&
@@ -77,11 +77,11 @@ function ProductsPage() {
                             <Button variant="ghost" onClick={() => { handleDelete(product.id) }}>Eliminar</Button>
                         </Box>
                         <Accordion.ItemContent>
-                            <Grid templateColumns="repeat(10, 1fr)" >
+                            <Grid templateColumns="repeat(8, 1fr)" gap="4" paddingY="16px">
                                 {product.variants && product.variants.map((variant) => (
 
                                     <Card.Root maxW="200px" size="sm" overflow="hidden" key={variant.id} >
-                                        <Image src={variant.image} h="100px" w="300px" fit="contain" />
+                                        <Image src={variant.image} h="100px" w="400px" fit="contain" />
                                         <Card.Body>
                                             <Card.Title>{product.name} {product.brand}</Card.Title>
                                             <Card.Description>{product.description}</Card.Description>
@@ -89,10 +89,10 @@ function ProductsPage() {
                                                 <Badge>Talle {variant.size}</Badge>
                                                 <Badge>{variant.color}</Badge>
                                             </HStack>
-                                            <Text textStyle="2xl" fontWeight="medium" letterSpacing="tight" mt="2">${new Intl.NumberFormat("es-AR").format(product.purchasePrice)}</Text>
+                                            <Text textStyle="2xl" fontWeight="medium" letterSpacing="tight" mt="2">${new Intl.NumberFormat("es-AR").format(product.salePrice)}</Text>
                                         </Card.Body>
-                                        <Card.Footer>
-                                            <Modal trigger={<Button flex="1" onClick={() => handleVariantUpdate(variant)}>Editar</Button>}>
+                                        <Card.Footer display="flex" justifyContent="center">
+                                            <Modal trigger={<Button width="50px" flex="1" onClick={() => handleVariantUpdate(variant)}>Editar</Button>}>
                                                 {({ closeModal }) => (
                                                     <VariantModal onSubmitVariant={(data) => {
                                                         onSubmitVariant(data)
@@ -100,7 +100,7 @@ function ProductsPage() {
                                                     }} variants={variants} variantUpdate={variantUpdate} />
                                                 )}
                                             </Modal>
-                                            <Button flex="1" onClick={() => deleteVariant(variant, setVariants)}>Eliminaar</Button>
+                                            <Button flex="1" onClick={() => deleteVariant(variant, setVariants)}>Eliminar</Button>
                                         </Card.Footer>
                                     </Card.Root>
                                 ))}
@@ -110,7 +110,7 @@ function ProductsPage() {
                 </Accordion.Root>
             ))}
 
-            <Modal trigger={<button onClick={handleCreate}>+</button>}>
+            <Modal trigger={<Button position="fixed" right="0" bottom="0" size="lg" margin="1rem" colorPalette="teal" onClick={handleCreate}>+</Button>}>
                 {({ closeModal }) => (
                     <ProductModal productUpdate={productUpdate} onSubmit={() => {
                         onSubmit()
