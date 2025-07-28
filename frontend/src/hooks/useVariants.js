@@ -3,6 +3,7 @@ import { notify } from "../utils/notifyToast.js"
 import { useProducts } from "../context/ProductContext.jsx"
 import { uploadImage } from '../utils/uploads.js'
 import isEqual from 'lodash.isequal'
+import { deleteAlert } from "../utils/alerts.js"
 
 export function useVariants () {
     const { addVariantToProduct, fetchProducts, deleteVariantToProduct, updateVariantToProduct} = useProducts()
@@ -58,17 +59,26 @@ export function useVariants () {
         }
     }
 
-    const deleteVariant = async(id) => {
-        const res = await fetch(`http://localhost:3000/api/variants/id/${id}`,{
-            method: 'DELETE',
-            headers: {
-                "Content-type": "application/json"
-            }
+    const deleteVariant = (variant, setVariants) => {
+        deleteAlert({
+            deleteFunction: async () => {
+                if (variant.id) {
+                    deleteVariant(variant.id)
+                    const res = await fetch(`http://localhost:3000/api/variants/id/${variant.id}`,{
+                        method: 'DELETE',
+                        headers: {
+                            "Content-type": "application/json"
+                        }
+                    })
+                    const data = await res.json()
+                    setVariants((prev) => (prev.filter((p) => p.id !== variant.id)))
+                    await deleteVariantToProduct(data.productId, variant.id)
+                    notify('success', 'Variante eliminada con éxito')
+                }
+                setVariants((prev => prev.filter(p => p.localId !== variant.localId)))
+            },
+            type: "Variant"
         })
-        const data = await res.json()
-        setVariants((prev) => (prev.filter((p) => p.id !== id)))
-        await deleteVariantToProduct(data.productId, id)
-        notify('success', 'Variante eliminada con éxito')
     }
 
     const updateVariant = async(formData, variant) =>  {
@@ -96,7 +106,7 @@ export function useVariants () {
         }
     }
 
-    const submitVariant = async({ setModalVariant, setVariants, productUpdate, variantUpdate, data }) => {
+    const submitVariant = async({setVariants, productUpdate, variantUpdate, data }) => {
         const resolveImage = async(image, prevImage) => {
             if (image === prevImage) return image
             if (image instanceof File) return await uploadImage(image)
@@ -106,8 +116,7 @@ export function useVariants () {
         if (variantUpdate && 'id' in variantUpdate) {
             const { productId, ...variantWithoutProductId } = variantUpdate
             if (isEqual(data, variantWithoutProductId)) {
-                setModalVariant(false)
-                return
+                return 
             }
         }
 
@@ -136,7 +145,6 @@ export function useVariants () {
                 ? setVariants((prev => prev.map(p => p.localId === data.localId ? data : p)))
                 : setVariants((prev) => [...prev, data])
         }
-        setModalVariant(false)
     }
 
     return{

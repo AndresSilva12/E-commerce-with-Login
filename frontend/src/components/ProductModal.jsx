@@ -8,9 +8,10 @@ import VariantModal from './VariantModal.jsx'
 import { useVariants } from '../hooks/useVariants.js'
 import { deleteAlert, lossAlert } from '../utils/alerts.js'
 import { uploadImage } from '../utils/uploads.js'
-import VariantCard from './VariantCard.jsx'
+import Modal from "./Modal.jsx";
+import { Button, Accordion, Box, Avatar, Span, Field, Fieldset, Input, InputGroup, NumberInput, Text, Stack } from "@chakra-ui/react"
 
-function ProductModal({ productUpdate, onClose, onSubmit }) {
+function ProductModal({ productUpdate, onSubmit }) {
     const { register, handleSubmit, reset, formState: { errors }, setError, watch } = useForm({
         mode: 'onChange',
         resolver: zodResolver(productUpdate ? updateProductSchema : productSchema),
@@ -18,12 +19,10 @@ function ProductModal({ productUpdate, onClose, onSubmit }) {
     })
     const { updateProduct, createProduct } = useProducts()
     const { deleteVariant, submitVariant } = useVariants()
-    const [modalVariant, setModalVariant] = useState(false)
     const [variantUpdate, setVariantUpdate] = useState()
     const [variants, setVariants] = useState([])
     const purchasePrice = watch("purchasePrice")
     const salePrice = watch("salePrice")
-    const modalRef = useRef(null)
 
     useEffect(() => {
         if (productUpdate && productUpdate.variants) {
@@ -72,90 +71,122 @@ function ProductModal({ productUpdate, onClose, onSubmit }) {
 
 
     const onSubmitVariant = async (data) => {
-        submitVariant({ data, variantUpdate, productUpdate, setModalVariant, setVariants })
+        submitVariant({ data, variantUpdate, productUpdate, setVariants })
     }
 
     const handleCreate = () => {
         setVariantUpdate(null)
-        setModalVariant(true)
-    }
-
-    const handleDelete = (variant) => {
-        deleteAlert({
-            deleteFunction: () => {
-                if (variant.id) {
-                    deleteVariant(variant.id)
-                }
-                setVariants((prev => prev.filter(p => p.localId !== variant.localId)))
-            },
-            type: "Variant"
-        })
     }
 
     const handleUpdate = (variant) => {
         setVariantUpdate(variant)
-        setModalVariant(true)
-    }
-
-    const handleOutsideClick = (e) => {
-        if (modalRef.current && e.target === modalRef.current) {
-            onClose()
-        }
     }
 
     return (
-        <div className='flex flex-col h-screen w-screen fixed top-0 left-0' style={{ backgroundColor: 'rgb(0,0,0,0.6)' }} ref={modalRef} onClick={handleOutsideClick}>
-            <button className="fixed top-0 right-0" onClick={onClose}>X</button>
-            <div className="bg-gray-400">
-                <form onSubmit={handleSubmit(onValid, onInvalid)} className="flex flex-col pt-20 mx-10 gap-2">
-                    <div className="flex justify-between">
-                        <label htmlFor="name">Nombre</label>
-                        <div className="flex gap-4">
-                            {errors.name && <span className="text-red-600">{errors.name.message}</span>}
-                            <input type="text" autoComplete="name" id="name" {...register("name")} />
-                        </div>
-                    </div>
-                    <div className="flex justify-between">
-                        <label htmlFor="purchasePrice">Precio de compra</label>
-                        <div className="flex gap-4">
-                            {errors.purchasePrice && <span className="text-red-600">{errors.purchasePrice.message}</span>}
-                            <input type="number" autoComplete="purchasePrice" id="purchasePrice" {...register("purchasePrice")} />
-                        </div>
-                    </div>
-                    <div className="flex justify-between">
-                        <label htmlFor="salePrice">Precio de venta</label>
-                        <div className="flex gap-4">
-                            {errors.salePrice && <span className="text-red-600">{errors.salePrice.message}</span>}
-                            <input type="number" autoComplete="salePrice" id="salePrice" {...register("salePrice")} />
-                        </div>
-                    </div>
-                    <div className="flex justify-between">
-                        <label htmlFor="brand">Marca</label>
-                        <div className="flex gap-4">
-                            {errors.brand && <span className="text-red-600">{errors.brand.message}</span>}
-                            <input type="text" autoComplete="brand" id="brand" {...register("brand")} />
-                        </div>
-                    </div>
-                    <div className="flex justify-between">
-                        <label htmlFor="description">Descripcion (Opcional)</label>
-                        <input type="text" autoComplete="description" id="description" {...register("description")} />
-                    </div>
+        <form onSubmit={handleSubmit(onValid, onInvalid)}>
+            <Fieldset.Root size="lg" maxW="md">
+                <Fieldset.Content>
+                    <Box display="flex">
+                        <Field.Root invalid={!!errors.name}>
+                            <Box display="flex" justifyContent="space-between" width="full">
+                                <Field.Label>Name</Field.Label>
+                                <Field.ErrorText>{errors.name?.message}</Field.ErrorText>
+                            </Box>
+                            <Input {...register("name")} width="200px" />
+                        </Field.Root>
 
+                        <Field.Root invalid={!!errors.brand}>
+                            <Box display="flex" justifyContent="space-between" width="full">
+                                <Field.Label>Brand</Field.Label>
+                                <Field.ErrorText>{errors.brand?.message}</Field.ErrorText>
+                            </Box>
+                            <Input {...register("brand")} width="200px" />
+                        </Field.Root>
+                    </Box>
 
-                    <button type="submit">{productUpdate ? 'Actualizar' : 'Crear'}</button>
-                </form>
+                    <Box display="flex">
+                        <Field.Root invalid={!!errors.purchasePrice}>
+                            <Box display="flex" justifyContent="space-between" width="full">
+                                <Field.Label>Purchase Price</Field.Label>
+                                <Field.ErrorText>{errors.purchasePrice?.message}</Field.ErrorText>
+                            </Box>
+                            <NumberInput.Root defaultValue="10" width="200px" {...register("purchasePrice")}>
+                                <NumberInput.Control />
+                                <InputGroup startElement="$">
+                                    <NumberInput.Input />
+                                </InputGroup>
+                            </NumberInput.Root>
+                        </Field.Root>
 
-                {modalVariant && <VariantModal onSubmitVariant={onSubmitVariant} variants={variants} variantUpdate={variantUpdate} closeModal={() => { setModalVariant(false) }} />}
-                <section className="w-full flex flex-col items-center justify-center m-auto gap-4">
-                    {variants.map((variant) => (
-                        <VariantCard variant={variant} errors={errors} onEdit={handleUpdate} onDelete={handleDelete} key={variant.localId} />
+                        <Field.Root invalid={!!errors.salePrice}>
+                            <Box display="flex" justifyContent="space-between" width="full">
+                                <Field.Label>Sale Price</Field.Label>
+                                <Field.ErrorText>{errors.salePrice?.message}</Field.ErrorText>
+                            </Box>
+                            <NumberInput.Root defaultValue="10" width="200px" {...register("salePrice")}>
+                                <NumberInput.Control />
+                                <InputGroup startElement="$">
+                                    <NumberInput.Input />
+                                </InputGroup>
+                            </NumberInput.Root>
+                        </Field.Root>
+                    </Box>
+
+                    <Field.Root>
+                        <Field.Label>Description</Field.Label>
+                        <Input {...register("description")} />
+                    </Field.Root>
+
+                </Fieldset.Content>
+
+                <Box height="200px" overflow="scroll">
+                    {productUpdate && variants.map((variant) => (
+                        <Accordion.Root collapsible key={variant.id} size="sm">
+                            <Accordion.Item >
+                                <Box display="flex">
+                                    <Accordion.ItemTrigger>
+                                        <Avatar.Root shape="rounded">
+                                            <Avatar.Image src={variant.image} />
+                                            <Avatar.Fallback name={productUpdate.name} />
+                                        </Avatar.Root>
+                                        <Stack gap="1">
+                                            <Span flex="1">{productUpdate.name} {productUpdate.brand}</Span>
+                                            <Text fontSize="sm" color="fg.muted">Codigo: {variant.code} Size: {variant.size}</Text>
+                                            <Text fontSize="sm" color="fg.muted">Color: {variant.color} Stock: {variant.stock}</Text>
+                                        </Stack>
+                                    </Accordion.ItemTrigger>
+                                    <Modal trigger={<Button variant="solid" onClick={() => { handleUpdate(variant) }}>Editar</Button>}>
+                                        {({ closeModal }) => (
+                                            <VariantModal onSubmitVariant={(data) => {
+                                                onSubmitVariant(data)
+                                                closeModal()
+                                            }} variants={variants} variantUpdate={variantUpdate} />
+                                        )}
+                                    </Modal>
+                                    <Button variant="ghost" onClick={() => { deleteVariant(variant, setVariants) }}>Eliminar</Button>
+                                </Box>
+                                <Accordion.ItemContent>
+
+                                </Accordion.ItemContent>
+                            </Accordion.Item>
+                        </Accordion.Root>
                     ))}
-                </section>
-            </div>
-
-            {!modalVariant && <button onClick={() => { handleCreate() }} className='bg-blue-600'>Agregar Variante</button>}
-
-        </div>
+                </Box>
+            </Fieldset.Root>
+            <Box display="flex" width="full" justifyContent="space-between">
+                <Button type="submit" alignSelf="flex-start" >
+                    {productUpdate ? 'Actualizar' : 'Crear'}
+                </Button>
+                <Modal trigger={<Button onClick={() => { handleCreate() }} variant="surface" >Nueva Variante</Button>}>
+                    {({ closeModal }) => (
+                        <VariantModal onSubmitVariant={(data) => {
+                            onSubmitVariant(data)
+                            closeModal()
+                        }} variants={variants} variantUpdate={variantUpdate} />
+                    )}
+                </Modal>
+            </Box>
+        </form>
     )
 }
 

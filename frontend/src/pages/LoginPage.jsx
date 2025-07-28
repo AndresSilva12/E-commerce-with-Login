@@ -3,6 +3,8 @@ import { useUser } from '../hooks/useUser'
 import { useNavigate } from 'react-router-dom'
 import { useContext } from 'react'
 import { AuthContext } from '../context/AuthContext'
+import { Button, Field, Input, Stack, Box, Card } from "@chakra-ui/react"
+import { PasswordInput } from "../components/ui/password-input"
 
 function LoginPage() {
     const navigate = useNavigate()
@@ -17,26 +19,35 @@ function LoginPage() {
     }
 
     return (
-        <>
-            <h1>Login</h1>
-            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col text-center gap-2">
-                <div className="flex justify-between">
-                    <label htmlFor="username">Usuario</label>
-                    <div className='flex gap-4'>
-                        {errors.username && <span className='text-start text-red-600'>{errors.username.message}</span>}
-                        <input id='username' className='bg-white text-black' autoComplete="username" type="text" {...register("username")} />
-                    </div>
-                </div>
-                <div className="flex justify-between">
-                    <label htmlFor="password">Contraseña</label>
-                    <div className='flex gap-4'>
-                        {errors.password && <span className='text-start text-red-600'>{errors.password.message}</span>}
-                        <input id='password' className='bg-white text-black' autoComplete="password" type="password" {...register("password")} />
-                    </div>
-                </div>
-                <button type="submit">Login</button>
-            </form>
-        </>
+        <Box display="flex" justifyContent="center" height="80vh" alignItems="center">
+            <Card.Root >
+                <Card.Header>
+                    <Card.Title>Sign up</Card.Title>
+                    <Card.Description>
+                        Fill in the form below to create an account
+                    </Card.Description>
+                </Card.Header>
+                <Card.Body>
+                    <form onSubmit={handleSubmit(onSubmit)}>
+                        <Stack gap="4" align="flex-start" maxW="sm" >
+                            <Field.Root invalid={!!errors.username}>
+                                <Field.Label>Username</Field.Label>
+                                <Input {...register("username")} />
+                                <Field.ErrorText>{errors.username?.message}</Field.ErrorText>
+                            </Field.Root>
+
+                            <Field.Root invalid={!!errors.password}>
+                                <Field.Label>Password</Field.Label>
+                                <PasswordInput {...register("password")} />
+                                <Field.ErrorText>{errors.password?.message}</Field.ErrorText>
+                            </Field.Root>
+
+                            <Button type="submit">Submit</Button>
+                        </Stack>
+                    </form>
+                </Card.Body>
+            </Card.Root>
+        </Box>
     )
 }
 
