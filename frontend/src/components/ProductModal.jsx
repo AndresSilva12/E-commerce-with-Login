@@ -92,13 +92,13 @@ function ProductModal({ productUpdate, onSubmit }) {
                                 <Field.Root>
                                     <Field.Label>Name</Field.Label>
                                     <Input {...register("name")} width="200px" />
-                                    {errors.name && <span className="text-red-600">{errors.name.message}</span>}
+                                    {errors.name && <span>{errors.name.message}</span>}
                                 </Field.Root>
 
                                 <Field.Root>
                                     <Field.Label>Brand</Field.Label>
                                     <Input {...register("brand")} width="200px" />
-                                    {errors.brand && <span className="text-red-600">{errors.brand.message}</span>}
+                                    {errors.brand && <span>{errors.brand.message}</span>}
                                 </Field.Root>
                             </Box>
 
@@ -111,7 +111,7 @@ function ProductModal({ productUpdate, onSubmit }) {
                                             <NumberInput.Input />
                                         </InputGroup>
                                     </NumberInput.Root>
-                                    {errors.purchasePrice && <span className="text-red-600">{errors.purchasePrice.message}</span>}
+                                    {errors.purchasePrice && <span>{errors.purchasePrice.message}</span>}
                                 </Field.Root>
 
                                 <Field.Root>
@@ -122,7 +122,7 @@ function ProductModal({ productUpdate, onSubmit }) {
                                             <NumberInput.Input />
                                         </InputGroup>
                                     </NumberInput.Root>
-                                    {errors.salePrice && <span className="text-red-600">{errors.salePrice.message}</span>}
+                                    {errors.salePrice && <span>{errors.salePrice.message}</span>}
                                 </Field.Root>
                             </Box>
 
@@ -139,7 +139,7 @@ function ProductModal({ productUpdate, onSubmit }) {
                     </Fieldset.Root>
                 </form>
 
-                <section className="w-full flex flex-col items-center justify-center m-auto gap-4">
+                <section >
                     {productUpdate && variants.map((variant) => (
                         <Accordion.Root collapsible key={variant.id} size="sm">
                             <Accordion.Item >

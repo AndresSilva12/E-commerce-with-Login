@@ -6,9 +6,6 @@ import { logoutAlert } from '../utils/alerts.js'
 import {
     Box,
     Flex,
-    Popover,
-    PopoverTrigger,
-    PopoverContent,
     IconButton,
     Button,
     Stack
@@ -44,13 +41,6 @@ function NavBar() {
                 </Flex>
                 <Flex flex={{ base: 1 }} justify={{ base: 'center', md: 'start' }}>
                     <Link className='text-white' to='/' >Home</Link>
-                    {/* <Text
-                        textAlign={useBreakpointValue({ base: 'center', md: 'left' })}
-                        fontFamily={'heading'}
-                        color={('gray.800', 'white')}>
-                        Logo
-                    </Text> */}
-
                     <Flex display={{ base: 'none', md: 'flex' }} ml={10}>
                         {isAuthenticated &&
                             <>

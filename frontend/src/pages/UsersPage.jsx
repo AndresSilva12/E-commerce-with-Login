@@ -44,16 +44,16 @@ function UsersPage() {
             <h2>Show All the Users</h2>
 
             {users.map(user => (
-                <div key={user.id} className='flex gap-2 justify-between items-center'>
-                    <div className='flex justify-between gap-2'>
+                <div key={user.id}>
+                    <div>
                         <p>ID: {user.id} |</p>
                         <p>Nombre: {user.name}</p>
                         <p>Apellido: {user.lastName}</p>
                         <p>E-mail: {user.email}</p>
                     </div>
-                    <div className='flex gap-1'>
-                        <button className='bg-green-500' onClick={() => { setEditUser(user) }}>Editar</button>
-                        <button className='bg-red-600' onClick={() => { handleDelete(user.id) }}>Eliminar</button>
+                    <div>
+                        <button onClick={() => { setEditUser(user) }}>Editar</button>
+                        <button onClick={() => { handleDelete(user.id) }}>Eliminar</button>
                     </div>
                 </div>
             ))}

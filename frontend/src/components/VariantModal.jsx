@@ -65,25 +65,25 @@ function VariantModal({ onSubmitVariant, variants, variantUpdate }) {
                         <Field.Root>
                             <Field.Label>Code</Field.Label>
                             <Input {...register("code")} />
-                            {errors.code && <span className="text-red-500 h-auto w-30">{errors.code.message}</span>}
+                            {errors.code && <span>{errors.code.message}</span>}
                         </Field.Root>
 
                         <Field.Root>
                             <Field.Label>Size</Field.Label>
                             <Input {...register("size")} />
-                            {errors.size && <span className="text-red-500">{errors.size.message}</span>}
+                            {errors.size && <span>{errors.size.message}</span>}
                         </Field.Root>
 
                         <Field.Root>
                             <Field.Label>Color</Field.Label>
                             <Input {...register("color")} />
-                            {errors.color && <span className="text-red-500">{errors.color.message}</span>}
+                            {errors.color && <span>{errors.color.message}</span>}
                         </Field.Root>
 
                         <Field.Root>
                             <Field.Label>Stock</Field.Label>
                             <Input {...register("stock")} />
-                            {errors.stock && <span className="text-red-500">{errors.stock.message}</span>}
+                            {errors.stock && <span>{errors.stock.message}</span>}
                         </Field.Root>
 
                         <FileUpload.Root accept='image/*' onChange={handleImageChange} ref={fileInputRef}>
@@ -101,7 +101,7 @@ function VariantModal({ onSubmitVariant, variants, variantUpdate }) {
                         {variantUpdate ? 'Actualizar' : 'Crear'}
                     </Button>
                 </Fieldset.Root>
-            </form>
+            </form >
         </>
     )
 }

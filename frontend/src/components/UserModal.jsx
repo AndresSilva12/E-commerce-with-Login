@@ -22,55 +22,55 @@ function UserModal({ user, onClose }) {
 
     return (
         <>
-            <div className='flex h-screen w-screen fixed top-0 left-0' style={{ backgroundColor: 'rgb(0,0,0,0.6)' }}>
-                <div className='flex flex-col justify-center items-center m-auto h-100 w-130 bg-gray-500'>
-                    <button className="fixed top-0 right-0 bg-red-600" onClick={onClose}>X</button>
-                    <form onSubmit={handleUpdate} className='flex flex-col text-center gap-2'>
-                        <div className='flex justify-between'>
+            <div style={{ backgroundColor: 'rgb(0,0,0,0.6)' }}>
+                <div >
+                    <button onClick={onClose}>X</button>
+                    <form onSubmit={handleUpdate}>
+                        <div>
                             <label htmlFor="username">Nombre de usuario</label>
-                            <div className='flex gap-4'>
-                                {errors.username && <span className='text-start text-red-600'>{errors.username.message}</span>}
-                                <input id='username' className='bg-white text-black' autoComplete="username" type="text" {...register("username")} />
+                            <div>
+                                {errors.username && <span>{errors.username.message}</span>}
+                                <input id='username' autoComplete="username" type="text" {...register("username")} />
                             </div>
                         </div>
 
-                        <div className='flex justify-between'>
+                        <div>
                             <label htmlFor="email">Email</label>
                             <div>
-                                {errors.email && <span className='text-start text-red-600'>{errors.email.message}</span>}
-                                <input id='email' className='bg-white text-black' autoComplete="email" type="text" {...register("email")} />
+                                {errors.email && <span>{errors.email.message}</span>}
+                                <input id='email' autoComplete="email" type="text" {...register("email")} />
                             </div>
                         </div>
 
-                        <div className='flex justify-between'>
+                        <div>
                             <label htmlFor="phoneNumber">Numero de teléfono</label>
                             <div>
-                                {errors.phoneNumber && <span className='text-start text-red-600'>{errors.phoneNumber.message}</span>}
-                                <input id='phoneNumber' className='bg-white text-black' autoComplete="phoneNumber" type="text" {...register("phoneNumber")} />
+                                {errors.phoneNumber && <span>{errors.phoneNumber.message}</span>}
+                                <input id='phoneNumber' autoComplete="phoneNumber" type="text" {...register("phoneNumber")} />
                             </div>
                         </div>
 
-                        <div className='flex justify-between'>
+                        <div>
                             <label htmlFor="name">Nombre</label>
                             <div>
-                                {errors.name && <span className='text-start text-red-600'>{errors.name.message}</span>}
-                                <input id='name' className='bg-white text-black' autoComplete="name" type="text" {...register("name")} />
+                                {errors.name && <span >{errors.name.message}</span>}
+                                <input id='name' autoComplete="name" type="text" {...register("name")} />
                             </div>
                         </div>
 
-                        <div className='flex justify-between'>
+                        <div>
                             <label htmlFor="lastName">Apellido</label>
                             <div>
-                                {errors.lastName && <span className='text-start text-red-600'>{errors.lastName.message}</span>}
-                                <input id='lastName' className='bg-white text-black' autoComplete="lastName" type="text" {...register("lastName")} />
+                                {errors.lastName && <span>{errors.lastName.message}</span>}
+                                <input id='lastName' autoComplete="lastName" type="text" {...register("lastName")} />
                             </div>
                         </div>
 
-                        <div className='flex justify-between'>
+                        <div >
                             <label htmlFor="age">Edad</label>
                             <div>
-                                {errors.age && <span className='text-start text-red-600'>{errors.age.message}</span>}
-                                <input id='age' className='bg-white text-black' autoComplete="age" type="text" {...register("age")} />
+                                {errors.age && <span>{errors.age.message}</span>}
+                                <input id='age' autoComplete="age" type="text" {...register("age")} />
                             </div>
                         </div>
 

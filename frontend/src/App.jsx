@@ -4,11 +4,11 @@ import AppRouter from './router/AppRouter'
 import { ProductProvider } from './context/ProductContext'
 
 function App() {
-  return(
+  return (
     <>
       <AuthProvider>
         <ProductProvider>
-          <AppRouter className= "w-full h-full"></AppRouter>
+          <AppRouter></AppRouter>
         </ProductProvider>
       </AuthProvider>
     </>
