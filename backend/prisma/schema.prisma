@@ -51,7 +51,7 @@ model saleItem {
   quantity Int
   variantId String
   variant productVariant @relation(fields: [variantId], references: [id])
-  sale sales @relation(fields: [saleId], references: [id])
+  sale sales @relation(fields: [saleId], references: [id], onDelete: Cascade)
 }
 
 model sales {
