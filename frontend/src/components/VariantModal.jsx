@@ -4,7 +4,7 @@ import { notify } from '../utils/notifyToast.js'
 import { variantSchemaWithOutProductId } from '../../../validation/productVariantsSchema.js'
 import { useState, useRef } from 'react'
 import { useVariants } from '../hooks/useVariants.js'
-import { Button, Field, Fieldset, Input, FileUpload } from "@chakra-ui/react"
+import { Button, Field, Fieldset, Input, FileUpload, NumberInput, Box } from "@chakra-ui/react"
 
 function VariantModal({ onSubmitVariant, variants, variantUpdate }) {
     const [image, setImage] = useState(null)
@@ -58,32 +58,42 @@ function VariantModal({ onSubmitVariant, variants, variantUpdate }) {
 
     return (
         <>
-
             <form onSubmit={handleSubmit(isValid, isInvalid)}>
                 <Fieldset.Root size="lg" maxW="md">
                     <Fieldset.Content>
-                        <Field.Root>
-                            <Field.Label>Code</Field.Label>
+                        <Field.Root invalid={!!errors.code}>
+                            <Box display="flex" justifyContent="space-between" width="full">
+                                <Field.Label>Code</Field.Label>
+                                <Field.ErrorText>{errors.code?.message}</Field.ErrorText>
+                            </Box>
                             <Input {...register("code")} />
-                            {errors.code && <span>{errors.code.message}</span>}
                         </Field.Root>
 
-                        <Field.Root>
-                            <Field.Label>Size</Field.Label>
+                        <Field.Root invalid={!!errors.size}>
+                            <Box display="flex" justifyContent="space-between" width="full">
+                                <Field.Label>Size</Field.Label>
+                                <Field.ErrorText>{errors.size?.message}</Field.ErrorText>
+                            </Box>
                             <Input {...register("size")} />
-                            {errors.size && <span>{errors.size.message}</span>}
                         </Field.Root>
 
-                        <Field.Root>
-                            <Field.Label>Color</Field.Label>
+                        <Field.Root invalid={!!errors.color}>
+                            <Box display="flex" justifyContent="space-between" width="full">
+                                <Field.Label>Color</Field.Label>
+                                <Field.ErrorText>{errors.color?.message}</Field.ErrorText>
+                            </Box>
                             <Input {...register("color")} />
-                            {errors.color && <span>{errors.color.message}</span>}
                         </Field.Root>
 
-                        <Field.Root>
-                            <Field.Label>Stock</Field.Label>
-                            <Input {...register("stock")} />
-                            {errors.stock && <span>{errors.stock.message}</span>}
+                        <Field.Root invalid={!!errors.stock} >
+                            <Box display="flex" justifyContent="space-between" width="full">
+                                <Field.Label>Stock</Field.Label>
+                                <Field.ErrorText>{errors.stock?.message}</Field.ErrorText>
+                            </Box>
+                            <NumberInput.Root defaultValue="1" >
+                                <NumberInput.Control />
+                                <NumberInput.Input  {...register("stock")} />
+                            </NumberInput.Root>
                         </Field.Root>
 
                         <FileUpload.Root accept='image/*' onChange={handleImageChange} ref={fileInputRef}>

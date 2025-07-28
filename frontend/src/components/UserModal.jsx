@@ -3,8 +3,9 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useState, useEffect } from 'react'
 import { updateUserSchema } from '../../../validation/userSchema.js'
 import { useUser } from '../hooks/useUser.js'
+import { Button, Field, Fieldset, Input, FileUpload, Box, NumberInput } from "@chakra-ui/react"
 
-function UserModal({ user, onClose }) {
+function UserModal({ user }) {
     const { updateUser } = useUser()
     const { register, reset, handleSubmit, formState: { errors }, setError } = useForm({
         mode: 'onChange',
@@ -21,64 +22,56 @@ function UserModal({ user, onClose }) {
     })
 
     return (
-        <>
-            <div style={{ backgroundColor: 'rgb(0,0,0,0.6)' }}>
-                <div >
-                    <button onClick={onClose}>X</button>
-                    <form onSubmit={handleUpdate}>
-                        <div>
-                            <label htmlFor="username">Nombre de usuario</label>
-                            <div>
-                                {errors.username && <span>{errors.username.message}</span>}
-                                <input id='username' autoComplete="username" type="text" {...register("username")} />
-                            </div>
-                        </div>
+        <form onSubmit={handleUpdate}>
+            <Fieldset.Root size="lg" maxW="md">
+                <Fieldset.Content>
+                    <Field.Root>
+                        <Field.Label>Username</Field.Label>
+                        <Input {...register("username")} />
+                        {errors.username && <span>{errors.username.message}</span>}
+                    </Field.Root>
+                    <Field.Root invalid={!!errors.email} >
+                        <Field.Label>Email</Field.Label>
+                        <Input {...register("email")} size="sm" placeholder="me@example.com" />
+                        <Field.ErrorText>{errors.email?.message}</Field.ErrorText>
+                    </Field.Root>
 
-                        <div>
-                            <label htmlFor="email">Email</label>
-                            <div>
-                                {errors.email && <span>{errors.email.message}</span>}
-                                <input id='email' autoComplete="email" type="text" {...register("email")} />
-                            </div>
-                        </div>
+                    <Field.Root invalid={!!errors.phoneNumber} >
+                        <Field.Label>PhoneNumber</Field.Label>
+                        <Input {...register("phoneNumber")} size="sm" />
+                        <Field.ErrorText>{errors.phoneNumber?.message}</Field.ErrorText>
+                    </Field.Root>
 
-                        <div>
-                            <label htmlFor="phoneNumber">Numero de teléfono</label>
-                            <div>
-                                {errors.phoneNumber && <span>{errors.phoneNumber.message}</span>}
-                                <input id='phoneNumber' autoComplete="phoneNumber" type="text" {...register("phoneNumber")} />
-                            </div>
-                        </div>
+                    <Box display="flex" width="full" gap="4">
+                        <Field.Root invalid={!!errors.name} >
+                            <Field.Label>Name</Field.Label>
+                            <Input {...register("name")} size="sm" />
+                            <Field.ErrorText>{errors.name?.message}</Field.ErrorText>
+                        </Field.Root>
 
-                        <div>
-                            <label htmlFor="name">Nombre</label>
-                            <div>
-                                {errors.name && <span >{errors.name.message}</span>}
-                                <input id='name' autoComplete="name" type="text" {...register("name")} />
-                            </div>
-                        </div>
+                        <Field.Root invalid={!!errors.lastName} >
+                            <Field.Label>LastName</Field.Label>
+                            <Input {...register("lastName")} size="sm" />
+                            <Field.ErrorText>{errors.lastName?.message}</Field.ErrorText>
+                        </Field.Root>
+                    </Box>
 
-                        <div>
-                            <label htmlFor="lastName">Apellido</label>
-                            <div>
-                                {errors.lastName && <span>{errors.lastName.message}</span>}
-                                <input id='lastName' autoComplete="lastName" type="text" {...register("lastName")} />
-                            </div>
-                        </div>
+                    <Field.Root invalid={!!errors.age} >
+                        <Field.Label>Age</Field.Label>
+                        <NumberInput.Root defaultValue="10" >
+                            <NumberInput.Control />
+                            <NumberInput.Input  {...register("age")} />
+                        </NumberInput.Root>
+                        <Field.ErrorText>{errors.age?.message}</Field.ErrorText>
+                    </Field.Root>
 
-                        <div >
-                            <label htmlFor="age">Edad</label>
-                            <div>
-                                {errors.age && <span>{errors.age.message}</span>}
-                                <input id='age' autoComplete="age" type="text" {...register("age")} />
-                            </div>
-                        </div>
 
-                        <button type='submit'>Actualizar usuario</button>
-                    </form>
-                </div>
-            </div>
-        </>
+                </Fieldset.Content>
+
+                <Button type="submit" alignSelf="flex-start" >Actualizar Usuario</Button>
+
+            </Fieldset.Root>
+        </form>
     )
 }
 
