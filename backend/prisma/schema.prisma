@@ -16,6 +16,8 @@ model users {
   name String
   lastName String
   age Int
+  sales sales[]
+  stockEntry stockEntry[]
 }
 
 model products {
@@ -40,6 +42,7 @@ model productVariant {
   product products @relation(fields: [productId], references: [id], onDelete: Cascade)
   @@unique([productId, size, color])
   saleItem saleItem[]
+  stockEntryItem stockEntryItem[]
 }
 
 model saleItem {
@@ -56,4 +59,23 @@ model sales {
   date DateTime @default(now())
   items saleItem[]
   totalPrice Float
+  userId Int
+  user users @relation(fields: [userId], references: [id])
+}
+
+model stockEntryItem {
+  id String @id @default(cuid())
+  quantity Int
+  variantId String
+  stockEntryId String
+  entry stockEntry @relation(fields: [stockEntryId], references: [id])
+  variant productVariant @relation(fields: [variantId], references: [id])
+}
+
+model stockEntry {
+  id String @id @default(cuid())
+  date DateTime @default(now())
+  userId Int
+  items stockEntryItem []
+  user users @relation(fields: [userId], references: [id])
 }
