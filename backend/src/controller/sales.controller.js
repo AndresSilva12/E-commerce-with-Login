@@ -15,7 +15,24 @@ export const createNewSale = async(req, res) => {
             items: true
         }
     })
-    return res.json(newSale)
+    const variantsUpdates = {}
+    for (const item of newSale.items){
+        const variantWithStockUpdated = await prisma.productVariant.update({
+            where: {
+                id: item.variantId
+            },
+            data:{
+                stock: {
+                    decrement: item.quantity
+                }
+            }
+        })
+        variantsUpdates[variantWithStockUpdated.code] = variantWithStockUpdated
+    }
+    return res.json({
+        sale: newSale,
+        updatedVariants: variantsUpdates
+    })
 }
 
 export const getAllSales = async(req, res) => {
