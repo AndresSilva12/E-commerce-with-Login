@@ -2,39 +2,42 @@ import prisma from "../db.js"
 
 export const createStockEntry = async(req, res) => {
     try {
-        const newStockEntry = await prisma.stockEntry.create({
-            data: {
-                userId: req.body.userId,
-                items: {
-                    create: req.body.items.map((item)=> ({
-                        quantity: item.quantity,
-                        variantId: item.variantId
-                    }))
-                }
-            },
-            include: {
-                items: true
-            }
-        })
-    
-        const variantsUpdates = {}
-        for (const item of newStockEntry.items){
-            const variantWithStockUpdated = await prisma.productVariant.update({
-                where: {
-                    id: item.variantId
-                },
+        const result = await prisma.$transaction(async(tx) => {
+            const newStockEntry = await tx.stockEntry.create({
                 data: {
-                    stock: {
-                        increment: item.quantity
+                    userId: req.body.userId,
+                    items: {
+                        create: req.body.items.map((item)=> ({
+                            quantity: item.quantity,
+                            variantId: item.variantId
+                        }))
                     }
+                },
+                include: {
+                    items: true
                 }
             })
-            variantsUpdates[variantWithStockUpdated.code] = variantWithStockUpdated
-        }
         
-        return res.json({
-            stockEntry: newStockEntry,
-            updatedVariants: variantsUpdates
+            const variantsUpdates = {}
+            for (const item of newStockEntry.items){
+                const variantWithStockUpdated = await tx.productVariant.update({
+                    where: {
+                        id: item.variantId
+                    },
+                    data: {
+                        stock: {
+                            increment: item.quantity
+                        }
+                    }
+                })
+                variantsUpdates[variantWithStockUpdated.code] = variantWithStockUpdated
+            }
+            
+            return {newStockEntry, variantsUpdates}
+        })
+        res.json({
+                stockEntry: result.newStockEntry,
+                updatedVariants: result.variantsUpdates
         })
     } catch (error) {
         console.log(error);
