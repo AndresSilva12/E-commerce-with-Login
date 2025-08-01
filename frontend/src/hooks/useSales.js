@@ -1,8 +1,10 @@
+import { useProducts } from "../context/ProductContext.jsx"
 import { notify } from "../utils/notifyToast.js"
 import { useState } from "react"
 
 export function useSales () {
     const [sales, setSales] = useState()
+    const { fetchProducts} = useProducts()
 
     const getAllSales = async() => {
         const res = await fetch('http://localhost:3000/api/sales',{
@@ -25,6 +27,7 @@ export function useSales () {
         })
         const data = await res.json()
         notify("success", "Venta registrada con éxito!")
+        fetchProducts()
         return data
     }
 

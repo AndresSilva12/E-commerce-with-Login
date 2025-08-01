@@ -8,11 +8,11 @@ function App() {
   return (
     <>
       <AuthProvider>
-        <CartProvider>
-          <ProductProvider>
+        <ProductProvider>
+          <CartProvider>
             <AppRouter></AppRouter>
-          </ProductProvider>
-        </CartProvider>
+          </CartProvider>
+        </ProductProvider>
       </AuthProvider>
     </>
   )

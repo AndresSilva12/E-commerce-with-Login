@@ -27,6 +27,19 @@ export function CartProvider({ children }) {
     }
 
     const buyCart = async () => {
+        const cartItems = cart.map((cartItem) => (
+            {
+                variantId: cartItem.variants.id,
+                quantity: cartItem.variants.quantity
+            }
+        ))
+        const cartForSale = {
+            totalPrice: totalPrice,
+            userId: 8,
+            items: cartItems
+        }
+        createSale(cartForSale)
+        setCart([])
         notify("success", "compraste todo el carrito!")
     }
 

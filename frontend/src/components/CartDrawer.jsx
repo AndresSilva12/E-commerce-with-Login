@@ -8,7 +8,7 @@ function CartDrawer({ trigger }) {
 
     const handleUpdateQuantity = (q, cartItemId) => {
         setCart((prev) => prev.map((p) => (p.variants.id === cartItemId
-            ? { ...p, variants: { ...p.variants, quantity: q } }
+            ? { ...p, variants: { ...p.variants, quantity: Number(q) } }
             : p
         )))
     }
