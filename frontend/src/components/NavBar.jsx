@@ -10,11 +10,14 @@ import {
     Button,
     Stack
 } from '@chakra-ui/react'
+import CartDrawer from "./CartDrawer";
+import { useCart } from '../context/CartContext'
 
 
 function NavBar() {
     const { isAuthenticated, setIsAuthenticated } = useContext(AuthContext)
     const { userLogout } = useUser()
+    const { cart } = useCart()
 
     const handleLogout = () => { logoutAlert({ logoutFunction: () => userLogout({ setIsAuthenticated }) }) }
 
@@ -84,16 +87,19 @@ function NavBar() {
                 </Flex>
 
                 {isAuthenticated &&
-                    <Stack
-                        flex={{ base: 1, md: 0 }}
-                        justify={'flex-end'}
-                        direction={'row'}
-                        spacing={6}>
-                        <Button as={'a'} fontSize={'sm'} color={'white'}
-                            colorPalette="teal" fontWeight={400} onClick={() => { handleLogout() }}>
-                            Logout
-                        </Button>
-                    </Stack>
+                    <Box display="flex" gap="4">
+                        <CartDrawer trigger={<Button>Carrito {cart.length}</Button>} />
+                        <Stack
+                            flex={{ base: 1, md: 0 }}
+                            justify={'flex-end'}
+                            direction={'row'}
+                            spacing={6}>
+                            <Button as={'a'} fontSize={'sm'} color={'white'}
+                                colorPalette="teal" fontWeight={400} onClick={() => { handleLogout() }}>
+                                Logout
+                            </Button>
+                        </Stack>
+                    </Box>
                 }
 
                 {!isAuthenticated &&

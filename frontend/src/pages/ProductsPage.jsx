@@ -7,6 +7,8 @@ import { deleteAlert } from "../utils/alerts";
 import { Button, Card, Image, Text, Grid, Accordion, Span, HStack, Badge, Avatar, Box } from "@chakra-ui/react"
 import Modal from "../components/Modal";
 import { useVariants } from '../hooks/useVariants.js'
+import { useCart } from "../context/CartContext";
+import { notify } from "../utils/notifyToast.js";
 
 function ProductsPage() {
     const [productUpdate, setProductUpdate] = useState(null)
@@ -14,6 +16,7 @@ function ProductsPage() {
     const { deleteVariant, submitVariant } = useVariants()
     const [variants, setVariants] = useState([])
     const [variantUpdate, setVariantUpdate] = useState()
+    const { addToCart } = useCart()
 
     useEffect(() => {
         if (productUpdate && productUpdate.variants) {
@@ -50,6 +53,20 @@ function ProductsPage() {
         setVariantUpdate(variant)
     }
 
+    const handleCart = (variant) => {
+        const item = products.find((product) => product.id === variant.productId)
+        const onlyVariant = item.variants.find((v) => v.id === variant.id)
+        const fullItem = {
+            ...item,
+            variants: {
+                ...onlyVariant,
+                quantity: 1
+            }
+        }
+        addToCart(fullItem)
+        notify("success", "producto agregado al carrito!")
+    }
+
     return (
         <>
             {products.map((product) => (
@@ -74,7 +91,7 @@ function ProductsPage() {
                                     }} />
                                 )}
                             </Modal>
-                            <Button variant="ghost" onClick={() => { handleDelete(product.id) }}>Eliminar</Button>
+                            <Button colorPalette="red" onClick={() => { handleDelete(product.id) }}>Eliminar</Button>
                         </Box>
                         <Accordion.ItemContent>
                             <Grid templateColumns="repeat(8, 1fr)" gap="4" paddingY="16px">
@@ -91,16 +108,19 @@ function ProductsPage() {
                                             </HStack>
                                             <Text textStyle="2xl" fontWeight="medium" letterSpacing="tight" mt="2">${new Intl.NumberFormat("es-AR").format(product.salePrice)}</Text>
                                         </Card.Body>
-                                        <Card.Footer display="flex" justifyContent="center">
-                                            <Modal trigger={<Button width="50px" flex="1" onClick={() => handleVariantUpdate(variant)}>Editar</Button>}>
-                                                {({ closeModal }) => (
-                                                    <VariantModal onSubmitVariant={(data) => {
-                                                        onSubmitVariant(data)
-                                                        closeModal()
-                                                    }} variants={variants} variantUpdate={variantUpdate} />
-                                                )}
-                                            </Modal>
-                                            <Button flex="1" onClick={() => deleteVariant(variant, setVariants)}>Eliminar</Button>
+                                        <Card.Footer display="flex" flexDirection="column" justifyContent="center">
+                                            <Box display="flex" justifyContent="space-between" gap="4">
+                                                <Modal trigger={<Button width="50px" flex="1" onClick={() => handleVariantUpdate(variant)}>Editar</Button>}>
+                                                    {({ closeModal }) => (
+                                                        <VariantModal onSubmitVariant={(data) => {
+                                                            onSubmitVariant(data)
+                                                            closeModal()
+                                                        }} variants={variants} variantUpdate={variantUpdate} />
+                                                    )}
+                                                </Modal>
+                                                <Button colorPalette="red" flex="1" onClick={() => deleteVariant(variant, setVariants)}>Eliminar</Button>
+                                            </Box>
+                                            <Button colorPalette="green" onClick={() => { handleCart(variant) }}>Agregar al carrito</Button>
                                         </Card.Footer>
                                     </Card.Root>
                                 ))}

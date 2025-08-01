@@ -139,7 +139,7 @@ function ProductModal({ productUpdate, onSubmit }) {
 
                 </Fieldset.Content>
 
-                <Box height="200px" overflow="scroll">
+                <Box height="200px" overflowY="scroll">
                     {productUpdate && variants.map((variant) => (
                         <Accordion.Root collapsible key={variant.id} size="sm">
                             <Accordion.Item >
@@ -173,7 +173,7 @@ function ProductModal({ productUpdate, onSubmit }) {
                     ))}
                 </Box>
             </Fieldset.Root>
-            <Box display="flex" width="full" justifyContent="space-between">
+            <Box display="flex" width="full" paddingY="10px" justifyContent="space-between">
                 <Button type="submit" alignSelf="flex-start" >
                     {productUpdate ? 'Actualizar' : 'Crear'}
                 </Button>
