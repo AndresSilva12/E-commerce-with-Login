@@ -1,4 +1,4 @@
-import { Button, Image, Text, Box, CloseButton, Drawer, Portal, NumberInput } from "@chakra-ui/react"
+import { Button, Image, Text, Box, CloseButton, Drawer, Portal, NumberInput, Field } from "@chakra-ui/react"
 import { useCart } from "../context/CartContext";
 import { useState } from "react";
 
@@ -35,14 +35,17 @@ function CartDrawer({ trigger }) {
                                             <Text size="md">{cartItem.name} {cartItem.brand}</Text>
                                             <Box>
                                                 <Text>{cartItem.variants.code}</Text>
-                                                <NumberInput.Root
-                                                    maxW="70px"
-                                                    value={cartItem.variants.quantity}
-                                                    onValueChange={(e) => handleUpdateQuantity(e.value, cartItem.variants.id)}
-                                                >
-                                                    <NumberInput.Control />
-                                                    <NumberInput.Input />
-                                                </NumberInput.Root>
+                                                <Field.Root invalid={cartItem.variants.stock < cartItem.variants.quantity || cartItem.variants.quantity <= 0}>
+                                                    <NumberInput.Root
+                                                        maxW="70px"
+                                                        value={cartItem.variants.quantity}
+                                                        onValueChange={(e) => handleUpdateQuantity(e.value, cartItem.variants.id)}
+                                                    >
+                                                        <NumberInput.Control />
+                                                        <NumberInput.Input />
+                                                    </NumberInput.Root>
+                                                    <Field.ErrorText>{cartItem.variants.quantity <= 0 ? 'Debe llevar almenos 1' : 'Cantidad por encima del stock disponible'}</Field.ErrorText>
+                                                </Field.Root>
                                             </Box>
                                         </Box>
                                         <Button onClick={() => removeFromCart(cartItem.variants.id)}>Quitar</Button>

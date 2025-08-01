@@ -4,7 +4,7 @@ import { useProducts } from "../context/ProductContext";
 import ProductModal from "../components/ProductModal";
 import VariantModal from '../components/VariantModal'
 import { deleteAlert } from "../utils/alerts";
-import { Button, Card, Image, Text, Grid, Accordion, Span, HStack, Badge, Avatar, Box } from "@chakra-ui/react"
+import { Button, Card, Image, Text, Grid, Accordion, Span, HStack, Badge, Avatar, Box, Float } from "@chakra-ui/react"
 import Modal from "../components/Modal";
 import { useVariants } from '../hooks/useVariants.js'
 import { useCart } from "../context/CartContext";
@@ -96,33 +96,39 @@ function ProductsPage() {
                         <Accordion.ItemContent>
                             <Grid templateColumns="repeat(8, 1fr)" gap="4" paddingY="16px">
                                 {product.variants && product.variants.map((variant) => (
-
-                                    <Card.Root maxW="200px" size="sm" overflow="hidden" key={variant.id} >
-                                        <Image src={variant.image} h="100px" w="400px" fit="contain" />
-                                        <Card.Body>
-                                            <Card.Title>{product.name} {product.brand}</Card.Title>
-                                            <Card.Description>{product.description}</Card.Description>
-                                            <HStack mt="1">
-                                                <Badge>Talle {variant.size}</Badge>
-                                                <Badge>{variant.color}</Badge>
-                                            </HStack>
-                                            <Text textStyle="2xl" fontWeight="medium" letterSpacing="tight" mt="2">${new Intl.NumberFormat("es-AR").format(product.salePrice)}</Text>
-                                        </Card.Body>
-                                        <Card.Footer display="flex" flexDirection="column" justifyContent="center">
-                                            <Box display="flex" justifyContent="space-between" gap="4">
-                                                <Modal trigger={<Button width="50px" flex="1" onClick={() => handleVariantUpdate(variant)}>Editar</Button>}>
-                                                    {({ closeModal }) => (
-                                                        <VariantModal onSubmitVariant={(data) => {
-                                                            onSubmitVariant(data)
-                                                            closeModal()
-                                                        }} variants={variants} variantUpdate={variantUpdate} />
-                                                    )}
-                                                </Modal>
-                                                <Button colorPalette="red" flex="1" onClick={() => deleteVariant(variant, setVariants)}>Eliminar</Button>
-                                            </Box>
-                                            <Button colorPalette="green" onClick={() => { handleCart(variant) }}>Agregar al carrito</Button>
-                                        </Card.Footer>
-                                    </Card.Root>
+                                    <Box display="inline-block" pos="relative" key={variant.id}>
+                                        <Card.Root maxW="200px" size="sm" overflow="hidden" >
+                                            <Image src={variant.image} h="100px" w="400px" fit="contain" />
+                                            <Card.Body>
+                                                <Card.Title>{product.name} {product.brand}</Card.Title>
+                                                <Card.Description>{product.description}</Card.Description>
+                                                <HStack mt="1">
+                                                    <Badge>Talle {variant.size}</Badge>
+                                                    <Badge>{variant.color}</Badge>
+                                                </HStack>
+                                                <Text textStyle="2xl" fontWeight="medium" letterSpacing="tight" mt="2">${new Intl.NumberFormat("es-AR").format(product.salePrice)}</Text>
+                                            </Card.Body>
+                                            <Card.Footer display="flex" flexDirection="column" justifyContent="center">
+                                                <Box display="flex" justifyContent="space-between" gap="4">
+                                                    <Modal trigger={<Button width="50px" flex="1" onClick={() => handleVariantUpdate(variant)}>Editar</Button>}>
+                                                        {({ closeModal }) => (
+                                                            <VariantModal onSubmitVariant={(data) => {
+                                                                onSubmitVariant(data)
+                                                                closeModal()
+                                                            }} variants={variants} variantUpdate={variantUpdate} />
+                                                        )}
+                                                    </Modal>
+                                                    <Button colorPalette="red" flex="1" onClick={() => deleteVariant(variant, setVariants)}>Eliminar</Button>
+                                                </Box>
+                                                <Button colorPalette="green" onClick={() => { handleCart(variant) }}>Agregar al carrito</Button>
+                                            </Card.Footer>
+                                        </Card.Root>
+                                        <Float placement="top-end" zIndex="banner">
+                                            <Badge size="sm" variant="solid" colorPalette={variant.stock > 5 ? "teal" : "red"}>
+                                                Stock: {variant.stock}
+                                            </Badge>
+                                        </Float>
+                                    </Box>
                                 ))}
                             </Grid>
                         </Accordion.ItemContent>
