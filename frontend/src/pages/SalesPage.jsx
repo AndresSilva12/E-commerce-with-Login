@@ -3,6 +3,39 @@ import { useSales } from "../hooks/useSales.js";
 import { Button, Table, Box, DataList, Image, Grid } from "@chakra-ui/react";
 import Modal from "../components/Modal.jsx";
 
+export function SaleSelectedModal({ saleSelected }) {
+    return (
+        <Box>
+            <DataList.Root orientation="horizontal" divideY="1px" maxW="md">
+                <DataList.Item pt="4">
+                    <DataList.ItemLabel>Vendedor ID</DataList.ItemLabel>
+                    <DataList.ItemValue>{saleSelected.userId}</DataList.ItemValue>
+                </DataList.Item>
+                <DataList.Item pt="4">
+                    <DataList.ItemLabel>Fecha</DataList.ItemLabel>
+                    <DataList.ItemValue>{saleSelected.date}</DataList.ItemValue>
+                </DataList.Item>
+                <DataList.Item pt="4">
+                    <DataList.ItemLabel>Motivo</DataList.ItemLabel>
+                    <DataList.ItemValue>{saleSelected.motive}</DataList.ItemValue>
+                </DataList.Item>
+                <DataList.Item pt="4">
+                    <DataList.ItemLabel>Productos</DataList.ItemLabel>
+                    <Grid templateColumns="repeat(3, 1fr)" gap="4">
+                        {saleSelected.items.map(item => (
+                            <Image key={item.variant.id} src={item.variant.image} />
+                        ))}
+                    </Grid>
+                </DataList.Item>
+                <DataList.Item pt="4">
+                    <DataList.ItemLabel>Precio Final</DataList.ItemLabel>
+                    <DataList.ItemValue>$ {new Intl.NumberFormat("es-AR").format(saleSelected.totalPrice)}</DataList.ItemValue>
+                </DataList.Item>
+            </DataList.Root>
+        </Box>
+    )
+}
+
 function SalesPage() {
     const { getAllSales, sales } = useSales()
     const [saleSelected, setSaleSelected] = useState([])
@@ -34,28 +67,7 @@ function SalesPage() {
                             <Table.Cell>{sale.userId}</Table.Cell>
                             <Table.Cell>{sale.date}
                                 <Modal trigger={<Button size="sm" variant="surface" onClick={() => { handleSaleSelected(sale) }}>+Info</Button>}>
-                                    <Box>
-                                        <DataList.Root orientation="horizontal" divideY="1px" maxW="md">
-                                            <DataList.Item pt="4">
-                                                <DataList.ItemLabel>Fecha</DataList.ItemLabel>
-                                                <DataList.ItemValue>{saleSelected.date}</DataList.ItemValue>
-                                            </DataList.Item>
-                                            <DataList.Item pt="4">
-                                                <DataList.ItemLabel>Precio Final</DataList.ItemLabel>
-                                                <DataList.ItemValue>$ {new Intl.NumberFormat("es-AR").format(sale.totalPrice)}</DataList.ItemValue>
-                                            </DataList.Item>
-                                            <DataList.Item pt="4">
-                                                <DataList.ItemLabel>Vendedor ID</DataList.ItemLabel>
-                                                <DataList.ItemValue>{saleSelected.userId}</DataList.ItemValue>
-                                            </DataList.Item>
-                                            <DataList.Item pt="4">
-                                                <DataList.ItemLabel>Productos</DataList.ItemLabel>
-                                                <Grid templateColumns="repeat(3, 1fr)" gap="4">
-
-                                                </Grid>
-                                            </DataList.Item>
-                                        </DataList.Root>
-                                    </Box>
+                                    <SaleSelectedModal saleSelected={saleSelected} />
                                 </Modal>
                             </Table.Cell>
                             <Table.Cell>
@@ -65,7 +77,7 @@ function SalesPage() {
                                     </Box>
                                 ))}
                             </Table.Cell>
-                            <Table.Cell textAlign="end">$ {new Intl.NumberFormat("es-AR").format(sale.totalPrice)}</Table.Cell>
+                            <Table.Cell>$ {new Intl.NumberFormat("es-AR").format(sale.totalPrice)}</Table.Cell>
                             <Table.Cell>{sale.motive}</Table.Cell>
                         </Table.Row>
                     ))}

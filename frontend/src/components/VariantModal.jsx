@@ -115,7 +115,7 @@ function VariantModal({ onSubmitVariant, variants, variantUpdate }) {
 
                             {variantUpdate && (
                                 <Field.Root>
-                                    <Select.Root collection={motives} value={motive} onValueChange={(e) => { setMotive(e.value) }} size="sm" width="320px">
+                                    <Select.Root collection={motives} value={motive} defaultValue={["Reingreso"]} onValueChange={(e) => { setMotive(e.value) }} size="sm" width="320px">
                                         <Select.HiddenSelect />
                                         <Select.Label>Motivo</Select.Label>
                                         <Select.Control>

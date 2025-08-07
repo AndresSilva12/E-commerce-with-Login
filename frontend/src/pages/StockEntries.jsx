@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Fragment } from "react"
 import { useStockEntries } from "../hooks/useStockEntries.js";
-import { Button, Table, Box, DataList, Image, Grid } from "@chakra-ui/react";
+import { Button, Table, Box, DataList, Image, Grid, Stack } from "@chakra-ui/react";
 import Modal from "../components/Modal.jsx";
 
 export function EntrySelectedModal({ entrySelected }) {
@@ -17,14 +17,29 @@ export function EntrySelectedModal({ entrySelected }) {
                     <DataList.ItemValue>{entrySelected.userId}</DataList.ItemValue>
                 </DataList.Item>
                 <DataList.Item pt="4">
+                    <DataList.ItemLabel>Motivo</DataList.ItemLabel>
+                    <DataList.ItemValue>{entrySelected.motive}</DataList.ItemValue>
+                </DataList.Item>
+                <DataList.Item pt="4">
                     <DataList.ItemLabel>Producto</DataList.ItemLabel>
                     <Grid templateColumns="repeat(3, 1fr)" gap="4">
                         {entrySelected.items.map(item => (
                             <Box key={item.id}>
-                                {item.variant.product.name} {item.variant.product.brand}
+                                <Image src={item.variant.image} />
+                                <Stack>
+                                    {item.variant.product.name} {item.variant.product.brand}
+                                </Stack>
+                                {item.variant.code}
                             </Box>
                         ))}
                     </Grid>
+                </DataList.Item>
+                <DataList.Item pt="4">
+                    <DataList.ItemLabel>Cantidad</DataList.ItemLabel>
+                    {entrySelected.items.map(item => (
+                        <DataList.ItemValue key={item.id}>{item.quantity}</DataList.ItemValue>
+                    ))
+                    }
                 </DataList.Item>
             </DataList.Root>
         </Box>
@@ -32,7 +47,7 @@ export function EntrySelectedModal({ entrySelected }) {
 }
 
 function StockEntriesPage() {
-    const { getAllStockEntries, createEntry, stockEntries } = useStockEntries()
+    const { getAllStockEntries, stockEntries } = useStockEntries()
     const [entrySelected, setEntrySelected] = useState([])
     useEffect(() => {
         getAllStockEntries()
@@ -51,7 +66,6 @@ function StockEntriesPage() {
                     <Table.ColumnHeader>Vendedor</Table.ColumnHeader>
                     <Table.ColumnHeader>Fecha</Table.ColumnHeader>
                     <Table.ColumnHeader>Producto</Table.ColumnHeader>
-                    <Table.ColumnHeader>Código</Table.ColumnHeader>
                     <Table.ColumnHeader>Cantidad</Table.ColumnHeader>
                     <Table.ColumnHeader>Motivo</Table.ColumnHeader>
                 </Table.Row>
@@ -72,9 +86,6 @@ function StockEntriesPage() {
                                         <Image src={item.variant.image} h="full" w="40px" fit="contain" />
                                         {item.variant.product.name} {item.variant.product.brand}
                                     </Box>
-                                </Table.Cell>
-                                <Table.Cell>
-                                    {item.variant.code}
                                 </Table.Cell>
                                 <Table.Cell textStyle="lg" color="green">+ {item.quantity}</Table.Cell>
                             </Fragment>
