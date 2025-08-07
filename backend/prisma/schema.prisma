@@ -60,6 +60,7 @@ model sales {
   items saleItem[]
   totalPrice Float
   userId Int
+  motive String
   user users @relation(fields: [userId], references: [id])
 }
 

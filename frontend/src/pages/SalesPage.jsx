@@ -24,7 +24,8 @@ function SalesPage() {
                         <Table.ColumnHeader>Vendedor</Table.ColumnHeader>
                         <Table.ColumnHeader>Fecha</Table.ColumnHeader>
                         <Table.ColumnHeader>Productos</Table.ColumnHeader>
-                        <Table.ColumnHeader textAlign="end">Precio</Table.ColumnHeader>
+                        <Table.ColumnHeader>Precio</Table.ColumnHeader>
+                        <Table.ColumnHeader>Motivo</Table.ColumnHeader>
                     </Table.Row>
                 </Table.Header>
                 <Table.Body>
@@ -65,6 +66,7 @@ function SalesPage() {
                                 ))}
                             </Table.Cell>
                             <Table.Cell textAlign="end">$ {new Intl.NumberFormat("es-AR").format(sale.totalPrice)}</Table.Cell>
+                            <Table.Cell>{sale.motive}</Table.Cell>
                         </Table.Row>
                     ))}
                 </Table.Body>

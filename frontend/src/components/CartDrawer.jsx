@@ -1,10 +1,11 @@
-import { Button, Image, Text, Box, CloseButton, Drawer, Portal, NumberInput, Field } from "@chakra-ui/react"
+import { Button, Image, Text, Box, CloseButton, Drawer, Portal, NumberInput, Field, Select, createListCollection } from "@chakra-ui/react"
 import { useCart } from "../context/CartContext";
 import { useState } from "react";
 
 function CartDrawer({ trigger }) {
     const [openCart, setOpenCart] = useState(false)
     const { cart, setCart, clearCart, buyCart, removeFromCart, totalPrice } = useCart()
+    const [motive, setMotive] = useState("")
 
     const handleUpdateQuantity = (q, cartItemId) => {
         setCart((prev) => prev.map((p) => (p.variants.id === cartItemId
@@ -12,6 +13,14 @@ function CartDrawer({ trigger }) {
             : p
         )))
     }
+
+    const motives = createListCollection({
+        items: [
+            { label: "Venta", value: "Venta" },
+            { label: "Dañado", value: "Dañado" },
+            { label: "Se lo quedó la pipi", value: "Se lo quedo la pipi" },
+        ],
+    })
 
     return (
         <Drawer.Root open={openCart} onOpenChange={(e) => setOpenCart(e.open)}>
@@ -52,10 +61,34 @@ function CartDrawer({ trigger }) {
                                     </Box>
                                 ))}
                             </Box>
+                            <Select.Root collection={motives} value={motive} defaultValue={["Venta"]} onValueChange={(e) => { setMotive(e.value) }} size="sm" width="320px">
+                                <Select.HiddenSelect />
+                                <Select.Label>Motivo</Select.Label>
+                                <Select.Control>
+                                    <Select.Trigger>
+                                        <Select.ValueText placeholder="Motivo" />
+                                    </Select.Trigger>
+                                    <Select.IndicatorGroup>
+                                        <Select.Indicator />
+                                    </Select.IndicatorGroup>
+                                </Select.Control>
+                                <Portal color="red">
+                                    <Select.Positioner>
+                                        <Select.Content zIndex="9999">
+                                            {motives.items.map((motive) => (
+                                                <Select.Item item={motive} key={motive.value}>
+                                                    {motive.label}
+                                                    <Select.ItemIndicator />
+                                                </Select.Item>
+                                            ))}
+                                        </Select.Content>
+                                    </Select.Positioner>
+                                </Portal>
+                            </Select.Root>
                         </Drawer.Body>
                         <Drawer.Footer>
                             <Text textStyle="lg" color="green" fontWeight="medium">Total $ {new Intl.NumberFormat("es-AR").format(totalPrice)}</Text>
-                            <Button onClick={() => { buyCart() }}>Comprar Carrito</Button>
+                            <Button onClick={() => { buyCart(motive) }}>Comprar Carrito</Button>
                         </Drawer.Footer>
                         <Drawer.CloseTrigger asChild>
                             <CloseButton size="sm" />

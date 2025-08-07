@@ -1,4 +1,3 @@
-import { id } from "zod/v4/locales"
 import prisma from "../db.js"
 export const createNewSale = async(req, res) => {
     try {
@@ -12,7 +11,8 @@ export const createNewSale = async(req, res) => {
                             variantId: item.variantId,
                             quantity: item.quantity
                         }))
-                    }
+                    },
+                    motive: req.body.motive
                 },
                 include: {
                     items: true

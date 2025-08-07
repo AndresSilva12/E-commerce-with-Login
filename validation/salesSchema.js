@@ -24,5 +24,6 @@ export const saleSchema = z.object({
                 .gte(1, "Debe ser mayor a 0")
             ),
         })
-    ).min(1, "Debe tener al menos un item de venta")
+    ).min(1, "Debe tener al menos un item de venta"),
+    motive: z.string()
 })

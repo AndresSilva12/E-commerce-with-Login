@@ -26,7 +26,7 @@ export function CartProvider({ children }) {
         }
     }
 
-    const buyCart = async () => {
+    const buyCart = async (motive) => {
         const cartItems = cart.map((cartItem) => (
             {
                 variantId: cartItem.variants.id,
@@ -36,7 +36,8 @@ export function CartProvider({ children }) {
         const cartForSale = {
             totalPrice: totalPrice,
             userId: 1,
-            items: cartItems
+            items: cartItems,
+            motive: String(motive)
         }
         createSale(cartForSale)
         setCart([])
