@@ -86,8 +86,9 @@ export function useVariants () {
 
     const updateVariant = async(formData, variant) =>  {
         try {
+            const {motive, ...formDataWithoutMotive} = formData
             const {createdAt, ...variantWithoutCreatedAt} = variant
-            if (isEqual(formData, variantWithoutCreatedAt)){
+            if (isEqual(formDataWithoutMotive, variantWithoutCreatedAt)){
                 return {success: true}
             }
             const stockDifference = formData.stock - variant.stock
@@ -100,7 +101,7 @@ export function useVariants () {
                 headers: {
                     "Content-type": "application/json"
                 },
-                body: JSON.stringify(formData)
+                body: JSON.stringify(formDataWithoutMotive)
             })
             const data = await res.json()
             if (!res.ok) {
@@ -114,7 +115,7 @@ export function useVariants () {
                         variantId: variant.id,
                         quantity: stockDifference
                     }],
-                    motive: "Ajuste manual"
+                    motive: motive
                 }
                 await createEntry(entryData)
             }

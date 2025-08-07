@@ -4,17 +4,26 @@ import { notify } from '../utils/notifyToast.js'
 import { variantSchemaWithOutProductId } from '../../../validation/productVariantsSchema.js'
 import { useState, useRef } from 'react'
 import { useVariants } from '../hooks/useVariants.js'
-import { Button, Field, Fieldset, Input, FileUpload, NumberInput, Box } from "@chakra-ui/react"
+import { Button, Field, Fieldset, Input, FileUpload, NumberInput, Box, Select, Portal, createListCollection } from "@chakra-ui/react"
 
 function VariantModal({ onSubmitVariant, variants, variantUpdate }) {
     const [image, setImage] = useState(null)
     const fileInputRef = useRef(null)
     const { getOneVariant } = useVariants()
+    const [motive, setMotive] = useState("")
 
     const { register, handleSubmit, formState: { errors }, setError } = useForm({
         mode: 'onChange',
         resolver: zodResolver(variantUpdate ? variantSchemaWithOutProductId.partial() : variantSchemaWithOutProductId),
         defaultValues: variantUpdate
+    })
+
+    const motives = createListCollection({
+        items: [
+            { label: "Stock Inicial", value: "Stock Inicial" },
+            { label: "Devolución", value: "Devolucion" },
+            { label: "Reingreso", value: "Reingreso" },
+        ],
     })
 
     const isValid = async (data) => {
@@ -38,11 +47,15 @@ function VariantModal({ onSubmitVariant, variants, variantUpdate }) {
 
         data.image = image || variantUpdate?.image
 
+        if (variantUpdate) {
+            data.motive = String(motive)
+        }
+
         setImage(null)
         onSubmitVariant(data)
     }
 
-    const isInvalid = (data) => {
+    const isInvalid = () => {
         notify('error', 'Por favor ingrese todos los datos')
     }
 
@@ -100,12 +113,34 @@ function VariantModal({ onSubmitVariant, variants, variantUpdate }) {
                                 </NumberInput.Root>
                             </Field.Root>
 
-                            <Field.Root>
-                                <Box display="flex" justifyContent="space-between" width="full">
-                                    <Field.Label>Motivo (opcional)</Field.Label>
-                                </Box>
-                                <Input />
-                            </Field.Root>
+                            {variantUpdate && (
+                                <Field.Root>
+                                    <Select.Root collection={motives} value={motive} onValueChange={(e) => { setMotive(e.value) }} size="sm" width="320px">
+                                        <Select.HiddenSelect />
+                                        <Select.Label>Motivo</Select.Label>
+                                        <Select.Control>
+                                            <Select.Trigger>
+                                                <Select.ValueText placeholder="Motivo" />
+                                            </Select.Trigger>
+                                            <Select.IndicatorGroup>
+                                                <Select.Indicator />
+                                            </Select.IndicatorGroup>
+                                        </Select.Control>
+                                        <Portal color="red">
+                                            <Select.Positioner>
+                                                <Select.Content zIndex="9999">
+                                                    {motives.items.map((motive) => (
+                                                        <Select.Item item={motive} key={motive.value}>
+                                                            {motive.label}
+                                                            <Select.ItemIndicator />
+                                                        </Select.Item>
+                                                    ))}
+                                                </Select.Content>
+                                            </Select.Positioner>
+                                        </Portal>
+                                    </Select.Root>
+                                </Field.Root>
+                            )}
                         </Box>
 
                         <FileUpload.Root accept='image/*' onChange={handleImageChange} ref={fileInputRef}>
