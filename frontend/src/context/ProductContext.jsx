@@ -1,10 +1,12 @@
 import { createContext, useEffect, useState, useContext } from "react";
 import { notify } from "../utils/notifyToast.js";
 import isEqual from 'lodash.isequal'
+import { useStockEntries } from "../hooks/useStockEntries.js";
 
 const ProductContext = createContext()
 
 export function ProductProvider({ children }) {
+    const { createEntry } = useStockEntries()
     const [products, setProducts] = useState([])
 
     const fetchProducts = async () => {
@@ -19,6 +21,17 @@ export function ProductProvider({ children }) {
 
     const createProduct = async (formProduct, setError) => {
         try {
+            const errors = {}
+            for (const variant of formProduct.variants) {
+                if (variant.stock <= 0) {
+                    errors[variant.code] = `${variant.code}: Debe tener almenos 1 de cantidad en stock`
+                }
+            }
+            if (Object.keys(errors).length > 0) {
+                notify('error', 'Debe tener almenos uno en stock por variante')
+                return { success: false, errors: errors }
+            }
+
             const res = await fetch('http://localhost:3000/api/products', {
                 method: 'POST',
                 headers: {
@@ -46,12 +59,25 @@ export function ProductProvider({ children }) {
                 return { success: false, errors: data.errors || 'Error Desconocido' }
 
             }
-
             setProducts((prev) => [...prev, data])
+
+            for (const variant of data.variants) {
+                const entryData = {
+                    userId: 1,
+                    items: [{
+                        variantId: variant.id,
+                        quantity: variant.stock
+                    }],
+                    motive: "Stock Inicial"
+                }
+                await createEntry(entryData)
+            }
+
             notify('success', 'Producto creado con éxito')
             return { success: true }
         } catch (error) {
             notify('error', 'No se pudo crear el producto')
+            console.log("el producto no se creo correctamente?", error)
             return { success: false, errors: { general: 'Error interno del servidor' } };
         }
     }

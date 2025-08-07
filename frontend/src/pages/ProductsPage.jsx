@@ -13,8 +13,7 @@ import { notify } from "../utils/notifyToast.js";
 function ProductsPage() {
     const [productUpdate, setProductUpdate] = useState(null)
     const { products, deleteProduct } = useProducts()
-    const { deleteVariant, submitVariant } = useVariants()
-    const [variants, setVariants] = useState([])
+    const { deleteVariant, submitVariant, setVariants, variants } = useVariants()
     const [variantUpdate, setVariantUpdate] = useState()
     const { addToCart } = useCart()
 
@@ -46,11 +45,12 @@ function ProductsPage() {
     }
 
     const onSubmitVariant = async (data) => {
-        submitVariant({ data, variantUpdate, productUpdate, setVariants })
+        submitVariant({ setVariants, productUpdate, variantUpdate, data })
     }
 
-    const handleVariantUpdate = (variant) => {
+    const handleVariantUpdate = (variant, product) => {
         setVariantUpdate(variant)
+        setProductUpdate(product)
     }
 
     const handleCart = (variant) => {
@@ -110,7 +110,7 @@ function ProductsPage() {
                                             </Card.Body>
                                             <Card.Footer display="flex" flexDirection="column" justifyContent="center">
                                                 <Box display="flex" justifyContent="space-between" gap="4">
-                                                    <Modal trigger={<Button width="50px" flex="1" onClick={() => handleVariantUpdate(variant)}>Editar</Button>}>
+                                                    <Modal trigger={<Button type="button" width="50px" flex="1" onClick={() => handleVariantUpdate(variant, product)}>Editar</Button>}>
                                                         {({ closeModal }) => (
                                                             <VariantModal onSubmitVariant={(data) => {
                                                                 onSubmitVariant(data)

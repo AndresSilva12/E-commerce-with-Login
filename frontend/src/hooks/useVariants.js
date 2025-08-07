@@ -4,9 +4,12 @@ import { useProducts } from "../context/ProductContext.jsx"
 import { uploadImage } from '../utils/uploads.js'
 import isEqual from 'lodash.isequal'
 import { deleteAlert } from "../utils/alerts.js"
+import { useStockEntries } from "./useStockEntries.js"
+import { success } from "zod/v4"
 
 export function useVariants () {
-    const { addVariantToProduct, fetchProducts, deleteVariantToProduct, updateVariantToProduct} = useProducts()
+    const { addVariantToProduct, deleteVariantToProduct, updateVariantToProduct} = useProducts()
+    const {createEntry} = useStockEntries()
     const [variants, setVariants] = useState([])
 
     const fetchVariants = async() => {
@@ -87,6 +90,11 @@ export function useVariants () {
             if (isEqual(formData, variantWithoutCreatedAt)){
                 return {success: true}
             }
+            const stockDifference = formData.stock - variant.stock
+            if (stockDifference < 0){
+                notify('error', 'Para restar stock debe de darle salida desde el carrito')
+                return {success: false}
+            }
             const res = await fetch(`http://localhost:3000/api/variants/${variant.id}`,{
                 method: 'PUT',
                 headers: {
@@ -99,6 +107,17 @@ export function useVariants () {
                 return {success: false, errors: data.errors}
             }
             await updateVariantToProduct(data.productId, data.id, data)
+            if (stockDifference > 0){
+                const entryData = {
+                    userId: 1,
+                    items: [{
+                        variantId: variant.id,
+                        quantity: stockDifference
+                    }],
+                    motive: "Ajuste manual"
+                }
+                await createEntry(entryData)
+            }
             notify('success', 'Variante actualizada con éxito')
         }
         catch (error){
@@ -141,14 +160,17 @@ export function useVariants () {
                 }
             }
         } else {
-            variantUpdate
-                ? setVariants((prev => prev.map(p => p.localId === data.localId ? data : p)))
-                : setVariants((prev) => [...prev, data])
+            if (variantUpdate){
+                setVariants((prev => prev.map(p => p.localId === data.localId ? data : p)))
+            }else{
+                setVariants((prev) => [...prev, data])
+            }
         }
     }
 
     return{
         variants,
+        setVariants,
         fetchVariants,
         createVariant,
         deleteVariant,

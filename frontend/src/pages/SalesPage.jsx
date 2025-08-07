@@ -2,30 +2,17 @@ import { useEffect, useState } from "react";
 import { useSales } from "../hooks/useSales.js";
 import { Button, Table, Box, DataList, Image, Grid } from "@chakra-ui/react";
 import Modal from "../components/Modal.jsx";
-import { useProducts } from "../context/ProductContext.jsx";
-import { useVariants } from "../hooks/useVariants.js";
 
 function SalesPage() {
     const { getAllSales, sales } = useSales()
     const [saleSelected, setSaleSelected] = useState([])
-    const { products } = useProducts()
-    const { variants, fetchVariants } = useVariants()
-    const [variantsImage, setVariantsImage] = useState()
 
     useEffect(() => {
         getAllSales()
-        fetchVariants()
     }, [])
 
     const handleSaleSelected = (sale) => {
-        const variantsSales = sale.items.map((item) => (item.variantId))
-        const variantsInfo = variantsSales.map(id => variants.find(v => v.id === id))
-        const productInfo = variantsInfo.map(variant => products.find(p => p.id === variant.productId))
-        console.log(productInfo)
-        /* setProductsComplete({...productInfo, variants: {...variantsInfo}}) */
-        setVariantsImage(variantsInfo.map((item) => (item.image)))
         setSaleSelected(sale)
-
     }
 
     return (
@@ -36,6 +23,7 @@ function SalesPage() {
                     <Table.Row>
                         <Table.ColumnHeader>Vendedor</Table.ColumnHeader>
                         <Table.ColumnHeader>Fecha</Table.ColumnHeader>
+                        <Table.ColumnHeader>Productos</Table.ColumnHeader>
                         <Table.ColumnHeader textAlign="end">Precio</Table.ColumnHeader>
                     </Table.Row>
                 </Table.Header>
@@ -62,14 +50,19 @@ function SalesPage() {
                                             <DataList.Item pt="4">
                                                 <DataList.ItemLabel>Productos</DataList.ItemLabel>
                                                 <Grid templateColumns="repeat(3, 1fr)" gap="4">
-                                                    {variantsImage && variantsImage.map(variantImage => (
-                                                        <DataList.ItemValue key={variantImage}><Image src={variantImage} /></DataList.ItemValue>
-                                                    ))}
+
                                                 </Grid>
                                             </DataList.Item>
                                         </DataList.Root>
                                     </Box>
                                 </Modal>
+                            </Table.Cell>
+                            <Table.Cell>
+                                {sale.items.map(item => (
+                                    <Box display="flex" flexDirection="column" key={item.variant.id}>
+                                        {item.quantity} {item.variant.product.name} {item.variant.product.brand}
+                                    </Box>
+                                ))}
                             </Table.Cell>
                             <Table.Cell textAlign="end">$ {new Intl.NumberFormat("es-AR").format(sale.totalPrice)}</Table.Cell>
                         </Table.Row>

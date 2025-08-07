@@ -9,6 +9,7 @@ import NavBar from '../components/NavBar';
 import ProtectedRoutes from '../components/ProtectedRoutes';
 import GuestOnlyRoute from '../components/GuestOnlyRoute';
 import ProductsPage from '../pages/ProductsPage';
+import StockEntriesPage from '../pages/StockEntries';
 
 function AppRouter() {
     return (
@@ -39,6 +40,11 @@ function AppRouter() {
                 <Route path='/sales' element={
                     <ProtectedRoutes>
                         <SalesPage />
+                    </ProtectedRoutes>
+                } />
+                <Route path='/entries' element={
+                    <ProtectedRoutes>
+                        <StockEntriesPage />
                     </ProtectedRoutes>
                 } />
                 <Route path='/login' element={

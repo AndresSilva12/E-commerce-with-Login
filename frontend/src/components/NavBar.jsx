@@ -85,6 +85,17 @@ function NavBar() {
                                 >
                                     <Link className='text-white' to='/sales' >Sales</Link>
                                 </Box>
+                                <Box
+                                    px={2}
+                                    py={1}
+                                    rounded={'md'}
+                                    _hover={{
+                                        textDecoration: 'none',
+                                        bg: ('gray.200', 'gray.700'),
+                                    }}
+                                >
+                                    <Link className='text-white' to='/entries' >Entries</Link>
+                                </Box>
 
                             </>
                         }

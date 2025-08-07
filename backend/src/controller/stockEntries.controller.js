@@ -12,7 +12,8 @@ export const createStockEntry = async(req, res) => {
                             quantity: item.quantity,
                             variantId: item.variantId
                         }))
-                    }
+                    },
+                    motive: req.body.motive
                 },
                 include: {
                     items: true
@@ -50,7 +51,15 @@ export const getAllStockEntries = async(req, res) => {
     try {
         const allStockEntries = await prisma.stockEntry.findMany({
         include: {
-            items: true
+            items: {
+                include:{
+                    variant:{
+                        include:{
+                            product: true
+                        }
+                    }
+                }
+            }
         }
         })
         return res.json(allStockEntries)

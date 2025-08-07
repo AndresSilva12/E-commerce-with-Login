@@ -18,9 +18,8 @@ function ProductModal({ productUpdate, onSubmit }) {
         defaultValues: productUpdate
     })
     const { updateProduct, createProduct } = useProducts()
-    const { deleteVariant, submitVariant } = useVariants()
+    const { deleteVariant, submitVariant, variants, setVariants } = useVariants()
     const [variantUpdate, setVariantUpdate] = useState()
-    const [variants, setVariants] = useState([])
     const purchasePrice = watch("purchasePrice")
     const salePrice = watch("salePrice")
 
@@ -31,8 +30,10 @@ function ProductModal({ productUpdate, onSubmit }) {
                 localId: v.id || crypto.randomUUID()
             }))
             setVariants(variantsWithLocalId)
+        } else {
+            setVariants([])
         }
-    }, [])
+    }, [productUpdate])
 
     useEffect(() => {
         if (productUpdate) {
@@ -60,6 +61,7 @@ function ProductModal({ productUpdate, onSubmit }) {
 
         if (!result.success) {
             notify('error', result.error || 'Error al guardar el producto')
+            console.log("Entro al error", result)
             return
         }
         onSubmit()
@@ -140,17 +142,17 @@ function ProductModal({ productUpdate, onSubmit }) {
                 </Fieldset.Content>
 
                 <Box height="200px" overflowY="scroll">
-                    {productUpdate && variants.map((variant) => (
-                        <Accordion.Root collapsible key={variant.id} size="sm">
+                    {variants.map((variant) => (
+                        <Accordion.Root collapsible key={variant.localId} size="sm">
                             <Accordion.Item >
                                 <Box display="flex">
                                     <Accordion.ItemTrigger>
                                         <Avatar.Root shape="rounded">
                                             <Avatar.Image src={variant.image} />
-                                            <Avatar.Fallback name={productUpdate.name} />
+                                            <Avatar.Fallback name={variant.code} />
                                         </Avatar.Root>
                                         <Stack gap="1">
-                                            <Span flex="1">{productUpdate.name} {productUpdate.brand}</Span>
+                                            {productUpdate && <Span flex="1">{productUpdate.name} {productUpdate.brand}</Span>}
                                             <Text fontSize="sm" color="fg.muted">Codigo: {variant.code} Size: {variant.size}</Text>
                                             <Text fontSize="sm" color="fg.muted">Color: {variant.color} Stock: {variant.stock}</Text>
                                         </Stack>
@@ -177,7 +179,7 @@ function ProductModal({ productUpdate, onSubmit }) {
                 <Button type="submit" alignSelf="flex-start" >
                     {productUpdate ? 'Actualizar' : 'Crear'}
                 </Button>
-                <Modal trigger={<Button onClick={() => { handleCreate() }} variant="surface" >Nueva Variante</Button>}>
+                <Modal trigger={<Button type="button" onClick={() => { handleCreate() }} variant="surface" >Nueva Variante</Button>}>
                     {({ closeModal }) => (
                         <VariantModal onSubmitVariant={(data) => {
                             onSubmitVariant(data)

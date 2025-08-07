@@ -45,7 +45,15 @@ export const getAllSales = async(req, res) => {
     try {
         const allSales = await prisma.sales.findMany({
             include: {
-                items: true
+                items: {
+                    include: {
+                        variant: {
+                            include: {
+                                product: true
+                            }
+                        }
+                    }
+                }
             }
         })
         return res.json(allSales)

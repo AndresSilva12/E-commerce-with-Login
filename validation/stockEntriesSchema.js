@@ -16,5 +16,6 @@ export const stockEntriesSchema = z.object({
             .int("Debe ser un número entero")
             .gte(1, "Debe ser mayor a 0")
         ),
-    })).min(1, "Debe tener al menos un item de entrada")
+    })).min(1, "Debe tener al menos un item de entrada"),
+    motive: z.string()
 })

@@ -76,6 +76,7 @@ model stockEntry {
   id String @id @default(cuid())
   date DateTime @default(now())
   userId Int
+  motive String
   items stockEntryItem []
   user users @relation(fields: [userId], references: [id])
 }

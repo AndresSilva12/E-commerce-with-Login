@@ -35,7 +35,9 @@ export const validateStockEntry = async(req, res, next) => {
         }
 
         if (Object.keys(errorsItem).length > 0) errors.items = errorsItem
-        if (Object.keys(errors).length > 0) return res.status(400).json({errors})
+        if (Object.keys(errors).length > 0) {
+            return res.status(400).json({errors})
+        }
 
         req.body = stockEntryParsed.data
         req.body.items = variantsNotDuplicate

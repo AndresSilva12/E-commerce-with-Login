@@ -42,7 +42,7 @@ function VariantModal({ onSubmitVariant, variants, variantUpdate }) {
         onSubmitVariant(data)
     }
 
-    const isInvalid = () => {
+    const isInvalid = (data) => {
         notify('error', 'Por favor ingrese todos los datos')
     }
 
@@ -58,7 +58,10 @@ function VariantModal({ onSubmitVariant, variants, variantUpdate }) {
 
     return (
         <>
-            <form onSubmit={handleSubmit(isValid, isInvalid)}>
+            <form onSubmit={(e) => {
+                e.stopPropagation()
+                handleSubmit(isValid, isInvalid)(e)
+            }}>
                 <Fieldset.Root size="lg" maxW="md">
                     <Fieldset.Content>
                         <Field.Root invalid={!!errors.code}>
@@ -85,16 +88,25 @@ function VariantModal({ onSubmitVariant, variants, variantUpdate }) {
                             <Input {...register("color")} />
                         </Field.Root>
 
-                        <Field.Root invalid={!!errors.stock} >
-                            <Box display="flex" justifyContent="space-between" width="full">
-                                <Field.Label>Stock</Field.Label>
-                                <Field.ErrorText>{errors.stock?.message}</Field.ErrorText>
-                            </Box>
-                            <NumberInput.Root defaultValue="1" >
-                                <NumberInput.Control />
-                                <NumberInput.Input  {...register("stock")} />
-                            </NumberInput.Root>
-                        </Field.Root>
+                        <Box display="flex">
+                            <Field.Root invalid={!!errors.stock} >
+                                <Box display="flex" justifyContent="space-between" width="full">
+                                    <Field.Label>Stock</Field.Label>
+                                    <Field.ErrorText>{errors.stock?.message}</Field.ErrorText>
+                                </Box>
+                                <NumberInput.Root defaultValue="1" >
+                                    <NumberInput.Control />
+                                    <NumberInput.Input  {...register("stock")} />
+                                </NumberInput.Root>
+                            </Field.Root>
+
+                            <Field.Root>
+                                <Box display="flex" justifyContent="space-between" width="full">
+                                    <Field.Label>Motivo (opcional)</Field.Label>
+                                </Box>
+                                <Input />
+                            </Field.Root>
+                        </Box>
 
                         <FileUpload.Root accept='image/*' onChange={handleImageChange} ref={fileInputRef}>
                             <FileUpload.HiddenInput />
@@ -108,7 +120,7 @@ function VariantModal({ onSubmitVariant, variants, variantUpdate }) {
                     </Fieldset.Content>
 
                     <Button type="submit" alignSelf="flex-start" >
-                        {variantUpdate ? 'Actualizar' : 'Crear'}
+                        {variantUpdate ? 'Actualizar variante' : 'Crear variante'}
                     </Button>
                 </Fieldset.Root>
             </form >

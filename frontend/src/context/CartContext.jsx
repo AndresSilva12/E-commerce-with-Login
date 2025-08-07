@@ -35,7 +35,7 @@ export function CartProvider({ children }) {
         ))
         const cartForSale = {
             totalPrice: totalPrice,
-            userId: 8,
+            userId: 1,
             items: cartItems
         }
         createSale(cartForSale)
