@@ -24,7 +24,6 @@ model products {
   id String @id @default(cuid())
   name String
   description String?
-  purchasePrice Float
   salePrice Float
   brand String
   variants productVariant[]
@@ -49,6 +48,7 @@ model saleItem {
   id String @id @default(cuid())
   saleId String
   quantity Int
+  unitPrice Float
   variantId String
   variant productVariant @relation(fields: [variantId], references: [id])
   sale sales @relation(fields: [saleId], references: [id], onDelete: Cascade)
@@ -68,6 +68,7 @@ model stockEntryItem {
   id String @id @default(cuid())
   quantity Int
   variantId String
+  purchasePrice Float
   stockEntryId String
   entry stockEntry @relation(fields: [stockEntryId], references: [id], onDelete: Cascade)
   variant productVariant @relation(fields: [variantId], references: [id])

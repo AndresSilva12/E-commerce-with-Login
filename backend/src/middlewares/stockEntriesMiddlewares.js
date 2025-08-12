@@ -43,7 +43,6 @@ export const validateStockEntry = async(req, res, next) => {
         req.body.items = variantsNotDuplicate
         next()
     } catch (error) {
-        console.log(error);
         return res.status(500).json({ error: "Error interno durante el proceso" });
     }
 }

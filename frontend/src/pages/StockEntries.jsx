@@ -37,7 +37,7 @@ export function EntrySelectedModal({ entrySelected }) {
                 <DataList.Item pt="4">
                     <DataList.ItemLabel>Cantidad</DataList.ItemLabel>
                     {entrySelected.items.map(item => (
-                        <DataList.ItemValue key={item.id}>{item.quantity}</DataList.ItemValue>
+                        <DataList.ItemValue key={item.id}>{item.quantity} ${item.purchasePrice}</DataList.ItemValue>
                     ))
                     }
                 </DataList.Item>
@@ -67,6 +67,7 @@ function StockEntriesPage() {
                     <Table.ColumnHeader>Fecha</Table.ColumnHeader>
                     <Table.ColumnHeader>Producto</Table.ColumnHeader>
                     <Table.ColumnHeader>Cantidad</Table.ColumnHeader>
+                    <Table.ColumnHeader>Precio de compra</Table.ColumnHeader>
                     <Table.ColumnHeader>Motivo</Table.ColumnHeader>
                 </Table.Row>
             </Table.Header>
@@ -83,11 +84,11 @@ function StockEntriesPage() {
                             <Fragment key={item.id}>
                                 <Table.Cell key={item.id}>
                                     <Box display="flex" alignItems="center">
-                                        <Image src={item.variant.image} h="full" w="40px" fit="contain" />
                                         {item.variant.product.name} {item.variant.product.brand}
                                     </Box>
                                 </Table.Cell>
                                 <Table.Cell textStyle="lg" color="green">+ {item.quantity}</Table.Cell>
+                                <Table.Cell> ${item.purchasePrice}</Table.Cell>
                             </Fragment>
                         ))}
                         <Table.Cell>{entry.motive}</Table.Cell>

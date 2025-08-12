@@ -9,10 +9,11 @@ export const createNewSale = async(req, res) => {
                     items: {
                         create: req.body.items.map((item)=> ({
                             variantId: item.variantId,
-                            quantity: item.quantity
+                            quantity: item.quantity,
+                            unitPrice: item.unitPrice
                         }))
                     },
-                    motive: req.body.motive
+                    motive: req.body.motive || "Venta"
                 },
                 include: {
                     items: true

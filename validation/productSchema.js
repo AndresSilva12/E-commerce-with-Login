@@ -11,10 +11,6 @@ export const productSchema = z.object({
     .min(1, "El nombre del producto es obligatorio")
     .min(2, "Debe tener almenos 2 caracteres")
     .regex(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/, "Debe incluir solo letras y espacios"),
-  purchasePrice: z.coerce
-    .number()
-    .min(1, "El precio de compra es obligatorio")
-    .gte(1, "El precio de compra debe ser mayor a 0"),
   salePrice: z.coerce
     .number()
     .min(1, "El precio de venta es obligatorio")

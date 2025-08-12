@@ -1,14 +1,14 @@
 import { useProducts } from '../context/ProductContext.jsx'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { notify } from '../utils/notifyToast.js'
 import { productSchema, updateProductSchema } from '../../../validation/productSchema.js'
 import VariantModal from './VariantModal.jsx'
 import { useVariants } from '../hooks/useVariants.js'
-import { deleteAlert, lossAlert } from '../utils/alerts.js'
 import { uploadImage } from '../utils/uploads.js'
 import Modal from "./Modal.jsx";
+import { useStockEntries } from '../hooks/useStockEntries.js'
 import { Button, Accordion, Box, Avatar, Span, Field, Fieldset, Input, InputGroup, NumberInput, Text, Stack } from "@chakra-ui/react"
 
 function ProductModal({ productUpdate, onSubmit }) {
@@ -20,8 +20,8 @@ function ProductModal({ productUpdate, onSubmit }) {
     const { updateProduct, createProduct } = useProducts()
     const { deleteVariant, submitVariant, variants, setVariants } = useVariants()
     const [variantUpdate, setVariantUpdate] = useState()
-    const purchasePrice = watch("purchasePrice")
-    const salePrice = watch("salePrice")
+    const [purchasePrice, setPurchasePrice] = useState(1)
+    const { createEntry } = useStockEntries()
 
     useEffect(() => {
         if (productUpdate && productUpdate.variants) {
@@ -42,11 +42,6 @@ function ProductModal({ productUpdate, onSubmit }) {
     }, [productUpdate, reset])
 
     const onValid = async (data) => {
-        if (purchasePrice && salePrice && Number(purchasePrice) > Number(salePrice)) {
-            const resultAlert = await lossAlert()
-            if (!resultAlert.success) return
-
-        }
         const fullProduct = {
             ...data,
             variants: variants.length > 0 ? variants.map(({ localId, ...rest }) => rest) : []
@@ -61,8 +56,20 @@ function ProductModal({ productUpdate, onSubmit }) {
 
         if (!result.success) {
             notify('error', result.error || 'Error al guardar el producto')
-            console.log("Entro al error", result)
             return
+        }
+
+        for (const variant of result.variants) {
+            const entryData = {
+                userId: 1,
+                items: [{
+                    variantId: variant.id,
+                    quantity: variant.stock,
+                    purchasePrice: purchasePrice
+                }],
+                motive: "Stock Inicial"
+            }
+            createEntry(entryData)
         }
         onSubmit()
     }
@@ -106,20 +113,7 @@ function ProductModal({ productUpdate, onSubmit }) {
                         </Field.Root>
                     </Box>
 
-                    <Box display="flex">
-                        <Field.Root invalid={!!errors.purchasePrice}>
-                            <Box display="flex" justifyContent="space-between" width="full">
-                                <Field.Label>Purchase Price</Field.Label>
-                                <Field.ErrorText>{errors.purchasePrice?.message}</Field.ErrorText>
-                            </Box>
-                            <NumberInput.Root defaultValue="10" width="200px" {...register("purchasePrice")}>
-                                <NumberInput.Control />
-                                <InputGroup startElement="$">
-                                    <NumberInput.Input />
-                                </InputGroup>
-                            </NumberInput.Root>
-                        </Field.Root>
-
+                    <Box display="flex" justifyContent="space-between">
                         <Field.Root invalid={!!errors.salePrice}>
                             <Box display="flex" justifyContent="space-between" width="full">
                                 <Field.Label>Sale Price</Field.Label>
@@ -132,6 +126,20 @@ function ProductModal({ productUpdate, onSubmit }) {
                                 </InputGroup>
                             </NumberInput.Root>
                         </Field.Root>
+
+                        {!productUpdate && (
+                            <Field.Root>
+                                <Box display="flex" justifyContent="space-between" width="full">
+                                    <Field.Label>Purchase Price</Field.Label>
+                                </Box>
+                                <NumberInput.Root value={purchasePrice} onValueChange={(e) => { setPurchasePrice(e.value) }} width="200px">
+                                    <NumberInput.Control />
+                                    <InputGroup startElement="$">
+                                        <NumberInput.Input />
+                                    </InputGroup>
+                                </NumberInput.Root>
+                            </Field.Root>
+                        )}
                     </Box>
 
                     <Field.Root>
@@ -162,7 +170,7 @@ function ProductModal({ productUpdate, onSubmit }) {
                                             <VariantModal onSubmitVariant={(data) => {
                                                 onSubmitVariant(data)
                                                 closeModal()
-                                            }} variants={variants} variantUpdate={variantUpdate} />
+                                            }} variants={variants} variantUpdate={variantUpdate} productUpdate={productUpdate} />
                                         )}
                                     </Modal>
                                     <Button variant="ghost" onClick={() => { deleteVariant(variant, setVariants) }}>Eliminar</Button>
@@ -184,7 +192,7 @@ function ProductModal({ productUpdate, onSubmit }) {
                         <VariantModal onSubmitVariant={(data) => {
                             onSubmitVariant(data)
                             closeModal()
-                        }} variants={variants} variantUpdate={variantUpdate} />
+                        }} variants={variants} variantUpdate={variantUpdate} productUpdate={productUpdate} />
                     )}
                 </Modal>
             </Box>

@@ -5,7 +5,6 @@ import { uploadImage } from '../utils/uploads.js'
 import isEqual from 'lodash.isequal'
 import { deleteAlert } from "../utils/alerts.js"
 import { useStockEntries } from "./useStockEntries.js"
-import { success } from "zod/v4"
 
 export function useVariants () {
     const { addVariantToProduct, deleteVariantToProduct, updateVariantToProduct} = useProducts()
@@ -43,18 +42,31 @@ export function useVariants () {
     }
 
     const createVariant = async(formData) => {
+        const {motive, purchasePrice, ...formDataClean} = formData
         try {
             const res = await fetch('http://localhost:3000/api/variants', {
                 method: 'POST',
                 headers: {
                     "Content-type": "application/json"
                 },
-                body: JSON.stringify(formData)
+                body: JSON.stringify(formDataClean)
             })
             if (!res.ok){
                 console.log("Hubo un error durante la creación", res)
             }
             const data = await res.json()
+            const entryData = {
+                userId: 1,
+                items: [
+                    {
+                        variantId: data.id,
+                        quantity: formDataClean.stock,
+                        purchasePrice: purchasePrice
+                    }
+                ],
+                motive: motive || "Stock Inicial"
+            }
+            await createEntry(entryData)
             notify('success', 'Variante creada con éxito!')
             return {id: data.id}
         } catch (error) {
@@ -86,15 +98,9 @@ export function useVariants () {
 
     const updateVariant = async(formData, variant) =>  {
         try {
-            const {motive, ...formDataWithoutMotive} = formData
             const {createdAt, ...variantWithoutCreatedAt} = variant
-            if (isEqual(formDataWithoutMotive, variantWithoutCreatedAt)){
+            if (isEqual(formData, variantWithoutCreatedAt)){
                 return {success: true}
-            }
-            const stockDifference = formData.stock - variant.stock
-            if (stockDifference < 0){
-                notify('error', 'Para restar stock debe de darle salida desde el carrito')
-                return {success: false}
             }
             const res = await fetch(`http://localhost:3000/api/variants/${variant.id}`,{
                 method: 'PUT',
@@ -108,17 +114,6 @@ export function useVariants () {
                 return {success: false, errors: data.errors}
             }
             await updateVariantToProduct(data.productId, data.id, data)
-            if (stockDifference > 0){
-                const entryData = {
-                    userId: 1,
-                    items: [{
-                        variantId: variant.id,
-                        quantity: stockDifference
-                    }],
-                    motive: motive
-                }
-                await createEntry(entryData)
-            }
             notify('success', 'Variante actualizada con éxito')
         }
         catch (error){

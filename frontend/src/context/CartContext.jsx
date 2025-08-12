@@ -30,7 +30,8 @@ export function CartProvider({ children }) {
         const cartItems = cart.map((cartItem) => (
             {
                 variantId: cartItem.variants.id,
-                quantity: cartItem.variants.quantity
+                quantity: cartItem.variants.quantity,
+                unitPrice: cartItem.variants.unitPrice
             }
         ))
         const cartForSale = {

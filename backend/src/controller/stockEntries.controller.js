@@ -1,4 +1,3 @@
-import { id } from "zod/v4/locales"
 import prisma from "../db.js"
 
 export const createStockEntry = async(req, res) => {
@@ -10,17 +9,18 @@ export const createStockEntry = async(req, res) => {
                     items: {
                         create: req.body.items.map((item)=> ({
                             quantity: item.quantity,
-                            variantId: item.variantId
+                            variantId: item.variantId,
+                            purchasePrice: item.purchasePrice
                         }))
                     },
-                    motive: req.body.motive
+                    motive: req.body.motive || "Stock Inicial"
                 },
                 include: {
                     items: true
                 }
             })
         
-            const variantsUpdates = {}
+            const variantsUpdates = []
             for (const item of newStockEntry.items){
                 const variantWithStockUpdated = await tx.productVariant.update({
                     where: {
@@ -32,7 +32,7 @@ export const createStockEntry = async(req, res) => {
                         }
                     }
                 })
-                variantsUpdates[variantWithStockUpdated.code] = variantWithStockUpdated
+                variantsUpdates.push(variantWithStockUpdated)
             }
             
             return {newStockEntry, variantsUpdates}
@@ -42,7 +42,6 @@ export const createStockEntry = async(req, res) => {
                 updatedVariants: result.variantsUpdates
         })
     } catch (error) {
-        console.log(error);
         return res.status(500).json({ error: "Error interno durante el proceso" });
     }
 }

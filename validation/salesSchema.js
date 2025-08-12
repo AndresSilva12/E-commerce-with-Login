@@ -23,6 +23,12 @@ export const saleSchema = z.object({
                 .int("Debe ser un número entero")
                 .gte(1, "Debe ser mayor a 0")
             ),
+            unitPrice: z.preprocess((val) => Number(val),
+                z.number({ invalid_type_error: "Debe ser un número" })
+                .int("Debe ser un número entero")
+                .gte(1, "Debe ser mayor a 0")
+            ),
+
         })
     ).min(1, "Debe tener al menos un item de venta"),
     motive: z.string()

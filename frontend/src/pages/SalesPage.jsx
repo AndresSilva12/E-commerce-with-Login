@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { useSales } from "../hooks/useSales.js";
 import { Button, Table, Box, DataList, Image, Grid } from "@chakra-ui/react";
 import Modal from "../components/Modal.jsx";
@@ -23,7 +23,7 @@ export function SaleSelectedModal({ saleSelected }) {
                     <DataList.ItemLabel>Productos</DataList.ItemLabel>
                     <Grid templateColumns="repeat(3, 1fr)" gap="4">
                         {saleSelected.items.map(item => (
-                            <Image key={item.variant.id} src={item.variant.image} />
+                            <Image key={item.variant.id} src={item.variant.image} h="full" w="40px" fit="contain" />
                         ))}
                     </Grid>
                 </DataList.Item>
@@ -57,7 +57,8 @@ function SalesPage() {
                         <Table.ColumnHeader>Vendedor</Table.ColumnHeader>
                         <Table.ColumnHeader>Fecha</Table.ColumnHeader>
                         <Table.ColumnHeader>Productos</Table.ColumnHeader>
-                        <Table.ColumnHeader>Precio</Table.ColumnHeader>
+                        <Table.ColumnHeader>Precio Unitario</Table.ColumnHeader>
+                        <Table.ColumnHeader>Precio Final</Table.ColumnHeader>
                         <Table.ColumnHeader>Motivo</Table.ColumnHeader>
                     </Table.Row>
                 </Table.Header>
@@ -72,9 +73,20 @@ function SalesPage() {
                             </Table.Cell>
                             <Table.Cell>
                                 {sale.items.map(item => (
-                                    <Box display="flex" flexDirection="column" key={item.variant.id}>
-                                        {item.quantity} {item.variant.product.name} {item.variant.product.brand}
-                                    </Box>
+                                    <Fragment key={item.id}>
+                                        <Box display="flex" flexDirection="column" key={item.variant.id}>
+                                            {item.quantity} {item.variant.product.name} {item.variant.product.brand}
+                                        </Box>
+                                    </Fragment>
+                                ))}
+                            </Table.Cell>
+                            <Table.Cell>
+                                {sale.items.map(item => (
+                                    <Fragment key={item.id}>
+                                        <Box display="flex" flexDirection="column" key={item.variant.id}>
+                                            $ {new Intl.NumberFormat("es-AR").format(item.unitPrice)}
+                                        </Box>
+                                    </Fragment>
                                 ))}
                             </Table.Cell>
                             <Table.Cell>$ {new Intl.NumberFormat("es-AR").format(sale.totalPrice)}</Table.Cell>

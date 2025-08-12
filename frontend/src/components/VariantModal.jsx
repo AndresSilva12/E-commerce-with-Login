@@ -4,26 +4,17 @@ import { notify } from '../utils/notifyToast.js'
 import { variantSchemaWithOutProductId } from '../../../validation/productVariantsSchema.js'
 import { useState, useRef } from 'react'
 import { useVariants } from '../hooks/useVariants.js'
-import { Button, Field, Fieldset, Input, FileUpload, NumberInput, Box, Select, Portal, createListCollection } from "@chakra-ui/react"
+import { Button, Field, Fieldset, Input, FileUpload, NumberInput, Box, createListCollection } from "@chakra-ui/react"
 
-function VariantModal({ onSubmitVariant, variants, variantUpdate }) {
+function VariantModal({ onSubmitVariant, variants, variantUpdate, productUpdate }) {
     const [image, setImage] = useState(null)
     const fileInputRef = useRef(null)
     const { getOneVariant } = useVariants()
-    const [motive, setMotive] = useState("")
-
+    const [purchasePrice, setPurchasePrice] = useState(1)
     const { register, handleSubmit, formState: { errors }, setError } = useForm({
         mode: 'onChange',
         resolver: zodResolver(variantUpdate ? variantSchemaWithOutProductId.partial() : variantSchemaWithOutProductId),
         defaultValues: variantUpdate
-    })
-
-    const motives = createListCollection({
-        items: [
-            { label: "Stock Inicial", value: "Stock Inicial" },
-            { label: "Devolución", value: "Devolucion" },
-            { label: "Reingreso", value: "Reingreso" },
-        ],
     })
 
     const isValid = async (data) => {
@@ -47,8 +38,8 @@ function VariantModal({ onSubmitVariant, variants, variantUpdate }) {
 
         data.image = image || variantUpdate?.image
 
-        if (variantUpdate) {
-            data.motive = String(motive)
+        if (productUpdate) {
+            data.purchasePrice = Number(purchasePrice)
         }
 
         setImage(null)
@@ -101,44 +92,29 @@ function VariantModal({ onSubmitVariant, variants, variantUpdate }) {
                             <Input {...register("color")} />
                         </Field.Root>
 
-                        <Box display="flex">
-                            <Field.Root invalid={!!errors.stock} >
-                                <Box display="flex" justifyContent="space-between" width="full">
-                                    <Field.Label>Stock</Field.Label>
-                                    <Field.ErrorText>{errors.stock?.message}</Field.ErrorText>
-                                </Box>
-                                <NumberInput.Root defaultValue="1" >
-                                    <NumberInput.Control />
-                                    <NumberInput.Input  {...register("stock")} />
-                                </NumberInput.Root>
-                            </Field.Root>
 
-                            {variantUpdate && (
-                                <Field.Root>
-                                    <Select.Root collection={motives} value={motive} defaultValue={["Reingreso"]} onValueChange={(e) => { setMotive(e.value) }} size="sm" width="320px">
-                                        <Select.HiddenSelect />
-                                        <Select.Label>Motivo</Select.Label>
-                                        <Select.Control>
-                                            <Select.Trigger>
-                                                <Select.ValueText placeholder="Motivo" />
-                                            </Select.Trigger>
-                                            <Select.IndicatorGroup>
-                                                <Select.Indicator />
-                                            </Select.IndicatorGroup>
-                                        </Select.Control>
-                                        <Portal color="red">
-                                            <Select.Positioner>
-                                                <Select.Content zIndex="9999">
-                                                    {motives.items.map((motive) => (
-                                                        <Select.Item item={motive} key={motive.value}>
-                                                            {motive.label}
-                                                            <Select.ItemIndicator />
-                                                        </Select.Item>
-                                                    ))}
-                                                </Select.Content>
-                                            </Select.Positioner>
-                                        </Portal>
-                                    </Select.Root>
+                        <Box display="flex">
+                            {!variantUpdate && (
+                                <Field.Root invalid={!!errors.stock} >
+                                    <Box display="flex" justifyContent="space-between" width="full">
+                                        <Field.Label>Stock</Field.Label>
+                                        <Field.ErrorText>{errors.stock?.message}</Field.ErrorText>
+                                    </Box>
+                                    <NumberInput.Root defaultValue="1" >
+                                        <NumberInput.Control />
+                                        <NumberInput.Input  {...register("stock")} />
+                                    </NumberInput.Root>
+                                </Field.Root>
+                            )}
+                            {!variantUpdate && productUpdate && (
+                                <Field.Root >
+                                    <Box display="flex" justifyContent="space-between" width="full">
+                                        <Field.Label>Precio de compra</Field.Label>
+                                    </Box>
+                                    <NumberInput.Root value={purchasePrice} onValueChange={(e) => { setPurchasePrice(e.value) }}>
+                                        <NumberInput.Control />
+                                        <NumberInput.Input />
+                                    </NumberInput.Root>
                                 </Field.Root>
                             )}
                         </Box>

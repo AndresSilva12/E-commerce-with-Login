@@ -4,11 +4,93 @@ import { useProducts } from "../context/ProductContext";
 import ProductModal from "../components/ProductModal";
 import VariantModal from '../components/VariantModal'
 import { deleteAlert } from "../utils/alerts";
-import { Button, Card, Image, Text, Grid, Accordion, Span, HStack, Badge, Avatar, Box, Float } from "@chakra-ui/react"
+import { Button, Card, Image, Text, Grid, Accordion, Span, Select, Portal, createListCollection, HStack, Field, Badge, Avatar, Box, Float, NumberInput, IconButton } from "@chakra-ui/react"
 import Modal from "../components/Modal";
 import { useVariants } from '../hooks/useVariants.js'
 import { useCart } from "../context/CartContext";
 import { notify } from "../utils/notifyToast.js";
+import { useForm } from "react-hook-form";
+import { useStockEntries } from "../hooks/useStockEntries";
+
+export function ModalStockUpdate({ variantUpdate }) {
+    const { handleSubmit } = useForm()
+    const [purchasePrice, setPurchasePrice] = useState(1)
+    const [motive, setMotive] = useState("")
+    const [stockEntry, setStockEntry] = useState(1)
+    const { createEntry } = useStockEntries()
+
+    const motives = createListCollection({
+        items: [
+            { label: "Stock Inicial", value: "Stock Inicial" },
+            { label: "Devolución", value: "Devolucion" },
+            { label: "Reingreso", value: "Reingreso" },
+        ],
+    })
+
+    const onValid = async () => {
+        const entryData = {
+            userId: 1,
+            items: [{
+                variantId: variantUpdate.id,
+                quantity: Number(stockEntry),
+                purchasePrice: Number(purchasePrice)
+            }],
+            motive: String(motive)
+        }
+        await createEntry(entryData)
+        console.log(entryData)
+    }
+
+    return (
+        <form onSubmit={handleSubmit(onValid)}>
+            <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" gap="2">
+                <Box display="flex" gap="2">
+                    <Field.Root >
+                        <Field.Label>Cant. Ingreso</Field.Label>
+                        <NumberInput.Root value={stockEntry} onValueChange={(e) => { setStockEntry(e.value) }}>
+                            <NumberInput.Control />
+                            <NumberInput.Input />
+                        </NumberInput.Root>
+                    </Field.Root>
+                    <Field.Root >
+                        <Field.Label>Precio de compra</Field.Label>
+                        <NumberInput.Root value={purchasePrice} onValueChange={(e) => { setPurchasePrice(e.value) }}>
+                            <NumberInput.Control />
+                            <NumberInput.Input />
+                        </NumberInput.Root>
+                    </Field.Root>
+                </Box>
+                <Field.Root alignItems="center">
+                    <Select.Root collection={motives} value={motive} defaultValue={["Reingreso"]} onValueChange={(e) => { setMotive(e.value) }} size="sm" width="320px">
+                        <Select.HiddenSelect />
+                        <Select.Label>Motivo</Select.Label>
+                        <Select.Control>
+                            <Select.Trigger>
+                                <Select.ValueText placeholder="Motivo" />
+                            </Select.Trigger>
+                            <Select.IndicatorGroup>
+                                <Select.Indicator />
+                            </Select.IndicatorGroup>
+                        </Select.Control>
+                        <Portal color="red">
+                            <Select.Positioner>
+                                <Select.Content zIndex="9999">
+                                    {motives.items.map((motive) => (
+                                        <Select.Item item={motive} key={motive.value}>
+                                            {motive.label}
+                                            <Select.ItemIndicator />
+                                        </Select.Item>
+                                    ))}
+                                </Select.Content>
+                            </Select.Positioner>
+                        </Portal>
+                    </Select.Root>
+                </Field.Root>
+                <Button type="submit" width="1/5">Actualizar</Button>
+            </Box>
+        </form>
+    )
+}
 
 function ProductsPage() {
     const [productUpdate, setProductUpdate] = useState(null)
@@ -60,7 +142,8 @@ function ProductsPage() {
             ...item,
             variants: {
                 ...onlyVariant,
-                quantity: 1
+                quantity: 1,
+                unitPrice: item.salePrice
             }
         }
         addToCart(fullItem)
@@ -109,7 +192,7 @@ function ProductsPage() {
                                                 <Text textStyle="2xl" fontWeight="medium" letterSpacing="tight" mt="2">${new Intl.NumberFormat("es-AR").format(product.salePrice)}</Text>
                                             </Card.Body>
                                             <Card.Footer display="flex" flexDirection="column" justifyContent="center">
-                                                <Box display="flex" justifyContent="space-between" gap="4">
+                                                <Box display="flex" justifyContent="center" gap="4">
                                                     <Modal trigger={<Button type="button" width="50px" flex="1" onClick={() => handleVariantUpdate(variant, product)}>Editar</Button>}>
                                                         {({ closeModal }) => (
                                                             <VariantModal onSubmitVariant={(data) => {
@@ -120,7 +203,23 @@ function ProductsPage() {
                                                     </Modal>
                                                     <Button colorPalette="red" flex="1" onClick={() => deleteVariant(variant, setVariants)}>Eliminar</Button>
                                                 </Box>
-                                                <Button colorPalette="green" onClick={() => { handleCart(variant) }}>Agregar al carrito</Button>
+                                                <Box gap="2" display="flex" justifyContent="center">
+                                                    <NumberInput.Root value={variant.stock} unstyled spinOnPress={false} >
+                                                        <HStack>
+                                                            <Button colorPalette="green" onClick={() => { handleCart(variant) }}>Cart</Button>
+                                                            <NumberInput.ValueText textAlign="center" fontSize="lg" minW="3ch" />
+                                                            <Modal trigger={
+                                                                <NumberInput.Control onClick={() => setVariantUpdate(variant)}>
+                                                                    <IconButton variant="outline" size="sm">+ Stock</IconButton>
+                                                                </NumberInput.Control>
+                                                            }
+                                                            >
+                                                                <ModalStockUpdate variantUpdate={variantUpdate} />
+                                                            </Modal>
+                                                        </HStack>
+                                                    </NumberInput.Root>
+                                                </Box>
+
                                             </Card.Footer>
                                         </Card.Root>
                                         <Float placement="top-end" zIndex="banner">
@@ -133,8 +232,9 @@ function ProductsPage() {
                             </Grid>
                         </Accordion.ItemContent>
                     </Accordion.Item>
-                </Accordion.Root>
-            ))}
+                </Accordion.Root >
+            ))
+            }
 
             <Modal trigger={<Button position="fixed" right="0" bottom="0" size="lg" margin="1rem" colorPalette="teal" onClick={handleCreate}>+</Button>}>
                 {({ closeModal }) => (

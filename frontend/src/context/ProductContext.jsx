@@ -1,12 +1,10 @@
 import { createContext, useEffect, useState, useContext } from "react";
 import { notify } from "../utils/notifyToast.js";
 import isEqual from 'lodash.isequal'
-import { useStockEntries } from "../hooks/useStockEntries.js";
 
 const ProductContext = createContext()
 
 export function ProductProvider({ children }) {
-    const { createEntry } = useStockEntries()
     const [products, setProducts] = useState([])
 
     const fetchProducts = async () => {
@@ -61,20 +59,8 @@ export function ProductProvider({ children }) {
             }
             setProducts((prev) => [...prev, data])
 
-            for (const variant of data.variants) {
-                const entryData = {
-                    userId: 1,
-                    items: [{
-                        variantId: variant.id,
-                        quantity: variant.stock
-                    }],
-                    motive: "Stock Inicial"
-                }
-                await createEntry(entryData)
-            }
-
             notify('success', 'Producto creado con éxito')
-            return { success: true }
+            return { success: true, variants: data.variants }
         } catch (error) {
             notify('error', 'No se pudo crear el producto')
             console.log("el producto no se creo correctamente?", error)

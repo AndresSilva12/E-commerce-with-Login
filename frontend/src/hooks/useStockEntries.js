@@ -1,7 +1,9 @@
+import { useProducts } from "../context/ProductContext"
 import { useState } from "react"
 
 export function useStockEntries () {
     const [stockEntries, setStockEntries] = useState([])
+    const {updateVariantToProduct} = useProducts()
 
     const getAllStockEntries = async() => {
         const res = await fetch('http://localhost:3000/api/entries', {
@@ -28,6 +30,9 @@ export function useStockEntries () {
                     console.log("Hubo un error durante la creación", res)
                 }
             setStockEntries((prev) => ([...prev, data]))
+            for (const variant of data.updatedVariants){
+                updateVariantToProduct(variant.productId, variant.id, variant)
+            }
         }
         catch (error) {
             console.log(error)
