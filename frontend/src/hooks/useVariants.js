@@ -4,9 +4,11 @@ import { useProducts } from "../context/ProductContext.jsx"
 import { uploadImage } from '../utils/uploads.js'
 import isEqual from 'lodash.isequal'
 import { deleteAlert } from "../utils/alerts.js"
+import { useStockEntries } from "./useStockEntries.js"
 
 export function useVariants () {
-    const { addVariantToProduct, fetchProducts, deleteVariantToProduct, updateVariantToProduct} = useProducts()
+    const { addVariantToProduct, deleteVariantToProduct, updateVariantToProduct} = useProducts()
+    const {createEntry} = useStockEntries()
     const [variants, setVariants] = useState([])
 
     const fetchVariants = async() => {
@@ -40,18 +42,31 @@ export function useVariants () {
     }
 
     const createVariant = async(formData) => {
+        const {motive, purchasePrice, ...formDataClean} = formData
         try {
             const res = await fetch('http://localhost:3000/api/variants', {
                 method: 'POST',
                 headers: {
                     "Content-type": "application/json"
                 },
-                body: JSON.stringify(formData)
+                body: JSON.stringify(formDataClean)
             })
             if (!res.ok){
                 console.log("Hubo un error durante la creación", res)
             }
             const data = await res.json()
+            const entryData = {
+                userId: 1,
+                items: [
+                    {
+                        variantId: data.id,
+                        quantity: formDataClean.stock,
+                        purchasePrice: purchasePrice
+                    }
+                ],
+                motive: motive || "Stock Inicial"
+            }
+            await createEntry(entryData)
             notify('success', 'Variante creada con éxito!')
             return {id: data.id}
         } catch (error) {
@@ -92,7 +107,7 @@ export function useVariants () {
                 headers: {
                     "Content-type": "application/json"
                 },
-                body: JSON.stringify(formData)
+                body: JSON.stringify(formDataWithoutMotive)
             })
             const data = await res.json()
             if (!res.ok) {
@@ -141,14 +156,17 @@ export function useVariants () {
                 }
             }
         } else {
-            variantUpdate
-                ? setVariants((prev => prev.map(p => p.localId === data.localId ? data : p)))
-                : setVariants((prev) => [...prev, data])
+            if (variantUpdate){
+                setVariants((prev => prev.map(p => p.localId === data.localId ? data : p)))
+            }else{
+                setVariants((prev) => [...prev, data])
+            }
         }
     }
 
     return{
         variants,
+        setVariants,
         fetchVariants,
         createVariant,
         deleteVariant,

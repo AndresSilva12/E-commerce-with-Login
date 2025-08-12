@@ -6,7 +6,6 @@ export const createProduct = async (req, res) => {
       code,
       name,
       description,
-      purchasePrice,
       salePrice,
       brand,
       variants,
@@ -16,7 +15,6 @@ export const createProduct = async (req, res) => {
         code: code,
         name: name,
         description: description,
-        purchasePrice: purchasePrice,
         salePrice: salePrice,
         brand: brand,
         ...(variants &&
@@ -96,7 +94,6 @@ export const updateProduct = async (req, res) => {
       code,
       name,
       description,
-      purchasePrice,
       salePrice,
       brand,
       variants,
@@ -127,7 +124,6 @@ export const updateProduct = async (req, res) => {
         code: code,
         name: name,
         description: description,
-        purchasePrice: purchasePrice,
         salePrice: salePrice,
         brand: brand,
         ...(newVariants &&

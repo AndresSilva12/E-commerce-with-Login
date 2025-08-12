@@ -1,45 +1,57 @@
-import {BrowserRouter, Route, Routes} from 'react-router-dom'
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import HomePage from '../pages/HomePage'
 import RegisterPage from '../pages/RegisterPage';
 import Dashboard from '../pages/Dashboard'
 import UsersPage from '../pages/UsersPage';
 import LoginPage from '../pages/LoginPage';
+import SalesPage from '../pages/SalesPage';
 import NavBar from '../components/NavBar';
 import ProtectedRoutes from '../components/ProtectedRoutes';
 import GuestOnlyRoute from '../components/GuestOnlyRoute';
 import ProductsPage from '../pages/ProductsPage';
+import StockEntriesPage from '../pages/StockEntries';
 
-function AppRouter () {
+function AppRouter() {
     return (
         <BrowserRouter>
             <NavBar></NavBar>
             <Routes>
-                <Route path='/' element={<HomePage/>}/>
+                <Route path='/' element={<HomePage />} />
                 <Route path='/register' element={
                     <GuestOnlyRoute>
-                        <RegisterPage/>
+                        <RegisterPage />
                     </GuestOnlyRoute>
-                }/>
+                } />
                 <Route path='/dashboard' element={
                     <ProtectedRoutes>
-                        <Dashboard/>
+                        <Dashboard />
                     </ProtectedRoutes>
-                }/>
+                } />
                 <Route path='/products' element={
                     <ProtectedRoutes>
-                        <ProductsPage/>
+                        <ProductsPage />
                     </ProtectedRoutes>
-                }/>
+                } />
                 <Route path='/users' element={
                     <ProtectedRoutes>
-                        <UsersPage/>
+                        <UsersPage />
                     </ProtectedRoutes>
-                }/>
+                } />
+                <Route path='/sales' element={
+                    <ProtectedRoutes>
+                        <SalesPage />
+                    </ProtectedRoutes>
+                } />
+                <Route path='/entries' element={
+                    <ProtectedRoutes>
+                        <StockEntriesPage />
+                    </ProtectedRoutes>
+                } />
                 <Route path='/login' element={
                     <GuestOnlyRoute>
-                        <LoginPage/>
+                        <LoginPage />
                     </GuestOnlyRoute>
-                }/>
+                } />
             </Routes>
         </BrowserRouter>
     )

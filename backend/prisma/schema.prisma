@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -22,13 +16,14 @@ model users {
   name String
   lastName String
   age Int
+  sales sales[]
+  stockEntry stockEntry[]
 }
 
 model products {
   id String @id @default(cuid())
   name String
   description String?
-  purchasePrice Float
   salePrice Float
   brand String
   variants productVariant[]
@@ -45,4 +40,45 @@ model productVariant {
   createdAt DateTime  @default(now())
   product products @relation(fields: [productId], references: [id], onDelete: Cascade)
   @@unique([productId, size, color])
+  saleItem saleItem[]
+  stockEntryItem stockEntryItem[]
+}
+
+model saleItem {
+  id String @id @default(cuid())
+  saleId String
+  quantity Int
+  unitPrice Float
+  variantId String
+  variant productVariant @relation(fields: [variantId], references: [id])
+  sale sales @relation(fields: [saleId], references: [id], onDelete: Cascade)
+}
+
+model sales {
+  id String @id @default(cuid())
+  date DateTime @default(now())
+  items saleItem[]
+  totalPrice Float
+  userId Int
+  motive String
+  user users @relation(fields: [userId], references: [id])
+}
+
+model stockEntryItem {
+  id String @id @default(cuid())
+  quantity Int
+  variantId String
+  purchasePrice Float
+  stockEntryId String
+  entry stockEntry @relation(fields: [stockEntryId], references: [id], onDelete: Cascade)
+  variant productVariant @relation(fields: [variantId], references: [id])
+}
+
+model stockEntry {
+  id String @id @default(cuid())
+  date DateTime @default(now())
+  userId Int
+  motive String
+  items stockEntryItem []
+  user users @relation(fields: [userId], references: [id])
 }

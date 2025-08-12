@@ -19,6 +19,17 @@ export function ProductProvider({ children }) {
 
     const createProduct = async (formProduct, setError) => {
         try {
+            const errors = {}
+            for (const variant of formProduct.variants) {
+                if (variant.stock <= 0) {
+                    errors[variant.code] = `${variant.code}: Debe tener almenos 1 de cantidad en stock`
+                }
+            }
+            if (Object.keys(errors).length > 0) {
+                notify('error', 'Debe tener almenos uno en stock por variante')
+                return { success: false, errors: errors }
+            }
+
             const res = await fetch('http://localhost:3000/api/products', {
                 method: 'POST',
                 headers: {
@@ -46,12 +57,13 @@ export function ProductProvider({ children }) {
                 return { success: false, errors: data.errors || 'Error Desconocido' }
 
             }
-
             setProducts((prev) => [...prev, data])
+
             notify('success', 'Producto creado con éxito')
-            return { success: true }
+            return { success: true, variants: data.variants }
         } catch (error) {
             notify('error', 'No se pudo crear el producto')
+            console.log("el producto no se creo correctamente?", error)
             return { success: false, errors: { general: 'Error interno del servidor' } };
         }
     }

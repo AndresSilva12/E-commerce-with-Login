@@ -3,6 +3,8 @@ import upload from "./routes/upload.route.js";
 import user from "./routes/user.route.js";
 import product from "./routes/product.route.js";
 import variants from "./routes/productVariants.route.js";
+import sales from "./routes/sales.routes.js"
+import stockEntries from "./routes/stockEntries.route.js"
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import path from "path";
@@ -34,6 +36,10 @@ App.use("/api", user);
 App.use("/api", product);
 
 App.use("/api", variants);
+
+App.use("/api", sales)
+
+App.use("/api", stockEntries)
 
 App.listen(3000, () => {
   console.log(`Servidor Iniciado en "http://localhost:${PORT}" ...`);

@@ -3,18 +3,15 @@ import { AuthContext } from '../context/AuthContext'
 import { useContext } from 'react'
 import { useUser } from '../hooks/useUser.js'
 import { logoutAlert } from '../utils/alerts.js'
-import {
-    Box,
-    Flex,
-    IconButton,
-    Button,
-    Stack
-} from '@chakra-ui/react'
+import { Box, Flex, IconButton, Button, Stack, Float, Circle } from '@chakra-ui/react'
+import CartDrawer from "./CartDrawer";
+import { useCart } from '../context/CartContext'
 
 
 function NavBar() {
     const { isAuthenticated, setIsAuthenticated } = useContext(AuthContext)
     const { userLogout } = useUser()
+    const { cart } = useCart()
 
     const handleLogout = () => { logoutAlert({ logoutFunction: () => userLogout({ setIsAuthenticated }) }) }
 
@@ -77,6 +74,28 @@ function NavBar() {
                                 >
                                     <Link className='text-white' to='/products' >Products</Link>
                                 </Box>
+                                <Box
+                                    px={2}
+                                    py={1}
+                                    rounded={'md'}
+                                    _hover={{
+                                        textDecoration: 'none',
+                                        bg: ('gray.200', 'gray.700'),
+                                    }}
+                                >
+                                    <Link className='text-white' to='/sales' >Sales</Link>
+                                </Box>
+                                <Box
+                                    px={2}
+                                    py={1}
+                                    rounded={'md'}
+                                    _hover={{
+                                        textDecoration: 'none',
+                                        bg: ('gray.200', 'gray.700'),
+                                    }}
+                                >
+                                    <Link className='text-white' to='/entries' >Entries</Link>
+                                </Box>
 
                             </>
                         }
@@ -84,16 +103,28 @@ function NavBar() {
                 </Flex>
 
                 {isAuthenticated &&
-                    <Stack
-                        flex={{ base: 1, md: 0 }}
-                        justify={'flex-end'}
-                        direction={'row'}
-                        spacing={6}>
-                        <Button as={'a'} fontSize={'sm'} color={'white'}
-                            colorPalette="teal" fontWeight={400} onClick={() => { handleLogout() }}>
-                            Logout
-                        </Button>
-                    </Stack>
+                    <Box display="flex" gap="4">
+                        <CartDrawer trigger={
+                            <Box display="inline-block" pos="relative">
+                                <Float zIndex="banner">
+                                    <Circle size="5" bg="red" color="white">
+                                        {cart.length}
+                                    </Circle>
+                                </Float>
+                                <Button>Carrito</Button>
+                            </Box>
+                        } />
+                        <Stack
+                            flex={{ base: 1, md: 0 }}
+                            justify={'flex-end'}
+                            direction={'row'}
+                            spacing={6}>
+                            <Button as={'a'} fontSize={'sm'} color={'white'}
+                                colorPalette="teal" fontWeight={400} onClick={() => { handleLogout() }}>
+                                Logout
+                            </Button>
+                        </Stack>
+                    </Box>
                 }
 
                 {!isAuthenticated &&
