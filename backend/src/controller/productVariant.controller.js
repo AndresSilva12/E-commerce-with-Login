@@ -5,8 +5,16 @@ import prisma from '../db.js'
 export const createVariant = async(req, res) => {
     try{
         const newVariant = await prisma.productVariant.create({
-            data: req.body
+            data: {
+                code: req.body.code,
+                size:req.body.size,
+                color:req.body.color,
+                stock: 0,
+                image:req.body.image,
+                productId:req.body.productId
+            }
         })
+        console.log("nueva variante",newVariant)
         return res.json(newVariant)
     }
     catch(error){

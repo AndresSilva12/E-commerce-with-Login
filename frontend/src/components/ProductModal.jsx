@@ -60,10 +60,11 @@ function ProductModal({ productUpdate, onSubmit }) {
         }
 
         for (const variant of result.variants) {
+            const variantFound = fullProduct.variants.find(v => v.code === variant.code)
             const entryData = {
                 items: [{
                     variantId: variant.id,
-                    quantity: variant.stock,
+                    quantity: variantFound.stock,
                     purchasePrice: purchasePrice
                 }],
                 motive: "Stock Inicial"

@@ -20,7 +20,10 @@ export const createProduct = async (req, res) => {
         ...(variants &&
           variants.length > 0 && {
             variants: {
-              create: variants,
+              create: variants.map( v => ({
+                ...v,
+                stock: 0
+              }))
             },
           }),
       },
