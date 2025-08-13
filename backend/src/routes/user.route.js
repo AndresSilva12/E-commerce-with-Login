@@ -1,5 +1,5 @@
 import { Router } from "express"
-import { createUser, getAllUsers, getOneUser, deleteUserSelected, updateUserSelected, loginUser, dashboardProtected, logoutUser } from "../controller/user.controller.js"
+import { createUser, getAllUsers, getOneUser, deleteUserSelected, updateUserSelected, loginUser, dashboardProtected, logoutUser, refreshSesion } from "../controller/user.controller.js"
 import { validateCreateUsers, validateUserExist, validateLoginUser, validateUpdateUser } from "../middlewares/usersMiddlewares.js"
 
 const router = Router()
@@ -7,6 +7,8 @@ const router = Router()
 router.post('/register', validateCreateUsers, createUser)
 
 router.post('/login', validateLoginUser, loginUser)
+
+router.post('/refresh-token', refreshSesion)
 
 router.post('/logout', logoutUser)
 

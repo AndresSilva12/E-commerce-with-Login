@@ -1,12 +1,6 @@
 import { z } from "zod";
 
 export const stockEntriesSchema = z.object({
-    userId: z.number({
-        required_error: "El id de Usuario es obligatorio",
-        invalid_type_error: "Formato no valido",
-    })
-        .int("Debe ser un numero entero")
-        .gte(1, "Debe ser un numero positivo"),
     items: z.array(z.object({
         variantId: z.string()
             .cuid("El id no es válido")

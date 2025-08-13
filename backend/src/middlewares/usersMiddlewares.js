@@ -142,6 +142,7 @@ export const validateUpdateUser = async (req, res, next) => {
                     username: usernameClean
                 },
                 select: {
+                    id: true,
                     password: true
                 }
             })
@@ -156,6 +157,7 @@ export const validateUpdateUser = async (req, res, next) => {
 
 
             req.passwordHashed = userExist.password
+            req.body.id = userExist.id
             req.body.username = usernameClean
             req.body.password = passwordClean
             next()

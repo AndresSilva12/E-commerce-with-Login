@@ -56,7 +56,6 @@ export function useVariants () {
             }
             const data = await res.json()
             const entryData = {
-                userId: 1,
                 items: [
                     {
                         variantId: data.id,
