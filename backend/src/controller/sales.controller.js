@@ -1,11 +1,12 @@
 import prisma from "../db.js"
 export const createNewSale = async(req, res) => {
     try {
+        const userId = req.user.id
         const result = await prisma.$transaction(async (tx) => {
             const newSale = await tx.sales.create({
                 data: {
                     totalPrice: req.body.totalPrice,
-                    userId: req.body.userId,
+                    userId: userId,
                     items: {
                         create: req.body.items.map((item)=> ({
                             variantId: item.variantId,
@@ -54,7 +55,8 @@ export const getAllSales = async(req, res) => {
                             }
                         }
                     }
-                }
+                },
+                user: true
             }
         })
         return res.json(allSales)

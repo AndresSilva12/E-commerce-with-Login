@@ -1,13 +1,6 @@
 import {z} from 'zod'
 
 export const saleSchema = z.object({
-    userId: z.number({
-        required_error: "El id de Usuario es obligatorio",
-        invalid_type_error: "Formato no valido. Debe ser un Numero",
-    })
-    .int("Debe ingresar un número entero")
-    .gte(1, "Debe ser un número positivo")
-    ,
     totalPrice: z.coerce.number({
         required_error: "El id de Usuario es obligatorio",
         invalid_type_error: "Formato no valido. Debe ser un Numero",

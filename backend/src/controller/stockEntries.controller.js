@@ -59,7 +59,8 @@ export const getAllStockEntries = async(req, res) => {
                         }
                     }
                 }
-            }
+            },
+            user: true
         }
         })
         return res.json(allStockEntries)

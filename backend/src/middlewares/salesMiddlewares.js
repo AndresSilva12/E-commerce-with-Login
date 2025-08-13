@@ -12,8 +12,8 @@ export const validateNewSale = async(req, res, next) => {
             return res.status(400).json({errors})
         }
 
-        const {userId, items} = saleParsed.data
-        const userExist = await prisma.users.findFirst({where: {id: userId}})
+        const {items} = saleParsed.data
+        const userExist = await prisma.users.findFirst({where: {id: req.user.id}})
         if (!userExist) errors.userId = "Usuario inexistente"
 
         const errorsItem = {}
@@ -38,7 +38,6 @@ export const validateNewSale = async(req, res, next) => {
             }
             
             total += item.quantity * variantExist.product.salePrice
-            console.log(item.unitPrice)
         }
         if (Object.keys(errorsItem).length > 0) errors.items = errorsItem
         if (Object.keys(errors).length > 0) return res.status(400).json({errors})

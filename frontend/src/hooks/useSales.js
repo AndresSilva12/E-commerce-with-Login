@@ -20,6 +20,7 @@ export function useSales () {
     const createSale = async(saleData) => {
         const res = await fetch('http://localhost:3000/api/sales',{
             method: 'POST',
+            credentials: "include",
             headers: {
                 "content-type": "application/json"
             },
