@@ -61,7 +61,6 @@ function ProductModal({ productUpdate, onSubmit }) {
 
         for (const variant of result.variants) {
             const entryData = {
-                userId: 1,
                 items: [{
                     variantId: variant.id,
                     quantity: variant.stock,

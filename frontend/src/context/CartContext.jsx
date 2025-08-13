@@ -36,7 +36,6 @@ export function CartProvider({ children }) {
         ))
         const cartForSale = {
             totalPrice: totalPrice,
-            userId: 1,
             items: cartItems,
             motive: String(motive)
         }

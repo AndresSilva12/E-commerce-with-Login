@@ -29,7 +29,6 @@ export function ModalStockUpdate({ variantUpdate }) {
 
     const onValid = async () => {
         const entryData = {
-            userId: 1,
             items: [{
                 variantId: variantUpdate.id,
                 quantity: Number(stockEntry),

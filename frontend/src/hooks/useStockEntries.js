@@ -20,6 +20,7 @@ export function useStockEntries () {
         try{
             const res = await fetch('http://localhost:3000/api/entries', {
                 method: 'POST',
+                credentials: "include",
                 headers: {
                     "content-type": "application/json"
                 },

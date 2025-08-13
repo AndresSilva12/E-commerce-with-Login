@@ -2,10 +2,11 @@ import prisma from "../db.js"
 
 export const createStockEntry = async(req, res) => {
     try {
+        const userId = req.user.id
         const result = await prisma.$transaction(async(tx) => {
             const newStockEntry = await tx.stockEntry.create({
                 data: {
-                    userId: req.body.userId,
+                    userId: userId,
                     items: {
                         create: req.body.items.map((item)=> ({
                             quantity: item.quantity,
@@ -58,7 +59,8 @@ export const getAllStockEntries = async(req, res) => {
                         }
                     }
                 }
-            }
+            },
+            user: true
         }
         })
         return res.json(allStockEntries)

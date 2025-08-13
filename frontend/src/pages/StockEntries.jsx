@@ -74,7 +74,7 @@ function StockEntriesPage() {
             <Table.Body>
                 {stockEntries && stockEntries.map((entry) => (
                     <Table.Row key={entry.id}>
-                        <Table.Cell>{entry.userId}</Table.Cell>
+                        <Table.Cell>{entry.user.name} {entry.user.lastName}</Table.Cell>
                         <Table.Cell>{entry.date}
                             <Modal trigger={<Button size="sm" variant="surface" onClick={() => { handleEntrySelected(entry) }}>+Info</Button>}>
                                 <EntrySelectedModal entrySelected={entrySelected} />

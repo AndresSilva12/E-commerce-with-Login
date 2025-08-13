@@ -65,7 +65,7 @@ function SalesPage() {
                 <Table.Body>
                     {sales && sales.map((sale) => (
                         <Table.Row key={sale.id}>
-                            <Table.Cell>{sale.userId}</Table.Cell>
+                            <Table.Cell>{sale.user.name} {sale.user.lastName}</Table.Cell>
                             <Table.Cell>{sale.date}
                                 <Modal trigger={<Button size="sm" variant="surface" onClick={() => { handleSaleSelected(sale) }}>+Info</Button>}>
                                     <SaleSelectedModal saleSelected={saleSelected} />

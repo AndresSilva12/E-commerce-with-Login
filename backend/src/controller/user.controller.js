@@ -1,9 +1,7 @@
 import prisma from "../db.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-
 import { convertToUserPublic } from "../utils/userUtils.js";
-import { success } from "zod/v4";
 
 export const createUser = async (req, res, next) => {
   try {
@@ -116,15 +114,41 @@ export const updateUserSelected = async (req, res, next) => {
 };
 
 export const loginUser = async (req, res, next) => {
-  const { username } = req.body;
-  const accessToken = jwt.sign({ username }, "123", { expiresIn: "1h" });
+  const { id, username } = req.body;
+  const accessToken = jwt.sign({ id : id, username: username}, process.env.JWT_ACCESS_SECRET, { expiresIn: "12m" });
   res.cookie("accessToken", accessToken, {
     httpOnly: true,
     sameSite: "strict",
-    maxAge: 1000 * 60 * 60,
+    maxAge: 1000 * 60 * 12,
   });
+
+  const refreshToken = jwt.sign({ id: id}, process.env.JWT_REFRESH_SECRET, { expiresIn: "7d"})
+  res.cookie("refreshToken", refreshToken, {
+    httpOnly: true,
+    sameSite: "strict",
+    maxAge: 1000 * 60 * 60 * 24 * 7
+  })
   return res.json("Sesion iniciada correctamente!");
 };
+
+export const refreshSesion = async (req, res, next) => {
+  const refreshToken = req.cookies.refreshToken
+  if (!refreshToken){
+    return res.status(400).json({error: "Acceso denegado. Debe iniciar sesión primero"})
+  }
+  try{
+    const payload = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET)
+    const newAccessToken = jwt.sign({id : payload.id}, process.env.JWT_ACCESS_SECRET, { expiresIn: "12m"})
+    res.cookie("accessToken", newAccessToken, {
+      httpOnly: true,
+      sameSite: "strict",
+      maxAge: 1000 * 60 * 12
+    })
+    return res.json("Sesion refrescada correctamente!")
+  } catch (error) {
+    return res.status(401).json({error: "Refresh token inválido o expirado"})
+  }
+}
 
 export const dashboardProtected = (req, res, next) => {
   const accessToken = req.cookies.accessToken;
@@ -133,12 +157,11 @@ export const dashboardProtected = (req, res, next) => {
       .status(403)
       .json({ error: "Acceso denegado. Debes iniciar sesion primero" });
   try {
-    const data = jwt.verify(accessToken, "123");
+    const data = jwt.verify(accessToken, process.env.JWT_ACCESS_SECRET);
     return res
       .status(200)
       .json(`Hola ${data.username}. Estamos accediendo a la dashboard...`);
   } catch (error) {
-    console.log(error);
     return res
       .status(403)
       .json({ error: "Acceso denegado. Debes iniciar sesion primero" });
