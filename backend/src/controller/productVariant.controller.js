@@ -26,7 +26,7 @@ export const createVariant = async(req, res) => {
 
 export const getVariants = async(req, res) => {
     try {
-        const {code, size, color, stockMin, stockMax} = req.query
+        const {code, size, color, stockMin, stockMax, sortBy, sortOrder} = req.query
         const where = {}
 
         if (code) where.code = {equals: code}
@@ -53,6 +53,7 @@ export const getVariants = async(req, res) => {
                 product: true,
             },
             where,
+            orderBy: sortBy ? {[sortBy]: sortOrder === 'desc' ? 'desc' : 'asc'} : undefined
         })
         return res.json(variants)
     } catch (error) {
