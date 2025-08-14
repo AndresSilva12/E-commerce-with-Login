@@ -40,12 +40,41 @@ export const createProduct = async (req, res) => {
   }
 };
 
-export const getAllProducts = async (req, res) => {
+export const getProducts = async (req, res) => {
   try {
+    const {name, brand, priceMin, priceMax} = req.query
+    const where = {}
+    if (name){
+      where.name = {contains: name}
+    }
+    if (brand){
+      where.brand = {equals: brand}
+    }
+    if (priceMin || priceMax){
+      where.salePrice = {}
+      if (priceMin) where.salePrice.gte = parseFloat(priceMin)
+      if (priceMax) where.salePrice.lte = parseFloat(priceMax)
+    }
+
+    if (req.query.variantColor || req.query.variantSize){
+      where.variants = {
+        some: {}
+      }
+
+      if (req.query.variantColor){
+        where.variants.some.color = {contains: req.query.variantColor}
+      }
+
+      if (req.query.variantSize){
+        where.variants.some.size = {equals: req.query.variantSize}
+      }
+    }
+
     const products = await prisma.products.findMany({
       include: {
         variants: true,
       },
+      where,
     });
     return res.json(products);
   } catch (error) {
