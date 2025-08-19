@@ -4,13 +4,14 @@ import { useProducts } from "../context/ProductContext";
 import ProductModal from "../components/ProductModal";
 import VariantModal from '../components/VariantModal'
 import { deleteAlert } from "../utils/alerts";
-import { Button, Card, Image, Text, Grid, Accordion, Span, Select, Portal, createListCollection, HStack, Field, Badge, Avatar, Box, Float, NumberInput, IconButton } from "@chakra-ui/react"
+import { Button, Card, Image, Text, Grid, GridItem, Checkbox, Select, Portal, InputGroup, Stack, Code, createListCollection, Slider, HStack, Field, Badge, Box, Float, NumberInput, IconButton, Container } from "@chakra-ui/react"
 import Modal from "../components/Modal";
 import { useVariants } from '../hooks/useVariants.js'
 import { useCart } from "../context/CartContext";
 import { notify } from "../utils/notifyToast.js";
 import { useForm } from "react-hook-form";
 import { useStockEntries } from "../hooks/useStockEntries";
+import SearchBar from "../components/SearchBar";
 
 export function ModalStockUpdate({ variantUpdate }) {
     const { handleSubmit } = useForm()
@@ -93,10 +94,23 @@ export function ModalStockUpdate({ variantUpdate }) {
 
 function ProductsPage() {
     const [productUpdate, setProductUpdate] = useState(null)
-    const { products, deleteProduct } = useProducts()
-    const { deleteVariant, submitVariant, setVariants, variants } = useVariants()
+    const { products, deleteProduct, brands } = useProducts()
+    const { deleteVariant, submitVariant, setVariants, variants, sizes, colors } = useVariants()
     const [variantUpdate, setVariantUpdate] = useState()
+    const [filters, setFilters] = useState({})
+    const [priceMin, setPriceMin] = useState(0)
+    const [priceMax, setPriceMax] = useState(0)
     const { addToCart } = useCart()
+
+    useEffect(() => {
+        const fetchSearch = async () => {
+            const query = new URLSearchParams(filters).toString()
+            const res = await fetch(`http://localhost:3000/api/variants?${query}`)
+            const data = await res.json()
+            setVariants(data)
+        }
+        fetchSearch()
+    }, [filters])
 
     useEffect(() => {
         if (productUpdate && productUpdate.variants) {
@@ -149,92 +163,197 @@ function ProductsPage() {
         notify("success", "producto agregado al carrito!")
     }
 
+    const handleChange = async (e) => {
+        const value = e.target.value
+        setFilters((prev) => ({ ...prev, name: value }))
+    }
+
+    const handleCheckBrand = async (brand, checked) => {
+        if (checked.checked) setFilters((prev) => ({ ...prev, brand: brand }))
+        else {
+            setFilters((prev) => {
+                const newFilter = { ...prev }
+                delete newFilter.brand
+                return newFilter
+            })
+        }
+    }
+
+    const handleCheckSize = (size, checked) => {
+        if (checked.checked) setFilters((prev) => ({ ...prev, size: size }))
+        else {
+            setFilters((prev) => {
+                const newFilter = { ...prev }
+                delete newFilter.size
+                return newFilter
+            })
+        }
+    }
+
+    const handleCheckColor = (color, checked) => {
+        if (checked.checked) setFilters((prev) => ({ ...prev, color: color }))
+        else {
+            setFilters((prev) => {
+                const newFilter = { ...prev }
+                delete newFilter.color
+                return newFilter
+            })
+        }
+    }
+
+    const handleChangePrice = () => {
+        if (priceMin > 0) {
+            setFilters((prev) => ({ ...prev, priceMin: priceMin }))
+        }
+        if (priceMax > priceMin) {
+            setFilters((prev) => ({ ...prev, priceMax: priceMax }))
+        }
+    }
+
+    const handleSetPrice = (price, value) => {
+        if (price === "priceMin") {
+            if (value <= 0) {
+                setPriceMin()
+                setFilters((prev) => {
+                    const newFilter = { ...prev }
+                    delete newFilter.priceMin
+                    return newFilter
+                })
+            } else {
+                setPriceMin(value)
+            }
+        } else {
+            if (value <= 0) {
+                setPriceMax()
+                setFilters((prev) => {
+                    const newFilter = { ...prev }
+                    delete newFilter.priceMax
+                    return newFilter
+                })
+            } else {
+                setPriceMax(value)
+            }
+        }
+    }
+
     return (
         <>
-            {products.map((product) => (
-                <Accordion.Root collapsible key={product.id} size="sm" padding="10px">
-                    <Accordion.Item >
-                        <Box display="flex" gap="4">
-                            <Accordion.ItemTrigger>
-                                <Avatar.Root shape="rounded">
-                                    {product.variants[0] &&
-                                        <Avatar.Image src={product.variants[0].image} />
-                                    }
-                                    <Avatar.Fallback name={product.name} />
-                                </Avatar.Root>
-                                <Span flex="1">{product.name} {product.brand}</Span>
-                                <Accordion.ItemIndicator />
-                            </Accordion.ItemTrigger>
-                            <Modal trigger={<Button variant="solid" onClick={() => { handleUpdate(product) }}>Editar</Button>}>
-                                {({ closeModal }) => (
-                                    <ProductModal productUpdate={productUpdate} onSubmit={() => {
-                                        onSubmit()
-                                        closeModal()
-                                    }} />
-                                )}
-                            </Modal>
-                            <Button colorPalette="red" onClick={() => { handleDelete(product.id) }}>Eliminar</Button>
+            <Grid templateColumns="repeat(8, 1fr)" templateRows="repeat(10, 1fr)">
+                <GridItem rowSpan={10} colSpan={1} padding="4" bg="black" display="flex" flexDirection="column" gap="4">
+                    <Stack textAlign="initial">
+                        <Text textStyle="lg" fontWeight="medium">Marca</Text>
+                        <Box display="flex" flexDirection="column" justifyContent="center">
+                            {brands.map((brand, index) => (
+                                <Checkbox.Root key={index} onCheckedChange={(checked) => handleCheckBrand(brand, checked)}>
+                                    <Checkbox.HiddenInput />
+                                    <Checkbox.Control />
+                                    <Checkbox.Label>{brand}</Checkbox.Label>
+                                </Checkbox.Root>
+                            ))}
                         </Box>
-                        <Accordion.ItemContent>
-                            <Grid templateColumns="repeat(8, 1fr)" gap="4" paddingY="16px">
-                                {product.variants && product.variants.map((variant) => (
-                                    <Box display="inline-block" pos="relative" key={variant.id}>
-                                        <Card.Root maxW="200px" size="sm" overflow="hidden" >
-                                            <Image src={variant.image} h="100px" w="400px" fit="contain" />
-                                            <Card.Body>
-                                                <Card.Title>{product.name} {product.brand}</Card.Title>
-                                                <Card.Description>{product.description}</Card.Description>
-                                                <HStack mt="1">
-                                                    <Badge>Talle {variant.size}</Badge>
-                                                    <Badge>{variant.color}</Badge>
-                                                </HStack>
-                                                <Text textStyle="2xl" fontWeight="medium" letterSpacing="tight" mt="2">${new Intl.NumberFormat("es-AR").format(product.salePrice)}</Text>
-                                            </Card.Body>
-                                            <Card.Footer display="flex" flexDirection="column" justifyContent="center">
-                                                <Box display="flex" justifyContent="center" gap="4">
-                                                    <Modal trigger={<Button type="button" width="50px" flex="1" onClick={() => handleVariantUpdate(variant, product)}>Editar</Button>}>
-                                                        {({ closeModal }) => (
-                                                            <VariantModal onSubmitVariant={(data) => {
-                                                                onSubmitVariant(data)
-                                                                closeModal()
-                                                            }} variants={variants} variantUpdate={variantUpdate} />
-                                                        )}
-                                                    </Modal>
-                                                    <Button colorPalette="red" flex="1" onClick={() => deleteVariant(variant, setVariants)}>Eliminar</Button>
-                                                </Box>
-                                                <Box gap="2" display="flex" justifyContent="center">
-                                                    <NumberInput.Root value={variant.stock} unstyled spinOnPress={false} >
-                                                        <HStack>
-                                                            <Button colorPalette="green" onClick={() => { handleCart(variant) }}>Cart</Button>
-                                                            <NumberInput.ValueText textAlign="center" fontSize="lg" minW="3ch" />
-                                                            <Modal trigger={
-                                                                <NumberInput.Control onClick={() => setVariantUpdate(variant)}>
-                                                                    <IconButton variant="outline" size="sm">+ Stock</IconButton>
-                                                                </NumberInput.Control>
-                                                            }
-                                                            >
-                                                                <ModalStockUpdate variantUpdate={variantUpdate} />
-                                                            </Modal>
-                                                        </HStack>
-                                                    </NumberInput.Root>
-                                                </Box>
+                    </Stack>
+                    <Stack textAlign="initial">
+                        <Text textStyle="lg" fontWeight="medium">Talle</Text>
+                        <Box display="flex" flexDirection="column" justifyContent="center">
+                            {sizes.map((size, index) => (
+                                <Checkbox.Root key={index} onCheckedChange={(checked) => handleCheckSize(size, checked)}>
+                                    <Checkbox.HiddenInput />
+                                    <Checkbox.Control />
+                                    <Checkbox.Label>{size}</Checkbox.Label>
+                                </Checkbox.Root>
+                            ))}
+                        </Box>
+                    </Stack>
 
-                                            </Card.Footer>
-                                        </Card.Root>
-                                        <Float placement="top-end" zIndex="banner">
-                                            <Badge size="sm" variant="solid" colorPalette={variant.stock > 5 ? "teal" : "red"}>
-                                                Stock: {variant.stock}
-                                            </Badge>
-                                        </Float>
+                    <Stack textAlign="initial">
+                        <Text textStyle="lg" fontWeight="medium">Color</Text>
+                        <Box display="flex" flexDirection="column" justifyContent="center">
+                            {colors.map((color, index) => (
+                                <Checkbox.Root key={index} onCheckedChange={(checked) => handleCheckColor(color, checked)}>
+                                    <Checkbox.HiddenInput />
+                                    <Checkbox.Control />
+                                    <Checkbox.Label>{color}</Checkbox.Label>
+                                </Checkbox.Root>
+                            ))}
+                        </Box>
+                    </Stack>
+
+                    <Stack display="flex" flexDirection="row" justifyContent="space-around" alignItems="center">
+                        <Field.Root width="80px">
+                            <Text>Price Min</Text>
+                            <NumberInput.Root size="xs" value={priceMin} onValueChange={(e) => { handleSetPrice("priceMin", e.value) }}>
+                                <InputGroup startElement="$">
+                                    <NumberInput.Input />
+                                </InputGroup>
+                            </NumberInput.Root>
+                        </Field.Root>
+
+                        <Field.Root width="80px">
+                            <Text>Price Max</Text>
+                            <NumberInput.Root size="xs" value={priceMax} onValueChange={(e) => { handleSetPrice("priceMax", e.value) }}>
+                                <InputGroup startElement="$">
+                                    <NumberInput.Input />
+                                </InputGroup>
+                            </NumberInput.Root>
+                        </Field.Root>
+                        <Button disabled={priceMin == 0 && priceMax == 0} onClick={() => { handleChangePrice() }}> &gt; </Button>
+                    </Stack>
+
+                </GridItem>
+
+                <GridItem rowSpan={1} colSpan={7}>
+                    <SearchBar onChangeSearch={handleChange} />
+                </GridItem>
+                <GridItem rowSpan={9} colSpan={7} display="flex" flexDirection="column">
+                    <Grid templateColumns="repeat(4, 1fr)" gap="4">
+                        {variants && variants.map((variant) => (
+                            <Card.Root maxW="200px" size="sm" overflow="hidden" key={variant.id}>
+                                <Image src={variant.image} h="100px" w="400px" fit="contain" />
+                                <Card.Body>
+                                    <Card.Title>{variant.product.name} {variant.product.brand}</Card.Title>
+                                    <Card.Description>{variant.product.description}</Card.Description>
+                                    <HStack mt="1">
+                                        <Badge>Talle {variant.size}</Badge>
+                                        <Badge>{variant.color}</Badge>
+                                    </HStack>
+                                    <Text textStyle="2xl" fontWeight="medium" letterSpacing="tight" mt="2">${new Intl.NumberFormat("es-AR").format(variant.product.salePrice)}</Text>
+                                </Card.Body>
+                                <Card.Footer display="flex" flexDirection="column" justifyContent="center">
+                                    <Box display="flex" justifyContent="center" gap="4">
+                                        <Modal trigger={<Button type="button" width="50px" flex="1" onClick={() => handleVariantUpdate(variant, variant.product)}>Editar</Button>}>
+                                            {({ closeModal }) => (
+                                                <VariantModal onSubmitVariant={(data) => {
+                                                    onSubmitVariant(data)
+                                                    closeModal()
+                                                }} variants={variants} variantUpdate={variantUpdate} />
+                                            )}
+                                        </Modal>
+                                        <Button colorPalette="red" flex="1" onClick={() => deleteVariant(variant, setVariants)}>Eliminar</Button>
                                     </Box>
-                                ))}
-                            </Grid>
-                        </Accordion.ItemContent>
-                    </Accordion.Item>
-                </Accordion.Root >
-            ))
-            }
+                                    <Box gap="2" display="flex" justifyContent="center">
+                                        <NumberInput.Root value={variant.stock} unstyled spinOnPress={false} >
+                                            <HStack>
+                                                <Button colorPalette="green" onClick={() => { handleCart(variant) }}>Cart</Button>
+                                                <NumberInput.ValueText textAlign="center" fontSize="lg" minW="3ch" />
+                                                <Modal trigger={
+                                                    <NumberInput.Control onClick={() => setVariantUpdate(variant)}>
+                                                        <IconButton variant="outline" size="sm">+ Stock</IconButton>
+                                                    </NumberInput.Control>
+                                                }
+                                                >
+                                                    <ModalStockUpdate variantUpdate={variantUpdate} />
+                                                </Modal>
+                                            </HStack>
+                                        </NumberInput.Root>
+                                    </Box>
 
+                                </Card.Footer>
+                            </Card.Root>
+                        ))}
+                    </Grid>
+                </GridItem>
+
+            </Grid >
             <Modal trigger={<Button position="fixed" right="0" bottom="0" size="lg" margin="1rem" colorPalette="teal" onClick={handleCreate}>+</Button>}>
                 {({ closeModal }) => (
                     <ProductModal productUpdate={productUpdate} onSubmit={() => {
@@ -243,7 +362,6 @@ function ProductsPage() {
                     }} />
                 )}
             </Modal>
-
             <ToastContainer />
         </>
     )
