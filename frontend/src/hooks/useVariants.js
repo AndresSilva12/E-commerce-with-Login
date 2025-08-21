@@ -10,18 +10,11 @@ export function useVariants () {
     const { addVariantToProduct, deleteVariantToProduct, updateVariantToProduct} = useProducts()
     const {createEntry} = useStockEntries()
     const [variants, setVariants] = useState([])
-    const [sizes, setSizes] = useState([])
-    const [colors, setColors] = useState([])
 
     const fetchVariants = async() => {
         const res = await fetch('http://localhost:3000/api/variants')
         const data = await res.json()
-        const uniqueSizes = [...new Set(data.map(v => v.size))]
-        const uniqueColors = [...new Set(data.map(v => v.color))]
         setVariants(data)
-        setSizes(uniqueSizes)
-        setColors(uniqueColors)
-
     }
 
     const getOneVariant = async(variant, setError) => {
@@ -176,8 +169,6 @@ export function useVariants () {
 
     return{
         variants,
-        sizes,
-        colors,
         setVariants,
         fetchVariants,
         createVariant,

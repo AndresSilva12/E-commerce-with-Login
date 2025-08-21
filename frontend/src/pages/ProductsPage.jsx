@@ -94,12 +94,15 @@ export function ModalStockUpdate({ variantUpdate }) {
 
 function ProductsPage() {
     const [productUpdate, setProductUpdate] = useState(null)
-    const { products, deleteProduct, brands } = useProducts()
-    const { deleteVariant, submitVariant, setVariants, variants, sizes, colors } = useVariants()
+    const { products, deleteProduct } = useProducts()
+    const { deleteVariant, submitVariant, setVariants, variants } = useVariants()
     const [variantUpdate, setVariantUpdate] = useState()
     const [filters, setFilters] = useState({})
     const [priceMin, setPriceMin] = useState(0)
     const [priceMax, setPriceMax] = useState(0)
+    const [sizes, setSizes] = useState([])
+    const [colors, setColors] = useState([])
+    const [brands, setBrands] = useState([])
     const { addToCart } = useCart()
 
     useEffect(() => {
@@ -107,6 +110,12 @@ function ProductsPage() {
             const query = new URLSearchParams(filters).toString()
             const res = await fetch(`http://localhost:3000/api/variants?${query}`)
             const data = await res.json()
+            const uniqueSizes = [...new Set(data.map(v => v.size))]
+            const uniqueColors = [...new Set(data.map(v => v.color))]
+            const uniqueBrands = [...new Set(data.map(v => v.product.brand))]
+            setColors(uniqueColors)
+            setSizes(uniqueSizes)
+            setBrands(uniqueBrands)
             setVariants(data)
         }
         fetchSearch()
