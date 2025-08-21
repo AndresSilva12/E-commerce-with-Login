@@ -305,7 +305,7 @@ function ProductsPage() {
                     <SearchBar onChangeSearch={handleChange} />
                 </GridItem>
                 <GridItem rowSpan={9} colSpan={7} display="flex" flexDirection="column">
-                    <Grid templateColumns="repeat(4, 1fr)" gap="4">
+                    <Grid templateColumns="repeat(5, 1fr)" gap="4">
                         {variants && variants.map((variant) => (
                             <Card.Root maxW="200px" size="sm" overflow="hidden" key={variant.id}>
                                 <Image src={variant.image} h="100px" w="400px" fit="contain" />
@@ -358,6 +358,7 @@ function ProductsPage() {
                 {({ closeModal }) => (
                     <ProductModal productUpdate={productUpdate} onSubmit={() => {
                         onSubmit()
+                        setFilters(null)
                         closeModal()
                     }} />
                 )}

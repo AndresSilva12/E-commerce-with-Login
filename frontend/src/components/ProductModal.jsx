@@ -18,7 +18,8 @@ function ProductModal({ productUpdate, onSubmit }) {
         defaultValues: productUpdate
     })
     const { updateProduct, createProduct } = useProducts()
-    const { deleteVariant, submitVariant, variants, setVariants } = useVariants()
+    const { deleteVariant, submitVariant, } = useVariants()
+    const [variants, setVariants] = useState([])
     const [variantUpdate, setVariantUpdate] = useState()
     const [purchasePrice, setPurchasePrice] = useState(1)
     const { createEntry } = useStockEntries()
