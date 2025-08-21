@@ -55,7 +55,17 @@ export const getVariants = async(req, res) => {
             where,
             orderBy: sortBy ? {[sortBy]: sortOrder === 'desc' ? 'desc' : 'asc'} : undefined
         })
-        return res.json(variants)
+        const sizes = [...new Set(variants.map(v => v.size))]
+        const colors = [...new Set(variants.map(v => v.color))]
+        const brands = [...new Set(variants.map(v => v.product.brand))]
+        return res.json({
+            variants: variants,
+            filters:{
+                sizes: sizes,
+                colors: colors,
+                brands: brands
+            }
+        })
     } catch (error) {
         console.log(error)
         return res.status(500).json({error: "Error interno durante el proceso"})

@@ -110,13 +110,10 @@ function ProductsPage() {
             const query = new URLSearchParams(filters).toString()
             const res = await fetch(`http://localhost:3000/api/variants?${query}`)
             const data = await res.json()
-            const uniqueSizes = [...new Set(data.map(v => v.size))]
-            const uniqueColors = [...new Set(data.map(v => v.color))]
-            const uniqueBrands = [...new Set(data.map(v => v.product.brand))]
-            setColors(uniqueColors)
-            setSizes(uniqueSizes)
-            setBrands(uniqueBrands)
-            setVariants(data)
+            setVariants(data.variants)
+            setColors(data.filters.colors)
+            setSizes(data.filters.sizes)
+            setBrands(data.filters.brands)
         }
         fetchSearch()
     }, [filters])
@@ -315,7 +312,7 @@ function ProductsPage() {
                 </GridItem>
                 <GridItem rowSpan={9} colSpan={7} display="flex" flexDirection="column">
                     <Grid templateColumns="repeat(5, 1fr)" gap="4">
-                        {variants && variants.map((variant) => (
+                        {Array.isArray(variants) && variants.map((variant) => (
                             <Card.Root maxW="200px" size="sm" overflow="hidden" key={variant.id}>
                                 <Image src={variant.image} h="100px" w="400px" fit="contain" />
                                 <Card.Body>
