@@ -10,7 +10,8 @@ export const productSchema = z.object({
     .trim()
     .min(1, "El nombre del producto es obligatorio")
     .min(2, "Debe tener almenos 2 caracteres")
-    .regex(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/, "Debe incluir solo letras y espacios"),
+    .regex(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/, "Debe incluir solo letras y espacios")
+    .transform((val) => val.toLowerCase().trim()),
   salePrice: z.coerce
     .number()
     .min(1, "El precio de venta es obligatorio")
@@ -21,7 +22,8 @@ export const productSchema = z.object({
     })
     .trim()
     .regex(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/, "Debe incluir solo letras y espacios")
-    .min(2, "Debe tener almenos 2 caracteres"),
+    .min(2, "Debe tener almenos 2 caracteres")
+    .transform((val) => val.toLowerCase().trim()),
   description: z.string().trim().optional(),
   variants: z.array(variantSchema.omit({ productId: true })).default([]),
 });

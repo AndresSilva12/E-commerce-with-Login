@@ -29,7 +29,8 @@ export const variantSchema = z.object({
       /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/,
       "El color solo puede incluir letras y espacios"
     )
-    .min(1, "El color es obligatorio"),
+    .min(1, "El color es obligatorio")
+    .transform((val) => val.toLowerCase().trim()),
   stock: z.coerce
     .number({
       required_error: "La cantidad en stock es obligatorio",
