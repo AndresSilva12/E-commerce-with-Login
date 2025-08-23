@@ -53,7 +53,11 @@ export const getVariants = async(req, res) => {
                 product: true,
             },
             where,
-            orderBy: sortBy ? {[sortBy]: sortOrder === 'desc' ? 'desc' : 'asc'} : undefined
+            orderBy: sortBy 
+                ? sortBy === 'name' || sortBy === 'brand' || sortBy === 'price'
+                    ? { product : { [sortBy === 'price' ? 'salePrice' : sortBy]: sortOrder === 'desc' ? 'desc' : 'asc'}}
+                    : {[sortBy]: sortOrder === 'desc' ? 'desc' : 'asc'} 
+                : undefined
         })
         const sizes = [...new Set(variants.map(v => v.size))]
         const colors = [...new Set(variants.map(v => v.color))]

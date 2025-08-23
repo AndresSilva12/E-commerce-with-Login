@@ -100,9 +100,17 @@ function ProductsPage() {
     const [filters, setFilters] = useState({})
     const [priceMin, setPriceMin] = useState(0)
     const [priceMax, setPriceMax] = useState(0)
-    const [sizes, setSizes] = useState([])
-    const [colors, setColors] = useState([])
-    const [brands, setBrands] = useState([])
+    const [availableFilters, setAvailableFilters] = useState({
+        colors: [],
+        sizes: [],
+        brands: []
+    })
+    const [filtersChecked, setFiltersChecked] = useState({
+        colors: [],
+        sizes: [],
+        brands: []
+    })
+    const [sortBy, setSortBy] = useState()
     const { addToCart } = useCart()
 
     useEffect(() => {
@@ -111,9 +119,11 @@ function ProductsPage() {
             const res = await fetch(`http://localhost:3000/api/variants?${query}`)
             const data = await res.json()
             setVariants(data.variants)
-            setColors(data.filters.colors)
-            setSizes(data.filters.sizes)
-            setBrands(data.filters.brands)
+            setAvailableFilters({
+                colors: data.filters.colors,
+                sizes: data.filters.sizes,
+                brands: data.filters.brands
+            })
         }
         fetchSearch()
     }, [filters])
@@ -128,6 +138,14 @@ function ProductsPage() {
         }
     }, [])
 
+    const sorts = createListCollection({
+        items: [
+            { label: "Precio (Menor a mayor)", value: "price-asc" },
+            { label: "Precio (Mayor a menor)", value: "price-desc" },
+            { label: "Nombre (A - Z)", value: "name-asc" },
+            { label: "Nombre (Z - A)", value: "name-desc" },
+        ],
+    })
 
     const onSubmit = () => {
         setProductUpdate(null)
@@ -175,35 +193,47 @@ function ProductsPage() {
     }
 
     const handleCheckBrand = async (brand, checked) => {
-        if (checked.checked) setFilters((prev) => ({ ...prev, brand: brand }))
+        if (checked.checked) {
+            setFilters((prev) => ({ ...prev, brand: brand }))
+            setFiltersChecked((prev) => ({ ...prev, brands: brand }))
+        }
         else {
             setFilters((prev) => {
                 const newFilter = { ...prev }
                 delete newFilter.brand
                 return newFilter
             })
+            setFiltersChecked((prev) => ({ ...prev, brands: [] }))
         }
     }
 
     const handleCheckSize = (size, checked) => {
-        if (checked.checked) setFilters((prev) => ({ ...prev, size: size }))
+        if (checked.checked) {
+            setFilters((prev) => ({ ...prev, size: size }))
+            setFiltersChecked((prev) => ({ ...prev, sizes: size }))
+        }
         else {
             setFilters((prev) => {
                 const newFilter = { ...prev }
                 delete newFilter.size
                 return newFilter
             })
+            setFiltersChecked((prev) => ({ ...prev, sizes: [] }))
         }
     }
 
     const handleCheckColor = (color, checked) => {
-        if (checked.checked) setFilters((prev) => ({ ...prev, color: color }))
+        if (checked.checked) {
+            setFilters((prev) => ({ ...prev, color: color }))
+            setFiltersChecked((prev) => ({ ...prev, colors: color }))
+        }
         else {
             setFilters((prev) => {
                 const newFilter = { ...prev }
                 delete newFilter.color
                 return newFilter
             })
+            setFiltersChecked((prev) => ({ ...prev, colors: [] }))
         }
     }
 
@@ -242,6 +272,24 @@ function ProductsPage() {
         }
     }
 
+    const handleChangeSort = (value) => {
+        const valueClear = value.toString()
+        const valueSplit = valueClear.split("-")
+        if (filters.sortBy != null) {
+            setFilters((prev) => {
+                const newFilter = { ...prev }
+                delete newFilter.sortBy
+                delete newFilter.sortOrder
+                newFilter.sortBy = valueSplit[0]
+                newFilter.sortOrder = valueSplit[1]
+                return newFilter
+            })
+        } else {
+            console.log(valueSplit[0], valueSplit[1])
+            setFilters((prev) => ({ ...prev, sortBy: valueSplit[0], sortOrder: valueSplit[1] }))
+        }
+    }
+
     return (
         <>
             <Grid templateColumns="repeat(8, 1fr)" templateRows="repeat(10, 1fr)">
@@ -249,8 +297,8 @@ function ProductsPage() {
                     <Stack textAlign="initial">
                         <Text textStyle="lg" fontWeight="medium">Marca</Text>
                         <Box display="flex" flexDirection="column" justifyContent="center">
-                            {brands.map((brand, index) => (
-                                <Checkbox.Root key={index} onCheckedChange={(checked) => handleCheckBrand(brand, checked)}>
+                            {availableFilters.brands.map((brand, index) => (
+                                <Checkbox.Root key={index} onCheckedChange={(checked) => handleCheckBrand(brand, checked)} checked={filtersChecked.brands.includes(brand)}>
                                     <Checkbox.HiddenInput />
                                     <Checkbox.Control />
                                     <Checkbox.Label>{brand}</Checkbox.Label>
@@ -261,8 +309,8 @@ function ProductsPage() {
                     <Stack textAlign="initial">
                         <Text textStyle="lg" fontWeight="medium">Talle</Text>
                         <Box display="flex" flexDirection="column" justifyContent="center">
-                            {sizes.map((size, index) => (
-                                <Checkbox.Root key={index} onCheckedChange={(checked) => handleCheckSize(size, checked)}>
+                            {availableFilters.sizes.map((size, index) => (
+                                <Checkbox.Root key={index} onCheckedChange={(checked) => handleCheckSize(size, checked)} checked={filtersChecked.sizes.includes(size)}>
                                     <Checkbox.HiddenInput />
                                     <Checkbox.Control />
                                     <Checkbox.Label>{size}</Checkbox.Label>
@@ -274,8 +322,8 @@ function ProductsPage() {
                     <Stack textAlign="initial">
                         <Text textStyle="lg" fontWeight="medium">Color</Text>
                         <Box display="flex" flexDirection="column" justifyContent="center">
-                            {colors.map((color, index) => (
-                                <Checkbox.Root key={index} onCheckedChange={(checked) => handleCheckColor(color, checked)}>
+                            {availableFilters.colors.map((color, index) => (
+                                <Checkbox.Root key={index} onCheckedChange={(checked) => handleCheckColor(color, checked)} checked={filtersChecked.colors.includes(color)}>
                                     <Checkbox.HiddenInput />
                                     <Checkbox.Control />
                                     <Checkbox.Label>{color}</Checkbox.Label>
@@ -309,6 +357,29 @@ function ProductsPage() {
 
                 <GridItem rowSpan={1} colSpan={7}>
                     <SearchBar onChangeSearch={handleChange} />
+                    <Select.Root collection={sorts} value={sortBy} defaultValue={"Ordenar por"} onValueChange={(e) => { handleChangeSort(e.value) }} size="sm" width="320px">
+                        <Select.HiddenSelect />
+                        <Select.Control>
+                            <Select.Trigger>
+                                <Select.ValueText placeholder="Ordenar por" />
+                            </Select.Trigger>
+                            <Select.IndicatorGroup>
+                                <Select.Indicator />
+                            </Select.IndicatorGroup>
+                        </Select.Control>
+                        <Portal color="red">
+                            <Select.Positioner>
+                                <Select.Content zIndex="9999">
+                                    {sorts.items.map((sort) => (
+                                        <Select.Item item={sort} key={sort.value}>
+                                            {sort.label}
+                                            <Select.ItemIndicator />
+                                        </Select.Item>
+                                    ))}
+                                </Select.Content>
+                            </Select.Positioner>
+                        </Portal>
+                    </Select.Root>
                 </GridItem>
                 <GridItem rowSpan={9} colSpan={7} display="flex" flexDirection="column">
                     <Grid templateColumns="repeat(5, 1fr)" gap="4">
