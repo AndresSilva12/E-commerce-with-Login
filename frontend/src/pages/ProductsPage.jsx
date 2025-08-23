@@ -187,10 +187,18 @@ function ProductsPage() {
         notify("success", "producto agregado al carrito!")
     }
 
-    const handleChange = async (e) => {
+    const debounce = (fn, delay) => {
+        let timeout
+        return (...args) => {
+            clearTimeout(timeout)
+            timeout = setTimeout(() => fn(...args), delay)
+        }
+    }
+
+    const handleChange = debounce((e) => {
         const value = e.target.value
         setFilters((prev) => ({ ...prev, name: value }))
-    }
+    }, 300)
 
     const handleCheckBrand = async (brand, checked) => {
         if (checked.checked) {
@@ -293,7 +301,7 @@ function ProductsPage() {
     return (
         <>
             <Grid templateColumns="repeat(8, 1fr)" templateRows="repeat(10, 1fr)">
-                <GridItem rowSpan={10} colSpan={1} padding="4" bg="black" display="flex" flexDirection="column" gap="4">
+                <GridItem rowSpan={10} colSpan={1} padding="4" bg="black" display="flex" flexDirection="column" gap="4" position="fixed" top="50px" zIndex="50">
                     <Stack textAlign="initial">
                         <Text textStyle="lg" fontWeight="medium">Marca</Text>
                         <Box display="flex" flexDirection="column" justifyContent="center">
@@ -355,36 +363,36 @@ function ProductsPage() {
 
                 </GridItem>
 
-                <GridItem rowSpan={1} colSpan={7}>
-                    <SearchBar onChangeSearch={handleChange} />
-                    <Select.Root collection={sorts} value={sortBy} defaultValue={"Ordenar por"} onValueChange={(e) => { handleChangeSort(e.value) }} size="sm" width="320px">
-                        <Select.HiddenSelect />
-                        <Select.Control>
-                            <Select.Trigger>
-                                <Select.ValueText placeholder="Ordenar por" />
-                            </Select.Trigger>
-                            <Select.IndicatorGroup>
-                                <Select.Indicator />
-                            </Select.IndicatorGroup>
-                        </Select.Control>
-                        <Portal color="red">
-                            <Select.Positioner>
-                                <Select.Content zIndex="9999">
-                                    {sorts.items.map((sort) => (
-                                        <Select.Item item={sort} key={sort.value}>
-                                            {sort.label}
-                                            <Select.ItemIndicator />
-                                        </Select.Item>
-                                    ))}
-                                </Select.Content>
-                            </Select.Positioner>
-                        </Portal>
-                    </Select.Root>
-                </GridItem>
-                <GridItem rowSpan={9} colSpan={7} display="flex" flexDirection="column">
-                    <Grid templateColumns="repeat(5, 1fr)" gap="4">
+                <GridItem rowSpan={9} colSpan={7} display="flex" flexDirection="column" marginLeft="260px" width="calc(100% - 250px)">
+                    <Box display="flex" width="calc(100% - 250px)" justifyContent="space-between" gap="10" position="fixed" top="60px" zIndex="50" bg="black">
+                        <SearchBar onChangeSearch={handleChange} />
+                        <Select.Root collection={sorts} value={sortBy} defaultValue={"Ordenar por"} onValueChange={(e) => { handleChangeSort(e.value) }} size="sm" width="320px">
+                            <Select.HiddenSelect />
+                            <Select.Control>
+                                <Select.Trigger>
+                                    <Select.ValueText placeholder="Ordenar por" />
+                                </Select.Trigger>
+                                <Select.IndicatorGroup>
+                                    <Select.Indicator />
+                                </Select.IndicatorGroup>
+                            </Select.Control>
+                            <Portal color="red">
+                                <Select.Positioner>
+                                    <Select.Content zIndex="9999">
+                                        {sorts.items.map((sort) => (
+                                            <Select.Item item={sort} key={sort.value}>
+                                                {sort.label}
+                                                <Select.ItemIndicator />
+                                            </Select.Item>
+                                        ))}
+                                    </Select.Content>
+                                </Select.Positioner>
+                            </Portal>
+                        </Select.Root>
+                    </Box>
+                    <Grid templateColumns="repeat(5, 1fr)" gap="4" marginTop="120px">
                         {Array.isArray(variants) && variants.map((variant) => (
-                            <Card.Root maxW="200px" size="sm" overflow="hidden" key={variant.id}>
+                            <Card.Root width="200px" size="sm" overflow="hidden" key={variant.id}>
                                 <Image src={variant.image} h="100px" w="400px" fit="contain" />
                                 <Card.Body>
                                     <Card.Title>{variant.product.name} {variant.product.brand}</Card.Title>
