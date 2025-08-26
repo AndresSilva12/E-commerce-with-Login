@@ -92,6 +92,9 @@ export const getOneProduct = async (req, res) => {
       where: {
         id: id,
       },
+      include:{
+        variants: true
+      }
     });
     return res.json(product);
   } catch (error) {

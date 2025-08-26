@@ -38,7 +38,6 @@ export function ModalStockUpdate({ variantUpdate }) {
             motive: String(motive)
         }
         await createEntry(entryData)
-        console.log(entryData)
     }
 
     return (
@@ -94,7 +93,7 @@ export function ModalStockUpdate({ variantUpdate }) {
 
 function ProductsPage() {
     const [productUpdate, setProductUpdate] = useState(null)
-    const { products, deleteProduct } = useProducts()
+    const { products, deleteProduct, fetchUniqueProduct } = useProducts()
     const { deleteVariant, submitVariant, setVariants, variants } = useVariants()
     const [variantUpdate, setVariantUpdate] = useState()
     const [filters, setFilters] = useState({})
@@ -126,7 +125,7 @@ function ProductsPage() {
             })
         }
         fetchSearch()
-    }, [filters])
+    }, [filters, variants])
 
     useEffect(() => {
         if (productUpdate && productUpdate.variants) {
@@ -167,9 +166,10 @@ function ProductsPage() {
         submitVariant({ setVariants, productUpdate, variantUpdate, data })
     }
 
-    const handleVariantUpdate = (variant, product) => {
+    const handleVariantUpdate = async (variant, product) => {
         setVariantUpdate(variant)
-        setProductUpdate(product)
+        const res = await fetchUniqueProduct(product.id)
+        setProductUpdate(res)
     }
 
     const handleCart = (variant) => {
@@ -301,66 +301,67 @@ function ProductsPage() {
     return (
         <>
             <Grid templateColumns="repeat(8, 1fr)" templateRows="repeat(10, 1fr)">
-                <GridItem rowSpan={10} colSpan={1} padding="4" bg="black" display="flex" flexDirection="column" gap="4" position="fixed" top="50px" zIndex="50">
-                    <Stack textAlign="initial">
-                        <Text textStyle="lg" fontWeight="medium">Marca</Text>
-                        <Box display="flex" flexDirection="column" justifyContent="center">
-                            {availableFilters.brands.map((brand, index) => (
-                                <Checkbox.Root key={index} onCheckedChange={(checked) => handleCheckBrand(brand, checked)} checked={filtersChecked.brands.includes(brand)}>
-                                    <Checkbox.HiddenInput />
-                                    <Checkbox.Control />
-                                    <Checkbox.Label>{brand}</Checkbox.Label>
-                                </Checkbox.Root>
-                            ))}
-                        </Box>
-                    </Stack>
-                    <Stack textAlign="initial">
-                        <Text textStyle="lg" fontWeight="medium">Talle</Text>
-                        <Box display="flex" flexDirection="column" justifyContent="center">
-                            {availableFilters.sizes.map((size, index) => (
-                                <Checkbox.Root key={index} onCheckedChange={(checked) => handleCheckSize(size, checked)} checked={filtersChecked.sizes.includes(size)}>
-                                    <Checkbox.HiddenInput />
-                                    <Checkbox.Control />
-                                    <Checkbox.Label>{size}</Checkbox.Label>
-                                </Checkbox.Root>
-                            ))}
-                        </Box>
-                    </Stack>
+                <GridItem rowSpan={10} colSpan={1} padding="4" bg="black" display="flex" flexDirection="column" gap="4" position="fixed" top="50px" zIndex="50" bottom="0">
+                    <Box overflowY="auto" height="100%">
+                        <Stack textAlign="initial">
+                            <Text textStyle="lg" fontWeight="medium">Marca</Text>
+                            <Box display="flex" flexDirection="column" justifyContent="center">
+                                {availableFilters.brands.map((brand, index) => (
+                                    <Checkbox.Root key={index} onCheckedChange={(checked) => handleCheckBrand(brand, checked)} checked={filtersChecked.brands.includes(brand)}>
+                                        <Checkbox.HiddenInput />
+                                        <Checkbox.Control />
+                                        <Checkbox.Label>{brand}</Checkbox.Label>
+                                    </Checkbox.Root>
+                                ))}
+                            </Box>
+                        </Stack>
+                        <Stack textAlign="initial">
+                            <Text textStyle="lg" fontWeight="medium">Talle</Text>
+                            <Box display="flex" flexDirection="column" justifyContent="center">
+                                {availableFilters.sizes.map((size, index) => (
+                                    <Checkbox.Root key={index} onCheckedChange={(checked) => handleCheckSize(size, checked)} checked={filtersChecked.sizes.includes(size)}>
+                                        <Checkbox.HiddenInput />
+                                        <Checkbox.Control />
+                                        <Checkbox.Label>{size}</Checkbox.Label>
+                                    </Checkbox.Root>
+                                ))}
+                            </Box>
+                        </Stack>
 
-                    <Stack textAlign="initial">
-                        <Text textStyle="lg" fontWeight="medium">Color</Text>
-                        <Box display="flex" flexDirection="column" justifyContent="center">
-                            {availableFilters.colors.map((color, index) => (
-                                <Checkbox.Root key={index} onCheckedChange={(checked) => handleCheckColor(color, checked)} checked={filtersChecked.colors.includes(color)}>
-                                    <Checkbox.HiddenInput />
-                                    <Checkbox.Control />
-                                    <Checkbox.Label>{color}</Checkbox.Label>
-                                </Checkbox.Root>
-                            ))}
-                        </Box>
-                    </Stack>
+                        <Stack textAlign="initial">
+                            <Text textStyle="lg" fontWeight="medium">Color</Text>
+                            <Box display="flex" flexDirection="column" justifyContent="center">
+                                {availableFilters.colors.map((color, index) => (
+                                    <Checkbox.Root key={index} onCheckedChange={(checked) => handleCheckColor(color, checked)} checked={filtersChecked.colors.includes(color)}>
+                                        <Checkbox.HiddenInput />
+                                        <Checkbox.Control />
+                                        <Checkbox.Label>{color}</Checkbox.Label>
+                                    </Checkbox.Root>
+                                ))}
+                            </Box>
+                        </Stack>
 
-                    <Stack display="flex" flexDirection="row" justifyContent="space-around" alignItems="center">
-                        <Field.Root width="80px">
-                            <Text>Price Min</Text>
-                            <NumberInput.Root size="xs" value={priceMin} onValueChange={(e) => { handleSetPrice("priceMin", e.value) }}>
-                                <InputGroup startElement="$">
-                                    <NumberInput.Input />
-                                </InputGroup>
-                            </NumberInput.Root>
-                        </Field.Root>
+                        <Stack display="flex" flexDirection="row" justifyContent="space-around" alignItems="center">
+                            <Field.Root width="80px">
+                                <Text>Price Min</Text>
+                                <NumberInput.Root size="xs" value={priceMin} onValueChange={(e) => { handleSetPrice("priceMin", e.value) }}>
+                                    <InputGroup startElement="$">
+                                        <NumberInput.Input />
+                                    </InputGroup>
+                                </NumberInput.Root>
+                            </Field.Root>
 
-                        <Field.Root width="80px">
-                            <Text>Price Max</Text>
-                            <NumberInput.Root size="xs" value={priceMax} onValueChange={(e) => { handleSetPrice("priceMax", e.value) }}>
-                                <InputGroup startElement="$">
-                                    <NumberInput.Input />
-                                </InputGroup>
-                            </NumberInput.Root>
-                        </Field.Root>
-                        <Button disabled={priceMin == 0 && priceMax == 0} onClick={() => { handleChangePrice() }}> &gt; </Button>
-                    </Stack>
-
+                            <Field.Root width="80px">
+                                <Text>Price Max</Text>
+                                <NumberInput.Root size="xs" value={priceMax} onValueChange={(e) => { handleSetPrice("priceMax", e.value) }}>
+                                    <InputGroup startElement="$">
+                                        <NumberInput.Input />
+                                    </InputGroup>
+                                </NumberInput.Root>
+                            </Field.Root>
+                            <Button disabled={priceMin == 0 && priceMax == 0} onClick={() => { handleChangePrice() }}> &gt; </Button>
+                        </Stack>
+                    </Box>
                 </GridItem>
 
                 <GridItem rowSpan={9} colSpan={7} display="flex" flexDirection="column" marginLeft="260px" width="calc(100% - 250px)">
@@ -407,10 +408,7 @@ function ProductsPage() {
                                     <Box display="flex" justifyContent="center" gap="4">
                                         <Modal trigger={<Button type="button" width="50px" flex="1" onClick={() => handleVariantUpdate(variant, variant.product)}>Editar</Button>}>
                                             {({ closeModal }) => (
-                                                <VariantModal onSubmitVariant={(data) => {
-                                                    onSubmitVariant(data)
-                                                    closeModal()
-                                                }} variants={variants} variantUpdate={variantUpdate} />
+                                                <ProductModal productUpdate={productUpdate} onSubmit={onSubmit} />
                                             )}
                                         </Modal>
                                         <Button colorPalette="red" flex="1" onClick={() => deleteVariant(variant, setVariants)}>Eliminar</Button>

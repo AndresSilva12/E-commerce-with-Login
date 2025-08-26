@@ -49,7 +49,7 @@ function SalesPage() {
     }
 
     return (
-        <>
+        <Box paddingTop="60px">
             <Table.Root size="sm" striped>
                 <Table.Caption>Product inventory and pricing information</Table.Caption>
                 <Table.Header>
@@ -95,7 +95,7 @@ function SalesPage() {
                     ))}
                 </Table.Body>
             </Table.Root>
-        </>
+        </Box>
     )
 }
 

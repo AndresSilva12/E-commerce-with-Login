@@ -17,7 +17,7 @@ function ProductModal({ productUpdate, onSubmit }) {
         resolver: zodResolver(productUpdate ? updateProductSchema : productSchema),
         defaultValues: productUpdate
     })
-    const { updateProduct, createProduct } = useProducts()
+    const { updateProduct, createProduct, fetchUniqueProduct } = useProducts()
     const { deleteVariant, submitVariant, } = useVariants()
     const [variants, setVariants] = useState([])
     const [variantUpdate, setVariantUpdate] = useState()
@@ -93,111 +93,99 @@ function ProductModal({ productUpdate, onSubmit }) {
     }
 
     return (
-        <form onSubmit={handleSubmit(onValid, onInvalid)}>
-            <Fieldset.Root size="lg" maxW="md">
-                <Fieldset.Content>
-                    <Box display="flex">
-                        <Field.Root invalid={!!errors.name}>
-                            <Box display="flex" justifyContent="space-between" width="full">
-                                <Field.Label>Name</Field.Label>
-                                <Field.ErrorText>{errors.name?.message}</Field.ErrorText>
-                            </Box>
-                            <Input {...register("name")} width="200px" />
-                        </Field.Root>
-
-                        <Field.Root invalid={!!errors.brand}>
-                            <Box display="flex" justifyContent="space-between" width="full">
-                                <Field.Label>Brand</Field.Label>
-                                <Field.ErrorText>{errors.brand?.message}</Field.ErrorText>
-                            </Box>
-                            <Input {...register("brand")} width="200px" />
-                        </Field.Root>
-                    </Box>
-
-                    <Box display="flex" justifyContent="space-between">
-                        <Field.Root invalid={!!errors.salePrice}>
-                            <Box display="flex" justifyContent="space-between" width="full">
-                                <Field.Label>Sale Price</Field.Label>
-                                <Field.ErrorText>{errors.salePrice?.message}</Field.ErrorText>
-                            </Box>
-                            <NumberInput.Root defaultValue="10" width="200px" {...register("salePrice")}>
-                                <NumberInput.Control />
-                                <InputGroup startElement="$">
-                                    <NumberInput.Input />
-                                </InputGroup>
-                            </NumberInput.Root>
-                        </Field.Root>
-
-                        {!productUpdate && (
-                            <Field.Root>
+        <Box display="grid" gridTemplateColumns="repeat(2, minmax(0, 1fr))" gap="4">
+            <form onSubmit={handleSubmit(onValid, onInvalid)}>
+                <Fieldset.Root size="lg" maxW="md">
+                    <Fieldset.Content>
+                        <Box display="flex">
+                            <Field.Root invalid={!!errors.name}>
                                 <Box display="flex" justifyContent="space-between" width="full">
-                                    <Field.Label>Purchase Price</Field.Label>
+                                    <Field.Label>Name</Field.Label>
+                                    <Field.ErrorText>{errors.name?.message}</Field.ErrorText>
                                 </Box>
-                                <NumberInput.Root value={purchasePrice} onValueChange={(e) => { setPurchasePrice(e.value) }} width="200px">
+                                <Input {...register("name")} width="200px" />
+                            </Field.Root>
+
+                            <Field.Root invalid={!!errors.brand}>
+                                <Box display="flex" justifyContent="space-between" width="full">
+                                    <Field.Label>Brand</Field.Label>
+                                    <Field.ErrorText>{errors.brand?.message}</Field.ErrorText>
+                                </Box>
+                                <Input {...register("brand")} width="200px" />
+                            </Field.Root>
+                        </Box>
+
+                        <Box display="flex" justifyContent="space-between">
+                            <Field.Root invalid={!!errors.salePrice}>
+                                <Box display="flex" justifyContent="space-between" width="full">
+                                    <Field.Label>Sale Price</Field.Label>
+                                    <Field.ErrorText>{errors.salePrice?.message}</Field.ErrorText>
+                                </Box>
+                                <NumberInput.Root defaultValue="10" width="200px" {...register("salePrice")}>
                                     <NumberInput.Control />
                                     <InputGroup startElement="$">
                                         <NumberInput.Input />
                                     </InputGroup>
                                 </NumberInput.Root>
                             </Field.Root>
-                        )}
+
+                            {!productUpdate && (
+                                <Field.Root>
+                                    <Box display="flex" justifyContent="space-between" width="full">
+                                        <Field.Label>Purchase Price</Field.Label>
+                                    </Box>
+                                    <NumberInput.Root value={purchasePrice} onValueChange={(e) => { setPurchasePrice(e.value) }} width="200px">
+                                        <NumberInput.Control />
+                                        <InputGroup startElement="$">
+                                            <NumberInput.Input />
+                                        </InputGroup>
+                                    </NumberInput.Root>
+                                </Field.Root>
+                            )}
+                        </Box>
+
+                        <Field.Root>
+                            <Field.Label>Description</Field.Label>
+                            <Input {...register("description")} />
+                        </Field.Root>
+
+                    </Fieldset.Content>
+
+                    <Box height="200px" overflowY="scroll">
+                        {variants && variants.map((variant) => (
+                            <Accordion.Root collapsible key={variant.localId} size="sm" onClick={() => { handleUpdate(variant) }}>
+                                <Accordion.Item >
+                                    <Box display="flex">
+                                        <Accordion.ItemTrigger>
+                                            <Avatar.Root shape="rounded">
+                                                <Avatar.Image src={variant.image} />
+                                                <Avatar.Fallback name={variant.code} />
+                                            </Avatar.Root>
+                                            <Stack gap="1">
+                                                {productUpdate && <Span flex="1">{productUpdate.name} {productUpdate.brand}</Span>}
+                                                <Text fontSize="sm" color="fg.muted">Codigo: {variant.code} Size: {variant.size}</Text>
+                                                <Text fontSize="sm" color="fg.muted">Color: {variant.color} Stock: {variant.stock}</Text>
+                                            </Stack>
+                                        </Accordion.ItemTrigger>
+                                        <Button variant="ghost" onClick={() => { deleteVariant(variant, setVariants) }}>Eliminar</Button>
+                                    </Box>
+                                    <Accordion.ItemContent>
+
+                                    </Accordion.ItemContent>
+                                </Accordion.Item>
+                            </Accordion.Root>
+                        ))}
                     </Box>
-
-                    <Field.Root>
-                        <Field.Label>Description</Field.Label>
-                        <Input {...register("description")} />
-                    </Field.Root>
-
-                </Fieldset.Content>
-
-                <Box height="200px" overflowY="scroll">
-                    {variants.map((variant) => (
-                        <Accordion.Root collapsible key={variant.localId} size="sm">
-                            <Accordion.Item >
-                                <Box display="flex">
-                                    <Accordion.ItemTrigger>
-                                        <Avatar.Root shape="rounded">
-                                            <Avatar.Image src={variant.image} />
-                                            <Avatar.Fallback name={variant.code} />
-                                        </Avatar.Root>
-                                        <Stack gap="1">
-                                            {productUpdate && <Span flex="1">{productUpdate.name} {productUpdate.brand}</Span>}
-                                            <Text fontSize="sm" color="fg.muted">Codigo: {variant.code} Size: {variant.size}</Text>
-                                            <Text fontSize="sm" color="fg.muted">Color: {variant.color} Stock: {variant.stock}</Text>
-                                        </Stack>
-                                    </Accordion.ItemTrigger>
-                                    <Modal trigger={<Button variant="solid" onClick={() => { handleUpdate(variant) }}>Editar</Button>}>
-                                        {({ closeModal }) => (
-                                            <VariantModal onSubmitVariant={(data) => {
-                                                onSubmitVariant(data)
-                                                closeModal()
-                                            }} variants={variants} variantUpdate={variantUpdate} productUpdate={productUpdate} />
-                                        )}
-                                    </Modal>
-                                    <Button variant="ghost" onClick={() => { deleteVariant(variant, setVariants) }}>Eliminar</Button>
-                                </Box>
-                                <Accordion.ItemContent>
-
-                                </Accordion.ItemContent>
-                            </Accordion.Item>
-                        </Accordion.Root>
-                    ))}
+                </Fieldset.Root>
+                <Box display="flex" width="full" paddingY="10px" justifyContent="space-between">
+                    <Button type="submit" alignSelf="flex-start" >
+                        {productUpdate ? 'Actualizar' : 'Crear'}
+                    </Button>
+                    <Button type="button" onClick={() => { handleCreate() }} variant="surface" >Nueva Variante</Button>
                 </Box>
-            </Fieldset.Root>
-            <Box display="flex" width="full" paddingY="10px" justifyContent="space-between">
-                <Button type="submit" alignSelf="flex-start" >
-                    {productUpdate ? 'Actualizar' : 'Crear'}
-                </Button>
-                <Modal trigger={<Button type="button" onClick={() => { handleCreate() }} variant="surface" >Nueva Variante</Button>}>
-                    {({ closeModal }) => (
-                        <VariantModal onSubmitVariant={(data) => {
-                            onSubmitVariant(data)
-                            closeModal()
-                        }} variants={variants} variantUpdate={variantUpdate} productUpdate={productUpdate} />
-                    )}
-                </Modal>
-            </Box>
-        </form>
+            </form>
+            <VariantModal onSubmitVariant={(data) => { onSubmitVariant(data) }} variants={variants} variantUpdate={variantUpdate} productUpdate={productUpdate} />
+        </Box>
     )
 }
 

@@ -13,12 +13,12 @@ function Modal({ trigger, children }) {
             <div onClick={() => { setOpen(true) }}>
                 {trigger}
             </div>
-            <Dialog.Root open={open} onOpenChange={(e) => setOpen(e.open)}>
-                <Portal>
+            <Dialog.Root open={open} onOpenChange={(e) => setOpen(e.open)} size="xl">
+                <Portal >
                     <Dialog.Backdrop />
                     <Dialog.Positioner>
                         <Dialog.Content>
-                            <Dialog.Body>
+                            <Dialog.Body >
                                 {typeof children === 'function' ? children({ closeModal }) : children}
                             </Dialog.Body>
                             <Dialog.CloseTrigger asChild>
