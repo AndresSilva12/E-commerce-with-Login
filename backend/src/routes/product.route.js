@@ -1,10 +1,10 @@
 import { Router } from "express";
-import { createProduct, deleteProduct, getAllProducts, getOneProduct, updateProduct } from "../controller/products.controller.js";
+import { createProduct, deleteProduct, getProducts, getOneProduct, updateProduct } from "../controller/products.controller.js";
 import { validateProduct, validateProductExist, validateUpdateProduct } from "../middlewares/productsMiddlewares.js";
 
 const router = Router()
 
-router.get('/products', getAllProducts)
+router.get('/products', getProducts)
 
 router.post('/products', validateProduct ,createProduct)
 

@@ -16,7 +16,7 @@ function NavBar() {
     const handleLogout = () => { logoutAlert({ logoutFunction: () => userLogout({ setIsAuthenticated }) }) }
 
     return (
-        <Box>
+        <Box position="fixed" zIndex="99" width="full">
             <Flex
                 bg={('white', 'gray.800')}
                 color={('gray.600', 'white')}

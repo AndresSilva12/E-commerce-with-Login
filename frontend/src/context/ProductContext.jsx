@@ -6,12 +6,23 @@ const ProductContext = createContext()
 
 export function ProductProvider({ children }) {
     const [products, setProducts] = useState([])
+    /* const [brands, setBrands] = useState([]) */
 
     const fetchProducts = async () => {
         try {
             const res = await fetch('http://localhost:3000/api/products')
             const data = await res.json()
             setProducts([...data])
+        } catch (error) {
+            console.log("Error interno del servidor durante el proceso")
+        }
+    }
+
+    const fetchUniqueProduct = async (id) => {
+        try {
+            const res = await fetch(`http://localhost:3000/api/products/${id}`)
+            const data = await res.json()
+            return data
         } catch (error) {
             console.log("Error interno del servidor durante el proceso")
         }
@@ -145,7 +156,7 @@ export function ProductProvider({ children }) {
     }, [])
 
     return (
-        <ProductContext.Provider value={{ products, createProduct, fetchProducts, deleteProduct, updateProduct, addVariantToProduct, deleteVariantToProduct, updateVariantToProduct }}>
+        <ProductContext.Provider value={{ products, fetchUniqueProduct, createProduct, fetchProducts, deleteProduct, updateProduct, addVariantToProduct, deleteVariantToProduct, updateVariantToProduct }}>
             {children}
         </ProductContext.Provider>
     )

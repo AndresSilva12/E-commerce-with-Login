@@ -1,6 +1,7 @@
 import path from "path";
 import fs from "fs";
 import prisma from '../db.js'
+import { equal } from "assert";
 
 export const createVariant = async(req, res) => {
     try{
@@ -23,10 +24,52 @@ export const createVariant = async(req, res) => {
     }
 }
 
-export const getAllVariants = async(req, res) => {
+export const getVariants = async(req, res) => {
     try {
-        const variants = await prisma.productVariant.findMany()
-        return res.json(variants)
+        const {code, size, color, stockMin, stockMax, sortBy, sortOrder} = req.query
+        const where = {}
+
+        if (code) where.code = {equals: code}
+        if (size) where.size = {equals: size}
+        if (color) where.color = {equals: color}
+        if (stockMin || stockMax) {
+            where.stock = {}
+            if (stockMin) where.stock.gte = parseInt(stockMin)
+            if (stockMax) where.stock.lte = parseInt(stockMax)
+        }
+
+        if (req.query.name || req.query.brand || req.query.priceMin || req.query.priceMax){
+            where.product = {}
+            if (req.query.name) where.product.name ={contains: req.query.name}
+            if (req.query.brand) where.product.brand = {equals: req.query.brand}
+            if (req.query.priceMin || req.query.priceMax){
+                where.product.salePrice = {}
+                if (req.query.priceMin) where.product.salePrice.gte = parseFloat(req.query.priceMin)
+                if (req.query.priceMax) where.product.salePrice.lte = parseFloat(req.query.priceMax)
+            }
+        }
+        const variants = await prisma.productVariant.findMany({
+            include: {
+                product: true,
+            },
+            where,
+            orderBy: sortBy 
+                ? sortBy === 'name' || sortBy === 'brand' || sortBy === 'price'
+                    ? { product : { [sortBy === 'price' ? 'salePrice' : sortBy]: sortOrder === 'desc' ? 'desc' : 'asc'}}
+                    : {[sortBy]: sortOrder === 'desc' ? 'desc' : 'asc'} 
+                : undefined
+        })
+        const sizes = [...new Set(variants.map(v => v.size))]
+        const colors = [...new Set(variants.map(v => v.color))]
+        const brands = [...new Set(variants.map(v => v.product.brand))]
+        return res.json({
+            variants: variants,
+            filters:{
+                sizes: sizes,
+                colors: colors,
+                brands: brands
+            }
+        })
     } catch (error) {
         console.log(error)
         return res.status(500).json({error: "Error interno durante el proceso"})

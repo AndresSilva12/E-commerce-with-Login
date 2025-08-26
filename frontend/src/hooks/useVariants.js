@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { notify } from "../utils/notifyToast.js"
 import { useProducts } from "../context/ProductContext.jsx"
 import { uploadImage } from '../utils/uploads.js'
@@ -162,6 +162,10 @@ export function useVariants () {
             }
         }
     }
+
+    useEffect(() => {
+        fetchVariants()
+    }, [])
 
     return{
         variants,
