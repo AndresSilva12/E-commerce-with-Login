@@ -24,6 +24,13 @@ export const productSchema = z.object({
     .regex(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/, "Debe incluir solo letras y espacios")
     .min(2, "Debe tener almenos 2 caracteres")
     .transform((val) => val.toLowerCase().trim()),
+  categoryId: z
+  .string({
+      required_error: "El id de categoria es obligatorio",
+      invalid_type_error: "Formato no valido",
+    })
+    .trim()
+    .min(1, "El id es obligatorio"),
   description: z.string().trim().optional(),
   variants: z.array(variantSchema.omit({ productId: true })).default([]),
 });

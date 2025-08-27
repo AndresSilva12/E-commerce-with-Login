@@ -2,14 +2,8 @@ import prisma from "../db.js";
 
 export const createProduct = async (req, res) => {
   try {
-    const {
-      code,
-      name,
-      description,
-      salePrice,
-      brand,
-      variants,
-    } = req.body;
+    console.log("llego al controller", req.body.categoryId)
+    const {code , name , description , salePrice , categoryId , brand , variants} = req.body;
     const newProduct = await prisma.products.create({
       data: {
         code: code,
@@ -17,6 +11,7 @@ export const createProduct = async (req, res) => {
         description: description,
         salePrice: salePrice,
         brand: brand,
+        categoryId: categoryId,
         ...(variants &&
           variants.length > 0 && {
             variants: {
@@ -131,6 +126,7 @@ export const updateProduct = async (req, res) => {
       description,
       salePrice,
       brand,
+      categoryId,
       variants,
     } = req.body;
     const updateVariants = variants.filter((variant) => variant.id);
@@ -161,6 +157,7 @@ export const updateProduct = async (req, res) => {
         description: description,
         salePrice: salePrice,
         brand: brand,
+        categoryId: categoryId,
         ...(newVariants &&
           newVariants.length > 0 && {
             variants: {

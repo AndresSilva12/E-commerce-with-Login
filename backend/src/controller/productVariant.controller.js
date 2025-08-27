@@ -50,7 +50,11 @@ export const getVariants = async(req, res) => {
         }
         const variants = await prisma.productVariant.findMany({
             include: {
-                product: true,
+                product: {
+                    include: {
+                        category: true
+                    }
+                },
             },
             where,
             orderBy: sortBy 
@@ -62,12 +66,14 @@ export const getVariants = async(req, res) => {
         const sizes = [...new Set(variants.map(v => v.size))]
         const colors = [...new Set(variants.map(v => v.color))]
         const brands = [...new Set(variants.map(v => v.product.brand))]
+        const categories = [...new Set(variants.map(v => v.product.category.name))]
         return res.json({
             variants: variants,
             filters:{
                 sizes: sizes,
                 colors: colors,
-                brands: brands
+                brands: brands,
+                categories: categories
             }
         })
     } catch (error) {
