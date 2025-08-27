@@ -47,7 +47,6 @@ export const validateNewSale = async(req, res, next) => {
         req.body.totalPrice = total
         next()
     } catch (error) {
-        console.log(error);
         return res.status(500).json({ error: "Error interno durante el proceso" });
     }
 }

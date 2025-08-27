@@ -1,7 +1,6 @@
 import path from "path";
 import fs from "fs";
 import prisma from '../db.js'
-import { equal } from "assert";
 
 export const createVariant = async(req, res) => {
     try{
@@ -15,7 +14,6 @@ export const createVariant = async(req, res) => {
                 productId:req.body.productId
             }
         })
-        console.log("nueva variante",newVariant)
         return res.json(newVariant)
     }
     catch(error){
@@ -38,10 +36,11 @@ export const getVariants = async(req, res) => {
             if (stockMax) where.stock.lte = parseInt(stockMax)
         }
 
-        if (req.query.name || req.query.brand || req.query.priceMin || req.query.priceMax){
+        if (req.query.name || req.query.brand || req.query.priceMin || req.query.priceMax || req.query.category){
             where.product = {}
             if (req.query.name) where.product.name ={contains: req.query.name}
             if (req.query.brand) where.product.brand = {equals: req.query.brand}
+            if (req.query.category) where.product.category = {name: {equals: req.query.category}}
             if (req.query.priceMin || req.query.priceMax){
                 where.product.salePrice = {}
                 if (req.query.priceMin) where.product.salePrice.gte = parseFloat(req.query.priceMin)
@@ -50,7 +49,11 @@ export const getVariants = async(req, res) => {
         }
         const variants = await prisma.productVariant.findMany({
             include: {
-                product: true,
+                product: {
+                    include: {
+                        category: true
+                    }
+                },
             },
             where,
             orderBy: sortBy 
@@ -62,12 +65,14 @@ export const getVariants = async(req, res) => {
         const sizes = [...new Set(variants.map(v => v.size))]
         const colors = [...new Set(variants.map(v => v.color))]
         const brands = [...new Set(variants.map(v => v.product.brand))]
+        const categories = [...new Set(variants.map(v => v.product.category.name))]
         return res.json({
             variants: variants,
             filters:{
                 sizes: sizes,
                 colors: colors,
-                brands: brands
+                brands: brands,
+                categories: categories
             }
         })
     } catch (error) {

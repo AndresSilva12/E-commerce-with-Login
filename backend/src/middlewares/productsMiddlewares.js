@@ -89,7 +89,6 @@ export const validateUpdateProduct = async(req, res, next) => {
         req.body = parsed.data
         next()
     } catch (error) {
-        console.log(error)
         return res.status(500).json({error: "Error interno del servidor"})
     }
 }

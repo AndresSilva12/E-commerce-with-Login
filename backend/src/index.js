@@ -5,6 +5,7 @@ import product from "./routes/product.route.js";
 import variants from "./routes/productVariants.route.js";
 import sales from "./routes/sales.routes.js"
 import stockEntries from "./routes/stockEntries.route.js"
+import category from "./routes/category.route.js"
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import path from "path";
@@ -40,6 +41,8 @@ App.use("/api", variants);
 App.use("/api", sales)
 
 App.use("/api", stockEntries)
+
+App.use("/api", category)
 
 App.listen(3000, () => {
   console.log(`Servidor Iniciado en "http://localhost:${PORT}" ...`);

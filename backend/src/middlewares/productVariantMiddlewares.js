@@ -15,7 +15,6 @@ export const validateCreateVariant = async(req, res, next) => {
         req.body = parsed.data
         next()
     } catch (error) {
-        console.log(error)
         return res.status(500).json({error: "Error interno durante el proceso"})
     }
 }
@@ -62,7 +61,6 @@ export const validateUpdateVariant = async(req, res, next) => {
         req.body= parsed.data
         next()
     } catch (error) {
-        console.log(error)
         return res.status(500).json({error: "Error interno durante el proceso"})
     }
 }
@@ -81,7 +79,6 @@ export const validateUniqueCode = async(req, res) => {
         return res.status(200).json({success: true})
     }
     catch(error){
-        console.log(error)
         return res.status(500).json({error: "Error interno durante el proceso"})   
     }
 }

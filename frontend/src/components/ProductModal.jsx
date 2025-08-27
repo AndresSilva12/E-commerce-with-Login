@@ -1,7 +1,7 @@
 import { useProducts } from '../context/ProductContext.jsx'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useEffect, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 import { notify } from '../utils/notifyToast.js'
 import { productSchema, updateProductSchema } from '../../../validation/productSchema.js'
 import VariantModal from './VariantModal.jsx'
@@ -9,10 +9,10 @@ import { useVariants } from '../hooks/useVariants.js'
 import { uploadImage } from '../utils/uploads.js'
 import Modal from "./Modal.jsx";
 import { useStockEntries } from '../hooks/useStockEntries.js'
-import { Button, Accordion, Box, Avatar, Span, Field, Fieldset, Input, InputGroup, NumberInput, Text, Stack } from "@chakra-ui/react"
+import { Button, Accordion, Box, Avatar, Span, Field, Fieldset, Input, InputGroup, NumberInput, Select, Text, Stack, Portal, createListCollection } from "@chakra-ui/react"
 
 function ProductModal({ productUpdate, onSubmit }) {
-    const { register, handleSubmit, reset, formState: { errors }, setError, watch } = useForm({
+    const { register, handleSubmit, reset, formState: { errors }, setError, control } = useForm({
         mode: 'onChange',
         resolver: zodResolver(productUpdate ? updateProductSchema : productSchema),
         defaultValues: productUpdate
@@ -22,7 +22,25 @@ function ProductModal({ productUpdate, onSubmit }) {
     const [variants, setVariants] = useState([])
     const [variantUpdate, setVariantUpdate] = useState()
     const [purchasePrice, setPurchasePrice] = useState(1)
+    const [categories, setCategories] = useState()
+    const [categorySelected, setCategorySelected] = useState()
     const { createEntry } = useStockEntries()
+
+    useEffect(() => {
+        getCategories()
+    }, [])
+
+    const getCategories = async () => {
+        const res = await fetch('http://localhost:3000/api/category')
+        const data = await res.json()
+        const collection = createListCollection({
+            items: data.map((category) => ({
+                label: category.name,
+                value: category.id,
+            })),
+        })
+        setCategories(collection)
+    }
 
     useEffect(() => {
         if (productUpdate && productUpdate.variants) {
@@ -45,6 +63,7 @@ function ProductModal({ productUpdate, onSubmit }) {
     const onValid = async (data) => {
         const fullProduct = {
             ...data,
+            categoryId: categorySelected.toString(),
             variants: variants.length > 0 ? variants.map(({ localId, ...rest }) => rest) : []
         }
         for (const variant of fullProduct.variants) {
@@ -75,7 +94,8 @@ function ProductModal({ productUpdate, onSubmit }) {
         onSubmit()
     }
 
-    const onInvalid = () => {
+    const onInvalid = (error) => {
+        console.log(error)
         notify('error', 'Por favor ingrese todos los datos')
     }
 
@@ -143,6 +163,57 @@ function ProductModal({ productUpdate, onSubmit }) {
                                 </Field.Root>
                             )}
                         </Box>
+
+
+                        <Select.Root value={categorySelected} onValueChange={({ value }) => { setCategorySelected(value) }} collection={categories}>
+                            <Select.HiddenSelect />
+                            <Select.Control>
+                                <Select.Trigger>
+                                    <Select.ValueText placeholder="Select Category" />
+                                </Select.Trigger>
+                                <Select.IndicatorGroup>
+                                    <Select.Indicator />
+                                </Select.IndicatorGroup>
+                            </Select.Control>
+                            <Portal>
+                                <Select.Positioner>
+                                    <Select.Content zIndex="99999">
+                                        {categories?.items?.map((category) => (
+                                            <Select.Item item={category} key={category.value}>
+                                                {category.label}
+                                                <Select.ItemIndicator />
+                                            </Select.Item>
+                                        ))}
+                                    </Select.Content>
+                                </Select.Positioner>
+                            </Portal>
+                        </Select.Root>
+
+
+                        {/* <Select.Root collection={motives} value={categorySelected} defaultValue={["Venta"]} onValueChange={(e) => { setCategorySelected(e.value) }} size="sm" width="320px">
+                            <Select.HiddenSelect />
+                            <Select.Label>Motivo</Select.Label>
+                            <Select.Control>
+                                <Select.Trigger>
+                                    <Select.ValueText placeholder="Motivo" />
+                                </Select.Trigger>
+                                <Select.IndicatorGroup>
+                                    <Select.Indicator />
+                                </Select.IndicatorGroup>
+                            </Select.Control>
+                            <Portal color="red">
+                                <Select.Positioner>
+                                    <Select.Content zIndex="9999">
+                                        {motives.items.map((motive) => (
+                                            <Select.Item item={motive} key={motive.value}>
+                                                {motive.label}
+                                                <Select.ItemIndicator />
+                                            </Select.Item>
+                                        ))}
+                                    </Select.Content>
+                                </Select.Positioner>
+                            </Portal>
+                        </Select.Root> */}
 
                         <Field.Root>
                             <Field.Label>Description</Field.Label>
