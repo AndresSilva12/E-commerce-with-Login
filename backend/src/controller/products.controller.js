@@ -2,7 +2,6 @@ import prisma from "../db.js";
 
 export const createProduct = async (req, res) => {
   try {
-    console.log("llego al controller", req.body.categoryId)
     const {code , name , description , salePrice , categoryId , brand , variants} = req.body;
     const newProduct = await prisma.products.create({
       data: {

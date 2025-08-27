@@ -1,7 +1,6 @@
 import path from "path";
 import fs from "fs";
 import prisma from '../db.js'
-import { equal } from "assert";
 
 export const createVariant = async(req, res) => {
     try{
@@ -15,7 +14,6 @@ export const createVariant = async(req, res) => {
                 productId:req.body.productId
             }
         })
-        console.log("nueva variante",newVariant)
         return res.json(newVariant)
     }
     catch(error){

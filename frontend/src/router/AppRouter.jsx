@@ -10,6 +10,7 @@ import ProtectedRoutes from '../components/ProtectedRoutes';
 import GuestOnlyRoute from '../components/GuestOnlyRoute';
 import ProductsPage from '../pages/ProductsPage';
 import StockEntriesPage from '../pages/StockEntries';
+import Categories from '../pages/Categories';
 
 function AppRouter() {
     return (
@@ -45,6 +46,11 @@ function AppRouter() {
                 <Route path='/entries' element={
                     <ProtectedRoutes>
                         <StockEntriesPage />
+                    </ProtectedRoutes>
+                } />
+                <Route path='/categories' element={
+                    <ProtectedRoutes>
+                        <Categories />
                     </ProtectedRoutes>
                 } />
                 <Route path='/login' element={

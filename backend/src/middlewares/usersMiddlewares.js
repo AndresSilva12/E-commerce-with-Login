@@ -39,7 +39,6 @@ export const validateCreateUsers = async (req, res, next) => {
         next()
     }
     catch (error) {
-        console.log(error)
         return res.status(500).json({error: "Error interno durante la validacion de creacion de datos del usuario"})
     }
 }
@@ -60,7 +59,6 @@ export const validateUserExist = async(req, res, next) =>{
         next()
     }
     catch (error) {
-        console.log(error)
         return res.status(500).json({error: "Error interno durante la validacion de usuario"})
     }
 }
@@ -124,7 +122,6 @@ export const validateUpdateUser = async (req, res, next) => {
         next()
     }
     catch (error) {
-        console.log(error)
         return res.status(500).json({error: "Error interno al validar actualizacion de usuario"})
     }
 }
@@ -163,7 +160,6 @@ export const validateUpdateUser = async (req, res, next) => {
             next()
         }
         catch (error){
-            console.log(error)
             return res.status(500).json({error: "Error interno al intentar validar el login de usuario"})
         }
 }
