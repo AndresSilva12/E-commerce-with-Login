@@ -40,7 +40,7 @@ export function ProductProvider({ children }) {
                 notify('error', 'Debe tener almenos uno en stock por variante')
                 return { success: false, errors: errors }
             }
-
+            console.log(formProduct)
             const res = await fetch('http://localhost:3000/api/products', {
                 method: 'POST',
                 headers: {

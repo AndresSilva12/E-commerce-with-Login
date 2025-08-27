@@ -26,11 +26,10 @@ export const productSchema = z.object({
     .transform((val) => val.toLowerCase().trim()),
   categoryId: z
   .string({
-      required_error: "El id de categoria es obligatorio",
       invalid_type_error: "Formato no valido",
     })
     .trim()
-    .min(1, "El id es obligatorio"),
+    .min(1, "El id es obligatorio").optional(),
   description: z.string().trim().optional(),
   variants: z.array(variantSchema.omit({ productId: true })).default([]),
 });

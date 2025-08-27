@@ -36,10 +36,11 @@ export const getVariants = async(req, res) => {
             if (stockMax) where.stock.lte = parseInt(stockMax)
         }
 
-        if (req.query.name || req.query.brand || req.query.priceMin || req.query.priceMax){
+        if (req.query.name || req.query.brand || req.query.priceMin || req.query.priceMax || req.query.category){
             where.product = {}
             if (req.query.name) where.product.name ={contains: req.query.name}
             if (req.query.brand) where.product.brand = {equals: req.query.brand}
+            if (req.query.category) where.product.category = {name: {equals: req.query.category}}
             if (req.query.priceMin || req.query.priceMax){
                 where.product.salePrice = {}
                 if (req.query.priceMin) where.product.salePrice.gte = parseFloat(req.query.priceMin)

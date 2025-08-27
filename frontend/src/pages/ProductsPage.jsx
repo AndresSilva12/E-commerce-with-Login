@@ -107,7 +107,8 @@ function ProductsPage() {
     const [filtersChecked, setFiltersChecked] = useState({
         colors: [],
         sizes: [],
-        brands: []
+        brands: [],
+        categories: []
     })
     const [sortBy, setSortBy] = useState()
     const { addToCart } = useCart()
@@ -121,7 +122,8 @@ function ProductsPage() {
             setAvailableFilters({
                 colors: data.filters.colors,
                 sizes: data.filters.sizes,
-                brands: data.filters.brands
+                brands: data.filters.brands,
+                categories: data.filters.categories
             })
         }
         fetchSearch()
@@ -245,6 +247,21 @@ function ProductsPage() {
         }
     }
 
+    const handleCheckCategory = (category, checked) => {
+        if (checked.checked) {
+            setFilters((prev) => ({ ...prev, category: category }))
+            setFiltersChecked((prev) => ({ ...prev, categories: category }))
+        }
+        else {
+            setFilters((prev) => {
+                const newFilter = { ...prev }
+                delete newFilter.category
+                return newFilter
+            })
+            setFiltersChecked((prev) => ({ ...prev, categories: [] }))
+        }
+    }
+
     const handleChangePrice = () => {
         if (priceMin > 0) {
             setFilters((prev) => ({ ...prev, priceMin: priceMin }))
@@ -303,6 +320,19 @@ function ProductsPage() {
             <Grid templateColumns="repeat(8, 1fr)" templateRows="repeat(10, 1fr)">
                 <GridItem rowSpan={10} colSpan={1} padding="4" bg="black" display="flex" flexDirection="column" gap="4" position="fixed" top="50px" zIndex="50" bottom="0">
                     <Box overflowY="auto" height="100%">
+                        <Stack textAlign="initial">
+                            <Text textStyle="lg" fontWeight="medium">Categorias</Text>
+                            <Box display="flex" flexDirection="column" justifyContent="center">
+                                {availableFilters.categories?.map((category, index) => (
+                                    <Checkbox.Root key={index} onCheckedChange={(checked) => handleCheckCategory(category, checked)} checked={filtersChecked.categories.includes(category)}>
+                                        <Checkbox.HiddenInput />
+                                        <Checkbox.Control />
+                                        <Checkbox.Label>{category}</Checkbox.Label>
+                                    </Checkbox.Root>
+                                ))}
+                            </Box>
+                        </Stack>
+
                         <Stack textAlign="initial">
                             <Text textStyle="lg" fontWeight="medium">Marca</Text>
                             <Box display="flex" flexDirection="column" justifyContent="center">
