@@ -26,6 +26,8 @@ model products {
   description String?
   salePrice Float
   brand String
+  categoryId String
+  category category @relation(fields: [categoryId], references: [id])
   variants productVariant[]
 }
 
@@ -81,4 +83,10 @@ model stockEntry {
   motive String
   items stockEntryItem []
   user users @relation(fields: [userId], references: [id])
+}
+
+model category {
+  id String @id @default(cuid())
+  name String
+  products products[]
 }
