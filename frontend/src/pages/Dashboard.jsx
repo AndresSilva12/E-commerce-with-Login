@@ -1,34 +1,28 @@
-import { useStockEntries } from "../hooks/useStockEntries.js"
-import { useSales } from "../hooks/useSales.js"
 import { Chart, useChart } from "@chakra-ui/charts"
-import { Badge, Box, Card, FormatNumber, Span, Stack, Stat, } from "@chakra-ui/react"
+import { Badge, Box, Card, FormatNumber, Span, Stack, Stat, Input } from "@chakra-ui/react"
 import { useEffect, useState } from "react"
 import { Cell, Label, Pie, PieChart, Bar, BarChart, CartesianGrid, Tooltip, XAxis, YAxis, LineChart, Line, Area, AreaChart } from "recharts"
 
 function Dashboard() {
-    const { getAllSales, sales } = useSales()
-    const { getAllStockEntries, stockEntries } = useStockEntries()
     const [ingresosBrutos, setIngresosBrutos] = useState()
     const [inversionTotal, setInversionTotal] = useState()
     const [ventasTotales, setVentasTotales] = useState()
     const [gananciaNeta, setGananciaNeta] = useState()
-    useEffect(() => {
-        getAllSales()
-        getAllStockEntries()
-    }, [])
+    const [filters, setFilters] = useState()
 
     useEffect(() => {
-        if (stockEntries) {
-            const inversion = stockEntries.map(entry => entry.total).reduce((accumulator, currentValue) => accumulator + currentValue, 0)
-            setInversionTotal(inversion)
-            if (sales) {
-                const ingresos = sales.map(sale => sale.totalPrice).reduce((accumulator, currentValue) => accumulator + currentValue, 0)
-                setIngresosBrutos(ingresos)
-                setVentasTotales(sales.length)
-                setGananciaNeta(ingresos - inversion)
-            }
+        const fetchMetrics = async () => {
+            const query = new URLSearchParams(filters).toString()
+            const res = await fetch(`http://localhost:3000/api/dashboard/metrics?${query}`)
+            const data = await res.json()
+            setIngresosBrutos(data.ingresos)
+            setInversionTotal(data.inversion)
+            setGananciaNeta(data.gananciaNeta)
+            setVentasTotales(data.ventasTotales)
         }
-    }, [stockEntries, sales])
+        fetchMetrics()
+    }, [filters])
+
     const chartMonths = useChart({
         data: [
             { sales: 63000, month: "June" },
@@ -90,9 +84,14 @@ function Dashboard() {
     const opening = chart.data[0]
     const trend = (closing.value - opening.value) / opening.value
 
+    const handleChangeDate = (value) => {
+        const dateSplit = value.split('-')
+        setFilters({ year: dateSplit[0], month: dateSplit[1], day: dateSplit[2] })
+    }
 
     return (
         <Box paddingTop="70px">
+            <Input type="date" onChange={(e) => { handleChangeDate(e.target.value) }} />
             <Box display="flex" width="full" justifyContent="center" gap="10">
                 <Card.Root maxW="xs" size="sm">
                     <Card.Body flexDirection="row" alignItems="center">
