@@ -35,7 +35,8 @@ export function ModalStockUpdate({ variantUpdate }) {
                 quantity: Number(stockEntry),
                 purchasePrice: Number(purchasePrice)
             }],
-            motive: String(motive)
+            motive: String(motive),
+            total: Number(stockEntry) * Number(purchasePrice)
         }
         await createEntry(entryData)
     }

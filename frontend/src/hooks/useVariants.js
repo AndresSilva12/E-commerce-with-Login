@@ -63,7 +63,8 @@ export function useVariants () {
                         purchasePrice: purchasePrice
                     }
                 ],
-                motive: motive || "Stock Inicial"
+                motive: motive || "Stock Inicial",
+                total: formData.stock * purchasePrice
             }
             await createEntry(entryData)
             notify('success', 'Variante creada con éxito!')

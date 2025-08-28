@@ -68,7 +68,8 @@ function StockEntriesPage() {
                         <Table.ColumnHeader>Fecha</Table.ColumnHeader>
                         <Table.ColumnHeader>Producto</Table.ColumnHeader>
                         <Table.ColumnHeader>Cantidad</Table.ColumnHeader>
-                        <Table.ColumnHeader>Precio de compra</Table.ColumnHeader>
+                        <Table.ColumnHeader>Precio unidad</Table.ColumnHeader>
+                        <Table.ColumnHeader>Compra total</Table.ColumnHeader>
                         <Table.ColumnHeader>Motivo</Table.ColumnHeader>
                     </Table.Row>
                 </Table.Header>
@@ -92,6 +93,7 @@ function StockEntriesPage() {
                                     <Table.Cell>$ {new Intl.NumberFormat("es-AR").format(item.purchasePrice)}</Table.Cell>
                                 </Fragment>
                             ))}
+                            <Table.Cell>$ {new Intl.NumberFormat("es-AR").format(entry.total)}</Table.Cell>
                             <Table.Cell>{entry.motive}</Table.Cell>
                         </Table.Row>
                     ))}

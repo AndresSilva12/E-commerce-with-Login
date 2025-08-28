@@ -87,7 +87,8 @@ function ProductModal({ productUpdate, onSubmit }) {
                     quantity: variantFound.stock,
                     purchasePrice: purchasePrice
                 }],
-                motive: "Stock Inicial"
+                motive: "Stock Inicial",
+                total: variantFound.stock * purchasePrice
             }
             createEntry(entryData)
         }
