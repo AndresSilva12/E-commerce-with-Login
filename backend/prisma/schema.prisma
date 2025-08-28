@@ -81,6 +81,7 @@ model stockEntry {
   date DateTime @default(now())
   userId Int
   motive String
+  total Float
   items stockEntryItem []
   user users @relation(fields: [userId], references: [id])
 }
