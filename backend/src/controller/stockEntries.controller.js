@@ -14,6 +14,7 @@ export const createStockEntry = async(req, res) => {
                             purchasePrice: item.purchasePrice
                         }))
                     },
+                    total: req.body.total,
                     motive: req.body.motive || "Stock Inicial"
                 },
                 include: {

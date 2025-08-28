@@ -18,6 +18,7 @@ export const validateStockEntry = async(req, res, next) => {
         if (!userExist) errors.userId = "Usuario inexistente"
     
         const errorsItem = {}
+        let total = 0
         const variantsNotDuplicate = []
         for (const item of items) {
             const found = variantsNotDuplicate.find((element) => element.variantId === item.variantId)
@@ -32,6 +33,7 @@ export const validateStockEntry = async(req, res, next) => {
                 errorsItem[item.variantId] = `Variante inexistente: ${item.variantId}`
                 continue
             }
+            total += item.quantity * item.purchasePrice
         }
 
         if (Object.keys(errorsItem).length > 0) errors.items = errorsItem
@@ -40,6 +42,7 @@ export const validateStockEntry = async(req, res, next) => {
         }
         req.body = stockEntryParsed.data
         req.body.items = variantsNotDuplicate
+        req.body.total = total
         next()
     } catch (error) {
         return res.status(500).json({ error: "Error interno durante el proceso" });
