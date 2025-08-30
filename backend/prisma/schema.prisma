@@ -91,3 +91,10 @@ model category {
   name String
   products products[]
 }
+
+model expenses {
+  id String @id @default(cuid())
+  date DateTime @default(now())
+  name String
+  amount Decimal @db.Decimal(10,2)
+}
