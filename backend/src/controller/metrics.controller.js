@@ -2,26 +2,35 @@ import prisma from "../db.js"
 
 export const getMetrics = async(req, res) => {
     try {
-        const year = Number(req.query.year)
-        const month = Number(req.query.month)
-        const day = Number(req.query.day)
+        const currentDate = new Date()
+        const year = Number(req.query.year) || currentDate.getFullYear()
+        const month = Number(req.query.month) || currentDate.getMonth()
+        const minDay = Number(req.query.minDay) || 1
+        const lastDayMonth = new Date (year, month, 0)
+        const maxDay = Number(req.query.maxDay) || lastDayMonth.getDate()
         const where = {}
-        if (year || month || day){
-            where.date = {}
-            if (year) {
-                where.date.gte = new Date(year,0,1)
-                where.date.lt = new Date(year +1, 0,1)
-                if (month){
-                    where.date.gte = new Date(year, month -1, 1)
-                    where.date.lt = new Date(year, month, 1)
-                    if (day){
-                        where.date.gte = new Date(year, month -1 , day)
-                        where.date.lt = new Date(year, month, day + 1)
+        where.date = {}
+        if (req.query.year){
+            if (req.query.month){
+                where.date.gte= new Date (year, month -1, minDay)
+                if (req.query.minDay){
+                    if (req.query.maxDay){
+                        where.date.lt = new Date (year, month -1, maxDay +1)
+                    }else {
+                        where.date.lt = new Date (year, month - 1, minDay + 1)
                     }
+                }else {
+                    where.date.lt = new Date (year, month -1, maxDay +1)
                 }
+            }else {
+                where.date.gte = new Date (year, 0, 1)
+                where.date.lt = new Date (year + 1, 0, 0)
             }
+        }else {
+            where.date.gte = new Date (year, month, minDay)
+            where.date.lt = new Date (year, month, maxDay)
         }
-        console.log(where.date)
+        
         const sales = await prisma.sales.aggregate({
             _sum: {
                 totalPrice: true
@@ -41,6 +50,7 @@ export const getMetrics = async(req, res) => {
         const gananciaNeta = (sales._sum.totalPrice - inversion._sum.total)
         const ventasTotales = sales._count._all
         return res.json({ingresos: sales._sum.totalPrice , inversion: inversion._sum.total, gananciaNeta: gananciaNeta, ventasTotales: ventasTotales})
+
     } catch (error) {
         console.log(error)
     }
