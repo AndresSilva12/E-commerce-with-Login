@@ -47,9 +47,12 @@ export const getMetrics = async(req, res) => {
             },
             where
         })
+
+        const expenses = await prisma.expenses.findMany({where})
+        const totalExpenses = expenses.reduce((accumulator, currentValue) => accumulator + Number(currentValue.amount), 0)
         const gananciaNeta = (sales._sum.totalPrice - inversion._sum.total)
         const ventasTotales = sales._count._all
-        return res.json({ingresos: sales._sum.totalPrice , inversion: inversion._sum.total, gananciaNeta: gananciaNeta, ventasTotales: ventasTotales})
+        return res.json({ingresos: sales._sum.totalPrice , inversion: inversion._sum.total, gananciaNeta: gananciaNeta, ventasTotales: ventasTotales, expenses: expenses, totalExpenses: totalExpenses})
 
     } catch (error) {
         console.log(error)
