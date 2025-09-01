@@ -20,14 +20,14 @@ export const validateNewSale = async(req, res, next) => {
         let total = 0
         const variantsNotDuplicate = []
         for (const item of items) {
-            const found = variantsNotDuplicate.find((element) => element.variantId === item.variantId)
-            if (found){
-                found.quantity += item.quantity
-            }else {
-                variantsNotDuplicate.push({...item});
-            }         
-
-            const variantExist = await prisma.productVariant.findFirst({where:{id: item.variantId}, include: {product: true}})
+            const variantExist = await prisma.productVariant.findFirst({
+                where:{
+                    id: item.variantId
+                },
+                include: {
+                    product: true,
+                    stockEntryItem: true
+                }})
             if (!variantExist) {
                 errorsItem[item.variantId] = `Variante inexistente: ${item.variantId}`;
                 continue
@@ -36,7 +36,19 @@ export const validateNewSale = async(req, res, next) => {
                 errorsItem[item.variantId] = `Stock insuficiente: disponible ${variantExist.stock}`
                 continue
             }
-            
+
+            const promedioPonderado = (variantExist.stockEntryItem.reduce((accumulator, currentValue) => accumulator + (currentValue.quantity * currentValue.purchasePrice ), 0)) / variantExist.stock
+            console.log("promedio ponderado:", promedioPonderado)
+            const found = variantsNotDuplicate.find((element) => element.variantId === item.variantId)
+            if (found){
+                found.quantity += item.quantity
+            }else {
+                variantsNotDuplicate.push({
+                    ...item,
+                    purchasePrice: promedioPonderado
+                });
+            }         
+
             total += item.quantity * variantExist.product.salePrice
         }
         if (Object.keys(errorsItem).length > 0) errors.items = errorsItem
