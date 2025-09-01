@@ -1,14 +1,18 @@
+import Modal from "../components/Modal"
 import { BarList, Chart, useChart } from "@chakra-ui/charts"
-import { Badge, Box, Card, FormatNumber, Span, Stack, Stat, Input, Button } from "@chakra-ui/react"
+import { Badge, Box, Card, Table, FormatNumber, Span, Stack, Stat, Input, Button } from "@chakra-ui/react"
 import { useEffect, useState } from "react"
-import { Cell, Label, Pie, PieChart, Bar, BarChart, CartesianGrid, Tooltip, XAxis, YAxis, LineChart, Line, Area, AreaChart } from "recharts"
+import { useForm } from "react-hook-form"
+import { Cell, Label, Pie, PieChart, Tooltip } from "recharts"
 
 function Dashboard() {
     const [ingresosBrutos, setIngresosBrutos] = useState()
-    const [inversionTotal, setInversionTotal] = useState()
     const [ventasTotales, setVentasTotales] = useState()
     const [gananciaNeta, setGananciaNeta] = useState()
+    const [totalGastos, setTotalGastos] = useState()
+    const [expenses, setExpenses] = useState([])
     const [filters, setFilters] = useState()
+    const { register, handleSubmit } = useForm()
 
     useEffect(() => {
         const fetchMetrics = async () => {
@@ -17,9 +21,10 @@ function Dashboard() {
             const data = await res.json()
             console.log(data)
             setIngresosBrutos(data.ingresos)
-            setInversionTotal(data.inversion)
             setGananciaNeta(data.gananciaNeta)
             setVentasTotales(data.ventasTotales)
+            setTotalGastos(data.totalExpenses)
+            setExpenses(data.expenses)
         }
         fetchMetrics()
     }, [filters])
@@ -59,17 +64,15 @@ function Dashboard() {
 
     const chartUtilidad = useChart({
         data: [
-            { name: "gastos", value: 40000, color: "blue.solid" },
+            { name: "gastos", value: totalGastos, color: "blue.solid" },
             { name: "utilidad", value: 61500, color: "pink.solid" },
         ],
     })
     const chartGastos = useChart({
-        data: [
-            { name: "luz", value: 400, color: "blue.solid" },
-            { name: "wifi", value: 300, color: "orange.solid" },
-            { name: "agua", value: 200, color: "pink.solid" },
-            { name: "alquiler", value: 400, color: "green.solid" },
-        ],
+        data: expenses.map((expense) => ({
+            name: expense.name,
+            value: Number(expense.amount),
+        })),
     })
 
 
@@ -97,6 +100,25 @@ function Dashboard() {
         setFilters({ year: dateSplit[0], month: dateSplit[1], day: dateSplit[2] })
     }
 
+    const createExpense = async (formData) => {
+        console.log(formData)
+        const res = await fetch('http://localhost:3000/api/expenses', {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(formData)
+        })
+        const data = await res.json()
+        console.log(data)
+    }
+
+    const onValid = (value) => {
+        createExpense(value)
+        setFilters(null)
+    }
+
+
     return (
         <Box paddingTop="70px">
             <Input type="date" onChange={(e) => { handleChangeDate(e.target.value) }} />
@@ -109,7 +131,7 @@ function Dashboard() {
                         </Stack>
                         <Stat.Root size="sm" alignItems="flex-end">
                             <Span fontWeight="medium">
-                                <FormatNumber value={15000} style="currency" currency="USD" />
+                                <FormatNumber value={ingresosBrutos} style="currency" currency="USD" />
                             </Span>
                             <Badge colorPalette={trend > 0 ? "green" : "red"} gap="0">
                                 <Stat.UpIndicator />
@@ -118,24 +140,6 @@ function Dashboard() {
                         </Stat.Root>
                     </Card.Body>
                 </Card.Root>
-
-                {/* <Card.Root maxW="xs" size="sm">
-                    <Card.Body flexDirection="row" alignItems="center">
-                        <Stack gap="0" flex="1">
-                            <Box fontWeight="semibold" textStyle="sm">Inversión total</Box>
-                            <Box textStyle="xs" color="fg.muted">Costos</Box>
-                        </Stack>
-                        <Stat.Root size="sm" alignItems="flex-end">
-                            <Span fontWeight="medium">
-                                <FormatNumber value={inversionTotal} style="currency" currency="USD" />
-                            </Span>
-                            <Badge colorPalette="green" gap="0">
-                                <Stat.UpIndicator />
-                                <FormatNumber value={trend} style="percent" maximumFractionDigits={2} />
-                            </Badge>
-                        </Stat.Root>
-                    </Card.Body>
-                </Card.Root> */}
                 <Card.Root maxW="xs" size="sm">
                     <Card.Body flexDirection="row" alignItems="center">
                         <Stack gap="0" flex="1">
@@ -164,25 +168,12 @@ function Dashboard() {
                         </Stack>
                         <Stat.Root size="sm" alignItems="flex-end">
                             <Span fontWeight="medium">
-                                <FormatNumber value={1} />
+                                <FormatNumber value={ventasTotales} />
                             </Span>
                             <Badge colorPalette={trend > 0 ? "green" : "red"} gap="0">
                                 <Stat.UpIndicator />
                                 <FormatNumber value={15000} style="currency" currency="USD" />
                             </Badge>
-                        </Stat.Root>
-                    </Card.Body>
-                </Card.Root>
-                <Card.Root maxW="xs" size="sm">
-                    <Card.Body flexDirection="row" alignItems="center">
-                        <Stack gap="0" flex="1">
-                            <Box fontWeight="semibold" textStyle="sm">Inventario</Box>
-                            <Box textStyle="xs" color="fg.muted">Dinero congelado en stock</Box>
-                        </Stack>
-                        <Stat.Root size="sm" alignItems="flex-end">
-                            <Span fontWeight="medium">
-                                <FormatNumber value="100000" style="currency" currency="USD" />
-                            </Span>
                         </Stat.Root>
                     </Card.Body>
                 </Card.Root>
@@ -326,7 +317,7 @@ function Dashboard() {
                         </PieChart>
                     </Chart.Root>
                 </Box>
-                <Box width="1/4">
+                <Box width="1/4" display="flex" flexDirection="column" alignContent="center" justifyContent="center">
                     <Chart.Root boxSize="200px" chart={chartGastos} mx="auto">
                         <PieChart>
                             <Tooltip
@@ -346,17 +337,26 @@ function Dashboard() {
                                     content={({ viewBox }) => (
                                         <Chart.RadialText
                                             viewBox={viewBox}
-                                            title={`$ ${new Intl.NumberFormat("es-AR").format(40000)}`}
+                                            title={`$ ${new Intl.NumberFormat("es-AR").format(totalGastos)}`}
                                             description="Gastos"
                                         />
                                     )}
                                 />
-                                {chartGastos.data.map((item) => (
-                                    <Cell key={item.color} fill={chartGastos.color(item.color)} />
+                                {chartGastos.data.map((item, index) => (
+                                    <Cell key={index} fill={chartGastos.color(item.color)} />
                                 ))}
                             </Pie>
                         </PieChart>
                     </Chart.Root>
+                    <Modal trigger={<Button>Agregar nuevo gasto</Button>}>
+                        <form onSubmit={handleSubmit(onValid)}>
+                            <label>nombre</label>
+                            <input type="text" {...register("name")} />
+                            <label>total</label>
+                            <input type="number" {...register("amount")} />
+                            <Button type="submit">Crear</Button>
+                        </form>
+                    </Modal>
                 </Box>
                 <Box display="flex" flexDirection="column">
                     <Card.Root maxW="xs" size="sm">
@@ -392,6 +392,26 @@ function Dashboard() {
                     <Button onClick={() => { alert("hola mundo") }}>Generar Reporte</Button>
                 </Box>
             </Box>
+
+            <Table.Root size="sm" striped>
+                <Table.Caption>Expenses inventory and pricing information</Table.Caption>
+                <Table.Header>
+                    <Table.Row>
+                        <Table.ColumnHeader>Gasto</Table.ColumnHeader>
+                        <Table.ColumnHeader>Fecha</Table.ColumnHeader>
+                        <Table.ColumnHeader>Precio Final</Table.ColumnHeader>
+                    </Table.Row>
+                </Table.Header>
+                <Table.Body>
+                    {expenses && expenses.map((expense) => (
+                        <Table.Row key={expense.id}>
+                            <Table.Cell>{expense.name}</Table.Cell>
+                            <Table.Cell>{expense.date}</Table.Cell>
+                            <Table.Cell>$ {new Intl.NumberFormat("es-AR").format(expense.amount)}</Table.Cell>
+                        </Table.Row>
+                    ))}
+                </Table.Body>
+            </Table.Root>
         </Box>
     )
 }
