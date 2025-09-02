@@ -5,11 +5,19 @@ import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { Cell, Label, Pie, PieChart, Tooltip } from "recharts"
 
-export function ProductsChart({ ventasProductos, total }) {
-    const chartData = ventasProductos.map((product) => ({
-        name: `${product.productName} ${product.color} ${product.size}`,
-        value: total ? product.totalVendido : product.cantidadVendido
-    }))
+export function ProductsChart({ ventasProductos, ventasCategorias, total }) {
+    const chartData = ventasProductos ?
+        ventasProductos.map((item) => ({
+            name: `${item.productName} ${item.color} ${item.size}`,
+            value: total
+                ? item.totalVendido
+                : item.cantidadVendido
+        }))
+        :
+        ventasCategorias.map((item) => ({
+            name: item.name,
+            value: item.quantity
+        }))
 
     const chart = useChart({
         sort: { by: "value", direction: "desc" },
@@ -20,7 +28,7 @@ export function ProductsChart({ ventasProductos, total }) {
     return (
         <BarList.Root chart={chart}>
             <BarList.Content>
-                <BarList.Label title="Productos mas vendidos" flex="1">
+                <BarList.Label title={ventasProductos ? 'Productos mas vendidos' : 'Categorias mas vendidas'} flex="1">
                     <BarList.Bar />
                 </BarList.Label>
                 <BarList.Value />
@@ -36,7 +44,8 @@ function Dashboard() {
     const [totalGastos, setTotalGastos] = useState()
     const [expenses, setExpenses] = useState([])
     const [costos, setCostos] = useState()
-    const [ventasProductos, setVentasProductos] = useState()
+    const [ventasProductos, setVentasProductos] = useState([])
+    const [ventasCategorias, setVentasCategorias] = useState([])
     const [filters, setFilters] = useState()
     const { register, handleSubmit } = useForm()
 
@@ -53,6 +62,7 @@ function Dashboard() {
             setTotalGastos(data.totalExpenses)
             setExpenses(data.expenses)
             setCostos(data.costos)
+            setVentasCategorias(data.ventasCategorias)
         }
         fetchMetrics()
     }, [filters])
@@ -407,6 +417,7 @@ function Dashboard() {
                 <Box display="flex" width="full" justifyContent="space-around">
                     <ProductsChart ventasProductos={ventasProductos} total={true} />
                     <ProductsChart ventasProductos={ventasProductos} />
+                    {ventasCategorias && (<ProductsChart ventasCategorias={ventasCategorias} />)}
                 </Box>
             )}
 

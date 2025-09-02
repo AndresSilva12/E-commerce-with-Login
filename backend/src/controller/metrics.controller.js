@@ -73,11 +73,28 @@ export const getMetrics = async(req, res) => {
             include: {
                 variant: {
                     include: {
-                        product: true
+                        product: {
+                            include: {
+                                category: true
+                            }
+                        }
                     }
                 }
             }
         })
+
+        const categorias = salesWithInfo.reduce((acc, sale) => {
+            const categoria = sale.variant.product.category.name
+            if (!acc[categoria]) {
+                acc[categoria] = 0
+            }
+            acc[categoria] += sale.quantity
+            return acc
+        }, {})
+        const ventasCategorias = Object.entries(categorias).map(([categoria, cantidad]) => ({
+            name: categoria,
+            quantity: cantidad
+        }))
         
         const ventasProductos = salesByProduct.map((sale => {
             const cantidadTotal = sale._sum.quantity
@@ -101,7 +118,7 @@ export const getMetrics = async(req, res) => {
         const gananciaNeta = ingresos - costos
         const expenses = await prisma.expenses.findMany({where})
         const totalExpenses = expenses.reduce((accumulator, currentValue) => accumulator + Number(currentValue.amount), 0)
-        return res.json({ingresos: ingresos , ventasTotales: ventasTotales, expenses: expenses, totalExpenses: totalExpenses, costos: costos, gananciaNeta: gananciaNeta, ventasProductos: ventasProductos})
+        return res.json({ingresos: ingresos , ventasTotales: ventasTotales, expenses: expenses, totalExpenses: totalExpenses, costos: costos, gananciaNeta: gananciaNeta, ventasProductos: ventasProductos, ventasCategorias: ventasCategorias})
 
     } catch (error) {
         console.log(error)
