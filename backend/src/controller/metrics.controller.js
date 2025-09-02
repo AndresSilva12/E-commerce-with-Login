@@ -1,3 +1,4 @@
+import { size } from "zod/v4"
 import prisma from "../db.js"
 
 export const getMetrics = async(req, res) => {
@@ -85,7 +86,8 @@ export const getMetrics = async(req, res) => {
             const totalCosto = saleInfo.reduce((acc, item) => acc + item.purchasePrice * item.quantity, 0)
             return {
                 productName: saleInfo[0].variant.product.name,
-                code: saleInfo[0].variant.code,
+                color: saleInfo[0].variant.color,
+                size: saleInfo[0].variant.size,
                 totalVendido: totalVentas,
                 cantidadVendido: cantidadTotal,
                 totalCosto: totalCosto,

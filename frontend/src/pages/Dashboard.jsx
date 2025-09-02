@@ -5,6 +5,30 @@ import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { Cell, Label, Pie, PieChart, Tooltip } from "recharts"
 
+export function ProductsChart({ ventasProductos, total }) {
+    const chartData = ventasProductos.map((product) => ({
+        name: `${product.productName} ${product.color} ${product.size}`,
+        value: total ? product.totalVendido : product.cantidadVendido
+    }))
+
+    const chart = useChart({
+        sort: { by: "value", direction: "desc" },
+        data: chartData,
+        series: [{ name: "name", color: "teal.subtle" }]
+    })
+
+    return (
+        <BarList.Root chart={chart}>
+            <BarList.Content>
+                <BarList.Label title="Productos mas vendidos" flex="1">
+                    <BarList.Bar />
+                </BarList.Label>
+                <BarList.Value />
+            </BarList.Content>
+        </BarList.Root>
+    )
+}
+
 function Dashboard() {
     const [ingresosBrutos, setIngresosBrutos] = useState()
     const [ventasTotales, setVentasTotales] = useState()
@@ -12,6 +36,7 @@ function Dashboard() {
     const [totalGastos, setTotalGastos] = useState()
     const [expenses, setExpenses] = useState([])
     const [costos, setCostos] = useState()
+    const [ventasProductos, setVentasProductos] = useState()
     const [filters, setFilters] = useState()
     const { register, handleSubmit } = useForm()
 
@@ -24,6 +49,7 @@ function Dashboard() {
             setIngresosBrutos(data.ingresos)
             setGananciaNeta(data.gananciaNeta)
             setVentasTotales(data.ventasTotales)
+            setVentasProductos(data.ventasProductos)
             setTotalGastos(data.totalExpenses)
             setExpenses(data.expenses)
             setCostos(data.costos)
@@ -70,32 +96,13 @@ function Dashboard() {
             { name: "utilidad", value: gananciaNeta + costos - totalGastos, color: "pink.solid" },
         ],
     })
+
     const chartGastos = useChart({
         data: expenses.map((expense) => ({
             name: expense.name,
             value: Number(expense.amount),
         })),
     })
-
-
-
-    const chart = useChart({
-        data: [
-            { date: "2023-01", value: 145.43 },
-            { date: "2023-02", value: 151.73 },
-            { date: "2023-03", value: 157.65 },
-            { date: "2023-04", value: 169.68 },
-            { date: "2023-05", value: 173.75 },
-            { date: "2023-06", value: 186.68 },
-            { date: "2023-07", value: 181.99 },
-            { date: "2023-08", value: 189.46 },
-        ],
-        series: [{ name: "value", color: "green.solid" }],
-    })
-
-    const closing = chart.data[chart.data.length - 1]
-    const opening = chart.data[0]
-    const trend = (closing.value - opening.value) / opening.value
 
     const handleChangeDate = (value) => {
         const dateSplit = value.split('-')
@@ -135,9 +142,9 @@ function Dashboard() {
                             <Span fontWeight="medium">
                                 <FormatNumber value={ingresosBrutos} style="currency" currency="USD" />
                             </Span>
-                            <Badge colorPalette={trend > 0 ? "green" : "red"} gap="0">
+                            <Badge colorPalette={"green"} gap="0">
                                 <Stat.UpIndicator />
-                                <FormatNumber value={trend} style="percent" maximumFractionDigits={2} />
+                                <FormatNumber value={1000} style="percent" maximumFractionDigits={2} />
                             </Badge>
                         </Stat.Root>
                     </Card.Body>
@@ -157,7 +164,7 @@ function Dashboard() {
                                     ? <Stat.UpIndicator />
                                     : <Stat.DownIndicator />
                                 }
-                                <FormatNumber value={trend} style="percent" maximumFractionDigits={2} />
+                                <FormatNumber value={1000} style="percent" maximumFractionDigits={2} />
                             </Badge>
                         </Stat.Root>
                     </Card.Body>
@@ -172,7 +179,7 @@ function Dashboard() {
                             <Span fontWeight="medium">
                                 <FormatNumber value={ventasTotales} />
                             </Span>
-                            <Badge colorPalette={trend > 0 ? "green" : "red"} gap="0">
+                            <Badge colorPalette={"green"} gap="0">
                                 <Stat.UpIndicator />
                                 <FormatNumber value={ingresosBrutos} style="currency" currency="USD" />
                             </Badge>
@@ -394,6 +401,14 @@ function Dashboard() {
                     <Button onClick={() => { alert("hola mundo") }}>Generar Reporte</Button>
                 </Box>
             </Box>
+
+
+            {ventasProductos && (
+                <Box display="flex" width="full" justifyContent="space-around">
+                    <ProductsChart ventasProductos={ventasProductos} total={true} />
+                    <ProductsChart ventasProductos={ventasProductos} />
+                </Box>
+            )}
 
             <Table.Root size="sm" striped>
                 <Table.Caption>Expenses inventory and pricing information</Table.Caption>
