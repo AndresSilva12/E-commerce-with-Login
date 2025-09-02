@@ -11,6 +11,7 @@ function Dashboard() {
     const [gananciaNeta, setGananciaNeta] = useState()
     const [totalGastos, setTotalGastos] = useState()
     const [expenses, setExpenses] = useState([])
+    const [costos, setCostos] = useState()
     const [filters, setFilters] = useState()
     const { register, handleSubmit } = useForm()
 
@@ -25,6 +26,7 @@ function Dashboard() {
             setVentasTotales(data.ventasTotales)
             setTotalGastos(data.totalExpenses)
             setExpenses(data.expenses)
+            setCostos(data.costos)
         }
         fetchMetrics()
     }, [filters])
@@ -56,16 +58,16 @@ function Dashboard() {
 
     const chartPorcentajes = useChart({
         data: [
-            { name: "Costo Recuperado", value: 10000/*inversionTotal ?? 0*/, color: "orange.solid" },
-            { name: "Ganancia neta", value: 5000/*gananciaNeta ?? 0*/, color: "green.solid" },
-            { name: "Caja", value: 100000/*gananciaNeta ?? 0*/, color: "blue.solid" },
+            { name: "Costo Recuperado", value: costos, color: "orange.solid" },
+            { name: "Ganancia neta", value: gananciaNeta ?? 0, color: "green.solid" },
+            /* { name: "Caja", value: gananciaNeta ?? 0, color: "blue.solid" }, */
         ],
     })
 
     const chartUtilidad = useChart({
         data: [
             { name: "gastos", value: totalGastos, color: "blue.solid" },
-            { name: "utilidad", value: 61500, color: "pink.solid" },
+            { name: "utilidad", value: gananciaNeta + costos - totalGastos, color: "pink.solid" },
         ],
     })
     const chartGastos = useChart({
@@ -148,7 +150,7 @@ function Dashboard() {
                         </Stack>
                         <Stat.Root size="sm" alignItems="flex-end">
                             <Span fontWeight="medium">
-                                <FormatNumber value={5000} style="currency" currency="USD" />
+                                <FormatNumber value={gananciaNeta} style="currency" currency="USD" />
                             </Span>
                             <Badge colorPalette={gananciaNeta > 0 ? "green" : "red"} gap="0">
                                 {gananciaNeta > 0
@@ -172,7 +174,7 @@ function Dashboard() {
                             </Span>
                             <Badge colorPalette={trend > 0 ? "green" : "red"} gap="0">
                                 <Stat.UpIndicator />
-                                <FormatNumber value={15000} style="currency" currency="USD" />
+                                <FormatNumber value={ingresosBrutos} style="currency" currency="USD" />
                             </Badge>
                         </Stat.Root>
                     </Card.Body>
@@ -273,7 +275,7 @@ function Dashboard() {
                                     content={({ viewBox }) => (
                                         <Chart.RadialText
                                             viewBox={viewBox}
-                                            title={`$ ${new Intl.NumberFormat("es-AR").format(115000)}`}
+                                            title={`$ ${new Intl.NumberFormat("es-AR").format(gananciaNeta + costos)}`}
                                             description="Caja"
                                         />
                                     )}
@@ -305,7 +307,7 @@ function Dashboard() {
                                     content={({ viewBox }) => (
                                         <Chart.RadialText
                                             viewBox={viewBox}
-                                            title={`$ ${new Intl.NumberFormat("es-AR").format(115000)}`}
+                                            title={`$ ${new Intl.NumberFormat("es-AR").format(gananciaNeta + costos - totalGastos)}`}
                                             description="Total"
                                         />
                                     )}
@@ -367,7 +369,7 @@ function Dashboard() {
                             </Stack>
                             <Stat.Root size="sm" alignItems="flex-end">
                                 <Span fontWeight="medium">
-                                    <FormatNumber value={115000} style="currency" currency="USD" />
+                                    <FormatNumber value={0} style="currency" currency="USD" />
                                 </Span>
                             </Stat.Root>
                         </Card.Body>
@@ -380,11 +382,11 @@ function Dashboard() {
                             </Stack>
                             <Stat.Root size="sm" alignItems="flex-end">
                                 <Span fontWeight="medium">
-                                    <FormatNumber value={61500} style="currency" currency="USD" />
+                                    <FormatNumber value={gananciaNeta + costos - totalGastos} style="currency" currency="USD" />
                                 </Span>
-                                <Badge colorPalette={"red"} gap="0">
-                                    <Stat.DownIndicator />
-                                    <FormatNumber value={40000} style="currency" currency="USD" />
+                                <Badge colorPalette={"green"} gap="0">
+                                    <Stat.UpIndicator />
+                                    <FormatNumber value={0} style="currency" currency="USD" />
                                 </Badge>
                             </Stat.Root>
                         </Card.Body>

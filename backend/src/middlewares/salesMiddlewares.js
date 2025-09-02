@@ -37,8 +37,8 @@ export const validateNewSale = async(req, res, next) => {
                 continue
             }
 
-            const promedioPonderado = (variantExist.stockEntryItem.reduce((accumulator, currentValue) => accumulator + (currentValue.quantity * currentValue.purchasePrice ), 0)) / variantExist.stock
-            console.log("promedio ponderado:", promedioPonderado)
+            const promedioPonderado = (variantExist.stockEntryItem.reduce((acc, cur) => acc + (cur.quantity * cur.purchasePrice ), 0))
+                / variantExist.stockEntryItem.reduce((acc, cur) => acc + cur.quantity, 0)
             const found = variantsNotDuplicate.find((element) => element.variantId === item.variantId)
             if (found){
                 found.quantity += item.quantity

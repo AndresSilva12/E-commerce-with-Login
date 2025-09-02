@@ -31,20 +31,20 @@ export const getMetrics = async(req, res) => {
             where.date.lt = new Date (year, month, maxDay)
         }
         
-        const sales = await prisma.sales.aggregate({
-            _sum: {
-                totalPrice: true
-            },
-            _count: {
-                _all: true
-            },
-            where
+        const sales = await prisma.sales.findMany({
+            where,
+            include: {
+                items: true
+            }
         })
 
+        const ingresos = sales.reduce((accumulator, sale) => accumulator + Number(sale.totalPrice), 0)
+        const ventasTotales = sales.length
+        const costos = Number(sales.flatMap(sale => sale.items.map(item => Number(item.purchasePrice) * item.quantity)).reduce((accumulator, currentPrice) => accumulator + currentPrice, 0).toFixed(2))
+        const gananciaNeta = ingresos - costos
         const expenses = await prisma.expenses.findMany({where})
         const totalExpenses = expenses.reduce((accumulator, currentValue) => accumulator + Number(currentValue.amount), 0)
-        const ventasTotales = sales._count._all
-        return res.json({ingresos: sales._sum.totalPrice , ventasTotales: ventasTotales, expenses: expenses, totalExpenses: totalExpenses})
+        return res.json({ingresos: ingresos , ventasTotales: ventasTotales, expenses: expenses, totalExpenses: totalExpenses, costos: costos, gananciaNeta: gananciaNeta})
 
     } catch (error) {
         console.log(error)
