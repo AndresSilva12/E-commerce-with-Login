@@ -1,6 +1,6 @@
 import Modal from "../components/Modal"
 import { BarList, Chart, useChart } from "@chakra-ui/charts"
-import { Badge, Box, Card, Table, FormatNumber, Span, Stack, Stat, Grid, GridItem, Button } from "@chakra-ui/react"
+import { Badge, Box, Card, Table, FormatNumber, Fieldset, Field, Input, NumberInput, Span, Stack, Stat, Grid, GridItem, Button } from "@chakra-ui/react"
 import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { Cell, Label, Pie, PieChart, Tooltip } from "recharts"
@@ -221,13 +221,34 @@ function Dashboard() {
                     <Box width="1/4" display="flex" flexDirection="column" justifyContent="center" gap="2">
                         <ChartPie value={chartGastos} />
                         <Box width="full" height="50px" display="flex" justifyContent="center">
-                            <Modal trigger={<Button>Agregar nuevo gasto</Button>}>
+                            <Modal size={"sm"} trigger={<Button>Agregar nuevo gasto</Button>}>
                                 <form onSubmit={handleSubmit(onValid)}>
-                                    <label>nombre</label>
-                                    <input type="text" {...register("name")} />
-                                    <label>total</label>
-                                    <input type="number" {...register("amount")} />
-                                    <Button type="submit">Crear</Button>
+                                    <Box display="flex" flexDirection="column" justifyContent="center" gap="4">
+                                        <Fieldset.Root>
+                                            <Fieldset.Content>
+                                                <Field.Root>
+                                                    <Box display="flex" gap="4" width="100%" justifyContent="space-between">
+                                                        <Field.Label width="50%">Nombre del gasto</Field.Label>
+                                                        <Box width="50%">
+                                                            <Input {...register("name")} />
+                                                        </Box>
+                                                    </Box>
+                                                </Field.Root>
+                                                <Field.Root>
+                                                    <Box display="flex" gap="4" width="100%" justifyContent="space-between">
+                                                        <Field.Label width="50%">Total</Field.Label>
+                                                        <Box width="50%">
+                                                            <NumberInput.Root defaultValue="1">
+                                                                <NumberInput.Control />
+                                                                <NumberInput.Input  {...register("amount")} />
+                                                            </NumberInput.Root>
+                                                        </Box>
+                                                    </Box>
+                                                </Field.Root>
+                                            </Fieldset.Content>
+                                        </Fieldset.Root>
+                                        <Button type="submit">Crear Gasto</Button>
+                                    </Box>
                                 </form>
                             </Modal>
                         </Box>
