@@ -437,10 +437,8 @@ function ProductsPage() {
                                 </Card.Body>
                                 <Card.Footer display="flex" flexDirection="column" justifyContent="center">
                                     <Box display="flex" justifyContent="center" gap="4">
-                                        <Modal trigger={<Button type="button" width="50px" flex="1" onClick={() => handleVariantUpdate(variant, variant.product)}>Editar</Button>}>
-                                            {({ closeModal }) => (
-                                                <ProductModal productUpdate={productUpdate} onSubmit={onSubmit} />
-                                            )}
+                                        <Modal size={"xl"} trigger={<Button type="button" width="50px" flex="1" onClick={() => handleVariantUpdate(variant, variant.product)}>Editar</Button>}>
+                                            <ProductModal productUpdate={productUpdate} onSubmit={onSubmit} />
                                         </Modal>
                                         <Button colorPalette="red" flex="1" onClick={() => deleteVariant(variant, setVariants)}>Eliminar</Button>
                                     </Box>
@@ -449,7 +447,7 @@ function ProductsPage() {
                                             <HStack>
                                                 <Button colorPalette="green" onClick={() => { handleCart(variant) }}>Cart</Button>
                                                 <NumberInput.ValueText textAlign="center" fontSize="lg" minW="3ch" />
-                                                <Modal trigger={
+                                                <Modal size={"sm"} trigger={
                                                     <NumberInput.Control onClick={() => setVariantUpdate(variant)}>
                                                         <IconButton variant="outline" size="sm">+ Stock</IconButton>
                                                     </NumberInput.Control>
@@ -465,10 +463,10 @@ function ProductsPage() {
                             </Card.Root>
                         ))}
                     </Grid>
-                </GridItem>
+                </GridItem >
 
             </Grid >
-            <Modal trigger={<Button position="fixed" right="0" bottom="0" size="lg" margin="1rem" colorPalette="teal" onClick={handleCreate}>+</Button>}>
+            <Modal size={"xl"} trigger={<Button position="fixed" right="0" bottom="0" size="lg" margin="1rem" colorPalette="teal" onClick={handleCreate}>+</Button>}>
                 {({ closeModal }) => (
                     <ProductModal productUpdate={productUpdate} onSubmit={() => {
                         onSubmit()
