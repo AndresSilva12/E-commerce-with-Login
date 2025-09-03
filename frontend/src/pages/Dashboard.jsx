@@ -1,9 +1,10 @@
 import Modal from "../components/Modal"
 import { BarList, Chart, useChart } from "@chakra-ui/charts"
-import { Badge, Box, Card, Table, FormatNumber, Span, Stack, Stat, Input, Button } from "@chakra-ui/react"
+import { Badge, Box, Card, Table, FormatNumber, Span, Stack, Stat, Grid, GridItem, Button } from "@chakra-ui/react"
 import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { Cell, Label, Pie, PieChart, Tooltip } from "recharts"
+import Calendar from "react-calendar"
 
 export function ProductsChart({ ventasProductos, ventasCategorias, total }) {
     const chartData = ventasProductos ?
@@ -54,7 +55,6 @@ function Dashboard() {
             const query = new URLSearchParams(filters).toString()
             const res = await fetch(`http://localhost:3000/api/dashboard/metrics?${query}`)
             const data = await res.json()
-            console.log(data)
             setIngresosBrutos(data.ingresos)
             setGananciaNeta(data.gananciaNeta)
             setVentasTotales(data.ventasTotales)
@@ -66,31 +66,6 @@ function Dashboard() {
         }
         fetchMetrics()
     }, [filters])
-
-    /* const chartMonths = useChart({
-        data: [
-            { sales: 63000, month: "June" },
-            { sales: 72000, month: "July" },
-            { sales: 85000, month: "August" },
-            { sales: 79000, month: "September" },
-            { sales: 90000, month: "October" },
-            { sales: 95000, month: "November" },
-            { sales: 88000, month: "December" },
-        ],
-        series: [{ name: "sales", color: "teal.solid" }],
-    })
-
-    const chartTime = useChart({
-        data: [
-            { sale: 10, month: "January" },
-            { sale: 95, month: "February" },
-            { sale: 87, month: "March" },
-            { sale: 88, month: "May" },
-            { sale: 65, month: "June" },
-            { sale: 90, month: "August" },
-        ],
-        series: [{ name: "sale", color: "teal.solid" }],
-    }) */
 
     const chartPorcentajes = useChart({
         data: [
@@ -114,9 +89,15 @@ function Dashboard() {
         })),
     })
 
-    const handleChangeDate = (value) => {
-        const dateSplit = value.split('-')
-        setFilters({ year: dateSplit[0], month: dateSplit[1], day: dateSplit[2] })
+    const handleChangeDate = (value, selected) => {
+        const year = value.getFullYear()
+        const month = value.getMonth() + 1
+        const minDay = value.getDate()
+        selected === "month"
+            ? setFilters({ year: year, month: month })
+            : selected === "day"
+                ? setFilters({ year: year, month: month, minDay: minDay })
+                : setFilters({ year: year })
     }
 
     const createExpense = async (formData) => {
@@ -139,308 +120,246 @@ function Dashboard() {
 
 
     return (
-        <Box paddingTop="70px">
-            <Input type="date" onChange={(e) => { handleChangeDate(e.target.value) }} />
-            <Box display="flex" width="full" justifyContent="center" gap="10">
-                <Card.Root maxW="xs" size="sm">
-                    <Card.Body flexDirection="row" alignItems="center">
-                        <Stack gap="0" flex="1">
-                            <Box fontWeight="semibold" textStyle="sm">Ingresos Brutos</Box>
-                            <Box textStyle="xs" color="fg.muted">Ventas</Box>
-                        </Stack>
-                        <Stat.Root size="sm" alignItems="flex-end">
-                            <Span fontWeight="medium">
-                                <FormatNumber value={ingresosBrutos} style="currency" currency="USD" />
-                            </Span>
-                            <Badge colorPalette={"green"} gap="0">
-                                <Stat.UpIndicator />
-                                <FormatNumber value={1000} style="percent" maximumFractionDigits={2} />
-                            </Badge>
-                        </Stat.Root>
-                    </Card.Body>
-                </Card.Root>
-                <Card.Root maxW="xs" size="sm">
-                    <Card.Body flexDirection="row" alignItems="center">
-                        <Stack gap="0" flex="1">
-                            <Box fontWeight="semibold" textStyle="sm">Ganancia Neta</Box>
-                            <Box textStyle="xs" color="fg.muted">Ventas - Costo</Box>
-                        </Stack>
-                        <Stat.Root size="sm" alignItems="flex-end">
-                            <Span fontWeight="medium">
-                                <FormatNumber value={gananciaNeta} style="currency" currency="USD" />
-                            </Span>
-                            <Badge colorPalette={gananciaNeta > 0 ? "green" : "red"} gap="0">
-                                {gananciaNeta > 0
-                                    ? <Stat.UpIndicator />
-                                    : <Stat.DownIndicator />
-                                }
-                                <FormatNumber value={1000} style="percent" maximumFractionDigits={2} />
-                            </Badge>
-                        </Stat.Root>
-                    </Card.Body>
-                </Card.Root>
-                <Card.Root maxW="xs" size="sm">
-                    <Card.Body flexDirection="row" alignItems="center">
-                        <Stack gap="0" flex="1">
-                            <Box fontWeight="semibold" textStyle="sm">Ventas Totales</Box>
-                            <Box textStyle="xs" color="fg.muted">Cant. Ventas</Box>
-                        </Stack>
-                        <Stat.Root size="sm" alignItems="flex-end">
-                            <Span fontWeight="medium">
-                                <FormatNumber value={ventasTotales} />
-                            </Span>
-                            <Badge colorPalette={"green"} gap="0">
-                                <Stat.UpIndicator />
-                                <FormatNumber value={ingresosBrutos} style="currency" currency="USD" />
-                            </Badge>
-                        </Stat.Root>
-                    </Card.Body>
-                </Card.Root>
-            </Box>
-
-            <Box display="flex" padding="40px" width="full">
-                {/* <Box width="1/4">
-                    <Box fontWeight="semibold" textStyle="sm">Ganancias por mes</Box>
-                    <Chart.Root maxH="sm" chart={chartMonths}>
-                        <BarChart data={chartMonths.data}>
-                            <CartesianGrid stroke={chartMonths.color("border.muted")} vertical={false} />
-                            <XAxis
-                                axisLine={false}
-                                tickLine={false}
-                                dataKey={chartMonths.key("month")}
-                                tickFormatter={(value) => value.slice(0, 3)}
-                            />
-                            <YAxis
-                                axisLine={false}
-                                tickLine={false}
-                                tickFormatter={chartMonths.formatNumber({
-                                    style: "currency",
-                                    currency: "USD",
-                                    notation: "compact",
-                                })}
-                            />
-                            <Tooltip
-                                cursor={{ fill: chartMonths.color("bg.muted") }}
-                                animationDuration={0}
-                                content={<Chart.Tooltip />}
-                            />
-                            {chartMonths.series.map((item) => (
-                                <Bar
-                                    isAnimationActive={false}
-                                    key={item.name}
-                                    dataKey={chartMonths.key(item.name)}
-                                    fill={chartMonths.color(item.color)}
-                                />
-                            ))}
-                        </BarChart>
-                    </Chart.Root>
+        <Grid templateColumns="repeat(8, 1fr)" templateRows="repeat(10, 1fr)">
+            <GridItem rowSpan={10} colSpan={1} padding="4" bg="black" display="flex" flexDirection="column" justifyContent="center" gap="4" position="fixed" top="50px" zIndex="50" bottom="0">
+                <Box width="240px">
+                    <Calendar
+                        onClickMonth={(value, e) => { handleChangeDate(value, "month") }}
+                        onClickYear={(value, e) => { handleChangeDate(value, "year") }}
+                        onClickDay={(value, e) => { handleChangeDate(value, "day") }}
+                    />
                 </Box>
-                <Box width="1/4">
-                    <Box fontWeight="semibold" textStyle="sm">
-                        Ventas por mes
-                    </Box>
-                    <Chart.Root maxH="sm" chart={chartTime}>
-                        <LineChart data={chartTime.data}>
-                            <CartesianGrid stroke={chartTime.color("border")} vertical={false} />
-                            <XAxis
-                                axisLine={false}
-                                dataKey={chartTime.key("month")}
-                                tickFormatter={(value) => value.slice(0, 3)}
-                                stroke={chartTime.color("border")}
-                            />
-                            <YAxis
-                                axisLine={false}
-                                tickLine={false}
-                                tickMargin={10}
-                                stroke={chartTime.color("border")}
-                            />
-                            <Tooltip
-                                animationDuration={100}
-                                cursor={false}
-                                content={<Chart.Tooltip />}
-                            />
-                            {chartTime.series.map((item) => (
-                                <Line
-                                    key={item.name}
-                                    isAnimationActive={false}
-                                    dataKey={chartTime.key(item.name)}
-                                    stroke={chartTime.color(item.color)}
-                                    strokeWidth={2}
-                                    dot={false}
-                                />
-                            ))}
-                        </LineChart>
-                    </Chart.Root>
-                </Box> */}
-                <Box width="1/4">
-                    <Chart.Root boxSize="200px" chart={chartPorcentajes} mx="auto">
-                        <PieChart>
-                            <Tooltip
-                                cursor={false}
-                                animationDuration={100}
-                                content={<Chart.Tooltip hideLabel />}
-                            />
-                            <Pie
-                                innerRadius={80}
-                                outerRadius={100}
-                                isAnimationActive={false}
-                                data={chartPorcentajes.data}
-                                dataKey={chartPorcentajes.key("value")}
-                                nameKey="name"
-                            >
-                                <Label
-                                    content={({ viewBox }) => (
-                                        <Chart.RadialText
-                                            viewBox={viewBox}
-                                            title={`$ ${new Intl.NumberFormat("es-AR").format(gananciaNeta + costos)}`}
-                                            description="Caja"
-                                        />
-                                    )}
-                                />
-                                {chartPorcentajes.data.map((item) => (
-                                    <Cell key={item.color} fill={chartPorcentajes.color(item.color)} />
-                                ))}
-                            </Pie>
-                        </PieChart>
-                    </Chart.Root>
-                </Box>
-                <Box width="1/4">
-                    <Chart.Root boxSize="200px" chart={chartUtilidad} mx="auto">
-                        <PieChart>
-                            <Tooltip
-                                cursor={false}
-                                animationDuration={100}
-                                content={<Chart.Tooltip hideLabel />}
-                            />
-                            <Pie
-                                innerRadius={80}
-                                outerRadius={100}
-                                isAnimationActive={false}
-                                data={chartUtilidad.data}
-                                dataKey={chartUtilidad.key("value")}
-                                nameKey="name"
-                            >
-                                <Label
-                                    content={({ viewBox }) => (
-                                        <Chart.RadialText
-                                            viewBox={viewBox}
-                                            title={`$ ${new Intl.NumberFormat("es-AR").format(gananciaNeta + costos - totalGastos)}`}
-                                            description="Total"
-                                        />
-                                    )}
-                                />
-                                {chartUtilidad.data.map((item) => (
-                                    <Cell key={item.color} fill={chartUtilidad.color(item.color)} />
-                                ))}
-                            </Pie>
-                        </PieChart>
-                    </Chart.Root>
-                </Box>
-                <Box width="1/4" display="flex" flexDirection="column" alignContent="center" justifyContent="center">
-                    <Chart.Root boxSize="200px" chart={chartGastos} mx="auto">
-                        <PieChart>
-                            <Tooltip
-                                cursor={false}
-                                animationDuration={100}
-                                content={<Chart.Tooltip hideLabel />}
-                            />
-                            <Pie
-                                innerRadius={80}
-                                outerRadius={100}
-                                isAnimationActive={false}
-                                data={chartGastos.data}
-                                dataKey={chartGastos.key("value")}
-                                nameKey="name"
-                            >
-                                <Label
-                                    content={({ viewBox }) => (
-                                        <Chart.RadialText
-                                            viewBox={viewBox}
-                                            title={`$ ${new Intl.NumberFormat("es-AR").format(totalGastos)}`}
-                                            description="Gastos"
-                                        />
-                                    )}
-                                />
-                                {chartGastos.data.map((item, index) => (
-                                    <Cell key={index} fill={chartGastos.color(item.color)} />
-                                ))}
-                            </Pie>
-                        </PieChart>
-                    </Chart.Root>
-                    <Modal trigger={<Button>Agregar nuevo gasto</Button>}>
-                        <form onSubmit={handleSubmit(onValid)}>
-                            <label>nombre</label>
-                            <input type="text" {...register("name")} />
-                            <label>total</label>
-                            <input type="number" {...register("amount")} />
-                            <Button type="submit">Crear</Button>
-                        </form>
-                    </Modal>
-                </Box>
-                <Box display="flex" flexDirection="column">
+            </GridItem>
+            <GridItem rowSpan={9} colSpan={7} display="flex" flexDirection="column" marginLeft="260px" marginTop="60px" width="92%">
+                <Box display="flex" width="full" justifyContent="center" gap="10">
                     <Card.Root maxW="xs" size="sm">
                         <Card.Body flexDirection="row" alignItems="center">
                             <Stack gap="0" flex="1">
-                                <Box fontWeight="semibold" textStyle="sm">Caja inicial</Box>
-                                <Box textStyle="xs" color="fg.muted">Dia 1 del mes</Box>
+                                <Box fontWeight="semibold" textStyle="sm">Ingresos Brutos</Box>
+                                <Box textStyle="xs" color="fg.muted">Ventas</Box>
                             </Stack>
                             <Stat.Root size="sm" alignItems="flex-end">
                                 <Span fontWeight="medium">
-                                    <FormatNumber value={0} style="currency" currency="USD" />
-                                </Span>
-                            </Stat.Root>
-                        </Card.Body>
-                    </Card.Root>
-                    <Card.Root maxW="xs" size="sm">
-                        <Card.Body flexDirection="row" alignItems="center">
-                            <Stack gap="0" flex="1">
-                                <Box fontWeight="semibold" textStyle="sm">Caja Final</Box>
-                                <Box textStyle="xs" color="fg.muted">Último dia del mes</Box>
-                            </Stack>
-                            <Stat.Root size="sm" alignItems="flex-end">
-                                <Span fontWeight="medium">
-                                    <FormatNumber value={gananciaNeta + costos - totalGastos} style="currency" currency="USD" />
+                                    <FormatNumber value={ingresosBrutos} style="currency" currency="USD" />
                                 </Span>
                                 <Badge colorPalette={"green"} gap="0">
                                     <Stat.UpIndicator />
-                                    <FormatNumber value={0} style="currency" currency="USD" />
+                                    <FormatNumber value={1000} style="percent" maximumFractionDigits={2} />
                                 </Badge>
                             </Stat.Root>
                         </Card.Body>
                     </Card.Root>
-                    <Button onClick={() => { alert("hola mundo") }}>Generar Reporte</Button>
+                    <Card.Root maxW="xs" size="sm">
+                        <Card.Body flexDirection="row" alignItems="center">
+                            <Stack gap="0" flex="1">
+                                <Box fontWeight="semibold" textStyle="sm">Ganancia Neta</Box>
+                                <Box textStyle="xs" color="fg.muted">Ventas - Costo</Box>
+                            </Stack>
+                            <Stat.Root size="sm" alignItems="flex-end">
+                                <Span fontWeight="medium">
+                                    <FormatNumber value={gananciaNeta} style="currency" currency="USD" />
+                                </Span>
+                                <Badge colorPalette={gananciaNeta > 0 ? "green" : "red"} gap="0">
+                                    {gananciaNeta > 0
+                                        ? <Stat.UpIndicator />
+                                        : <Stat.DownIndicator />
+                                    }
+                                    <FormatNumber value={1000} style="percent" maximumFractionDigits={2} />
+                                </Badge>
+                            </Stat.Root>
+                        </Card.Body>
+                    </Card.Root>
+                    <Card.Root maxW="xs" size="sm">
+                        <Card.Body flexDirection="row" alignItems="center">
+                            <Stack gap="0" flex="1">
+                                <Box fontWeight="semibold" textStyle="sm">Ventas Totales</Box>
+                                <Box textStyle="xs" color="fg.muted">Cant. Ventas</Box>
+                            </Stack>
+                            <Stat.Root size="sm" alignItems="flex-end">
+                                <Span fontWeight="medium">
+                                    <FormatNumber value={ventasTotales} />
+                                </Span>
+                                <Badge colorPalette={"green"} gap="0">
+                                    <Stat.UpIndicator />
+                                    <FormatNumber value={ingresosBrutos} style="currency" currency="USD" />
+                                </Badge>
+                            </Stat.Root>
+                        </Card.Body>
+                    </Card.Root>
                 </Box>
-            </Box>
 
+                <Box display="flex" padding="40px" width="full">
 
-            {ventasProductos && (
-                <Box display="flex" width="full" justifyContent="space-around">
-                    <ProductsChart ventasProductos={ventasProductos} total={true} />
-                    <ProductsChart ventasProductos={ventasProductos} />
-                    {ventasCategorias && (<ProductsChart ventasCategorias={ventasCategorias} />)}
+                    <Box width="1/4">
+                        <Chart.Root boxSize="200px" chart={chartPorcentajes} mx="auto">
+                            <PieChart>
+                                <Tooltip
+                                    cursor={false}
+                                    animationDuration={100}
+                                    content={<Chart.Tooltip hideLabel />}
+                                />
+                                <Pie
+                                    innerRadius={80}
+                                    outerRadius={100}
+                                    isAnimationActive={false}
+                                    data={chartPorcentajes.data}
+                                    dataKey={chartPorcentajes.key("value")}
+                                    nameKey="name"
+                                >
+                                    <Label
+                                        content={({ viewBox }) => (
+                                            <Chart.RadialText
+                                                viewBox={viewBox}
+                                                title={`$ ${new Intl.NumberFormat("es-AR").format(gananciaNeta + costos)}`}
+                                                description="Caja"
+                                            />
+                                        )}
+                                    />
+                                    {chartPorcentajes.data.map((item) => (
+                                        <Cell key={item.color} fill={chartPorcentajes.color(item.color)} />
+                                    ))}
+                                </Pie>
+                            </PieChart>
+                        </Chart.Root>
+                    </Box>
+                    <Box width="1/4">
+                        <Chart.Root boxSize="200px" chart={chartUtilidad} mx="auto">
+                            <PieChart>
+                                <Tooltip
+                                    cursor={false}
+                                    animationDuration={100}
+                                    content={<Chart.Tooltip hideLabel />}
+                                />
+                                <Pie
+                                    innerRadius={80}
+                                    outerRadius={100}
+                                    isAnimationActive={false}
+                                    data={chartUtilidad.data}
+                                    dataKey={chartUtilidad.key("value")}
+                                    nameKey="name"
+                                >
+                                    <Label
+                                        content={({ viewBox }) => (
+                                            <Chart.RadialText
+                                                viewBox={viewBox}
+                                                title={`$ ${new Intl.NumberFormat("es-AR").format(gananciaNeta + costos - totalGastos)}`}
+                                                description="Total"
+                                            />
+                                        )}
+                                    />
+                                    {chartUtilidad.data.map((item) => (
+                                        <Cell key={item.color} fill={chartUtilidad.color(item.color)} />
+                                    ))}
+                                </Pie>
+                            </PieChart>
+                        </Chart.Root>
+                    </Box>
+                    <Box width="1/4" display="flex" flexDirection="column" alignContent="center" justifyContent="center">
+                        <Chart.Root boxSize="200px" chart={chartGastos} mx="auto">
+                            <PieChart>
+                                <Tooltip
+                                    cursor={false}
+                                    animationDuration={100}
+                                    content={<Chart.Tooltip hideLabel />}
+                                />
+                                <Pie
+                                    innerRadius={80}
+                                    outerRadius={100}
+                                    isAnimationActive={false}
+                                    data={chartGastos.data}
+                                    dataKey={chartGastos.key("value")}
+                                    nameKey="name"
+                                >
+                                    <Label
+                                        content={({ viewBox }) => (
+                                            <Chart.RadialText
+                                                viewBox={viewBox}
+                                                title={`$ ${new Intl.NumberFormat("es-AR").format(totalGastos)}`}
+                                                description="Gastos"
+                                            />
+                                        )}
+                                    />
+                                    {chartGastos.data.map((item, index) => (
+                                        <Cell key={index} fill={chartGastos.color(item.color)} />
+                                    ))}
+                                </Pie>
+                            </PieChart>
+                        </Chart.Root>
+                        <Modal trigger={<Button>Agregar nuevo gasto</Button>}>
+                            <form onSubmit={handleSubmit(onValid)}>
+                                <label>nombre</label>
+                                <input type="text" {...register("name")} />
+                                <label>total</label>
+                                <input type="number" {...register("amount")} />
+                                <Button type="submit">Crear</Button>
+                            </form>
+                        </Modal>
+                    </Box>
+                    <Box display="flex" flexDirection="column">
+                        <Card.Root maxW="xs" size="sm">
+                            <Card.Body flexDirection="row" alignItems="center">
+                                <Stack gap="0" flex="1">
+                                    <Box fontWeight="semibold" textStyle="sm">Caja inicial</Box>
+                                    <Box textStyle="xs" color="fg.muted">Dia 1 del mes</Box>
+                                </Stack>
+                                <Stat.Root size="sm" alignItems="flex-end">
+                                    <Span fontWeight="medium">
+                                        <FormatNumber value={0} style="currency" currency="USD" />
+                                    </Span>
+                                </Stat.Root>
+                            </Card.Body>
+                        </Card.Root>
+                        <Card.Root maxW="xs" size="sm">
+                            <Card.Body flexDirection="row" alignItems="center">
+                                <Stack gap="0" flex="1">
+                                    <Box fontWeight="semibold" textStyle="sm">Caja Final</Box>
+                                    <Box textStyle="xs" color="fg.muted">Último dia del mes</Box>
+                                </Stack>
+                                <Stat.Root size="sm" alignItems="flex-end">
+                                    <Span fontWeight="medium">
+                                        <FormatNumber value={gananciaNeta + costos - totalGastos} style="currency" currency="USD" />
+                                    </Span>
+                                    <Badge colorPalette={"green"} gap="0">
+                                        <Stat.UpIndicator />
+                                        <FormatNumber value={0} style="currency" currency="USD" />
+                                    </Badge>
+                                </Stat.Root>
+                            </Card.Body>
+                        </Card.Root>
+                        <Button onClick={() => { alert("hola mundo") }}>Generar Reporte</Button>
+                    </Box>
                 </Box>
-            )}
 
-            <Table.Root size="sm" striped>
-                <Table.Caption>Expenses inventory and pricing information</Table.Caption>
-                <Table.Header>
-                    <Table.Row>
-                        <Table.ColumnHeader>Gasto</Table.ColumnHeader>
-                        <Table.ColumnHeader>Fecha</Table.ColumnHeader>
-                        <Table.ColumnHeader>Precio Final</Table.ColumnHeader>
-                    </Table.Row>
-                </Table.Header>
-                <Table.Body>
-                    {expenses && expenses.map((expense) => (
-                        <Table.Row key={expense.id}>
-                            <Table.Cell>{expense.name}</Table.Cell>
-                            <Table.Cell>{expense.date}</Table.Cell>
-                            <Table.Cell>$ {new Intl.NumberFormat("es-AR").format(expense.amount)}</Table.Cell>
+
+                {ventasProductos && (
+                    <Box display="flex" width="full" justifyContent="space-around">
+                        <ProductsChart ventasProductos={ventasProductos} total={true} />
+                        <ProductsChart ventasProductos={ventasProductos} />
+                        {ventasCategorias && (<ProductsChart ventasCategorias={ventasCategorias} />)}
+                    </Box>
+                )}
+
+                <Table.Root marginLeft="60px" size="sm" striped>
+                    <Table.Caption>Expenses inventory and pricing information</Table.Caption>
+                    <Table.Header>
+                        <Table.Row>
+                            <Table.ColumnHeader>Gasto</Table.ColumnHeader>
+                            <Table.ColumnHeader>Fecha</Table.ColumnHeader>
+                            <Table.ColumnHeader>Precio Final</Table.ColumnHeader>
                         </Table.Row>
-                    ))}
-                </Table.Body>
-            </Table.Root>
-        </Box>
+                    </Table.Header>
+                    <Table.Body>
+                        {expenses && expenses.map((expense) => (
+                            <Table.Row key={expense.id}>
+                                <Table.Cell>{expense.name}</Table.Cell>
+                                <Table.Cell>{expense.date}</Table.Cell>
+                                <Table.Cell>$ {new Intl.NumberFormat("es-AR").format(expense.amount)}</Table.Cell>
+                            </Table.Row>
+                        ))}
+                    </Table.Body>
+                </Table.Root>
+            </GridItem>
+        </Grid >
     )
 }
 export default Dashboard;
