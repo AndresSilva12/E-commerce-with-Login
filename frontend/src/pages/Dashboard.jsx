@@ -6,19 +6,21 @@ import { useForm } from "react-hook-form"
 import { Cell, Label, Pie, PieChart, Tooltip } from "recharts"
 import Calendar from "react-calendar"
 
-export function ChartProducts({ ventasProductos, ventasCategorias, total }) {
-    const chartData = ventasProductos ?
-        ventasProductos.map((item) => ({
+export function ChartProducts({ topProductosVentas, topCategorias, topProductosCantidad }) {
+    const chartData = topProductosVentas
+        ? topProductosVentas.map((item) => ({
             name: `${item.productName} ${item.color} ${item.size}`,
-            value: total
-                ? item.totalVendido
-                : item.cantidadVendido
+            value: item.totalVendido
         }))
-        :
-        ventasCategorias.map((item) => ({
-            name: item.name,
-            value: item.quantity
-        }))
+        : topProductosCantidad
+            ? topProductosCantidad.map((item) => ({
+                name: `${item.productName} ${item.color} ${item.size}`,
+                value: item.cantidadVendido
+            }))
+            : topCategorias.map((item) => ({
+                name: item.name,
+                value: item.quantity
+            }))
 
     const chart = useChart({
         sort: { by: "value", direction: "desc" },
@@ -29,7 +31,7 @@ export function ChartProducts({ ventasProductos, ventasCategorias, total }) {
     return (
         <BarList.Root chart={chart}>
             <BarList.Content>
-                <BarList.Label title={ventasProductos ? 'Productos mas vendidos' : 'Categorias mas vendidas'} flex="1">
+                <BarList.Label title={topProductosVentas || topProductosCantidad ? 'Productos mas vendidos' : 'Categorias mas vendidas'} flex="1">
                     <BarList.Bar />
                 </BarList.Label>
                 <BarList.Value />
@@ -120,8 +122,9 @@ function Dashboard() {
     const [totalGastos, setTotalGastos] = useState()
     const [expenses, setExpenses] = useState([])
     const [costos, setCostos] = useState()
-    const [ventasProductos, setVentasProductos] = useState([])
-    const [ventasCategorias, setVentasCategorias] = useState([])
+    const [topProductosVentas, setTopProductosVentas] = useState([])
+    const [topProductosCantidad, setTopProductosCantidad] = useState([])
+    const [topCategorias, setTopCategorias] = useState([])
     const [filters, setFilters] = useState()
     const { register, handleSubmit } = useForm()
 
@@ -133,11 +136,13 @@ function Dashboard() {
             setIngresosBrutos(data.ingresos)
             setGananciaNeta(data.gananciaNeta)
             setVentasTotales(data.ventasTotales)
-            setVentasProductos(data.ventasProductos)
             setTotalGastos(data.totalExpenses)
             setExpenses(data.expenses)
             setCostos(data.costos)
-            setVentasCategorias(data.ventasCategorias)
+            setTopProductosCantidad(data.topProductosCantidad)
+            setTopProductosVentas(data.topProductosVentas)
+            /* setVentasProductos(data.ventasProductos) */
+            setTopCategorias(data.topCategorias)
         }
         fetchMetrics()
     }, [filters])
@@ -262,11 +267,11 @@ function Dashboard() {
                 </Box>
 
                 {/* barCharts horizontales */}
-                {ventasProductos && (
+                {topProductosVentas && (
                     <Box display="flex" width="full" justifyContent="space-around">
-                        <ChartProducts ventasProductos={ventasProductos} total={true} />
-                        <ChartProducts ventasProductos={ventasProductos} />
-                        {ventasCategorias && (<ChartProducts ventasCategorias={ventasCategorias} />)}
+                        <ChartProducts topProductosVentas={topProductosVentas} />
+                        <ChartProducts topProductosCantidad={topProductosCantidad} />
+                        {topCategorias && (<ChartProducts topCategorias={topCategorias} />)}
                     </Box>
                 )}
 

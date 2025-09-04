@@ -3,6 +3,7 @@ import prisma from "../db.js"
 
 export const getMetrics = async(req, res) => {
     try {
+        const topN = 5
         const currentDate = new Date()
         const year = Number(req.query.year) || currentDate.getFullYear()
         const month = Number(req.query.month) || currentDate.getMonth()
@@ -91,10 +92,13 @@ export const getMetrics = async(req, res) => {
             acc[categoria] += sale.quantity
             return acc
         }, {})
+
         const ventasCategorias = Object.entries(categorias).map(([categoria, cantidad]) => ({
             name: categoria,
             quantity: cantidad
         }))
+
+        const topCategorias = [...ventasCategorias].sort((a, b) => b.quantity - a.quantity).slice(0, topN)
         
         const ventasProductos = salesByProduct.map((sale => {
             const cantidadTotal = sale._sum.quantity
@@ -111,6 +115,8 @@ export const getMetrics = async(req, res) => {
                 gananciaDelProducto: totalVentas - totalCosto
             }
         }))
+        const topProductosCantidad = [...ventasProductos].sort((a, b) => b.cantidadVendido - a.cantidadVendido).slice(0, topN)
+        const topProductosVentas = [...ventasProductos].sort((a,b) => b.totalVendido - a.totalVendido).slice(0, topN)
 
         const ingresos = sales.reduce((accumulator, sale) => accumulator + Number(sale.totalPrice), 0)
         const ventasTotales = sales.length
@@ -118,7 +124,18 @@ export const getMetrics = async(req, res) => {
         const gananciaNeta = ingresos - costos
         const expenses = await prisma.expenses.findMany({where})
         const totalExpenses = expenses.reduce((accumulator, currentValue) => accumulator + Number(currentValue.amount), 0)
-        return res.json({ingresos: ingresos , ventasTotales: ventasTotales, expenses: expenses, totalExpenses: totalExpenses, costos: costos, gananciaNeta: gananciaNeta, ventasProductos: ventasProductos, ventasCategorias: ventasCategorias})
+
+        return res.json({
+            ingresos: ingresos , //total vendido en dinero (ingresosBrutos)
+            ventasTotales: ventasTotales, //cantidad de ventas totales
+            expenses: expenses, //array de todos los gastos del mes
+            totalExpenses: totalExpenses, //total de todos los gastos en dinero
+            costos: costos, //recuperación de lo invertido en base a precio promedio ponderado en cada una de las unidades vendidas * cantidad
+            gananciaNeta: gananciaNeta, //ingresos brutos - costos
+            topProductosVentas: topProductosVentas, //top 5 productos más vendidos
+            topProductosCantidad: topProductosCantidad, //top 5 productos con unidades mas vendidas
+            topCategorias: topCategorias // top 5 categorias más vendidas
+        })
 
     } catch (error) {
         console.log(error)
