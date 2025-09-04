@@ -3,7 +3,6 @@ import { notify } from "../utils/notifyToast.js"
 import { useProducts } from "../context/ProductContext.jsx"
 import { uploadImage } from '../utils/uploads.js'
 import isEqual from 'lodash.isequal'
-import { deleteAlert } from "../utils/alerts.js"
 import { useStockEntries } from "./useStockEntries.js"
 
 export function useVariants () {

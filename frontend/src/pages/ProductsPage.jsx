@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { ToastContainer } from "react-toastify";
 import { useProducts } from "../context/ProductContext";
 import ProductModal from "../components/ProductModal";
-import { deleteAlert } from "../utils/alerts";
 import { Button, Card, Image, Text, Grid, GridItem, Checkbox, Select, Portal, InputGroup, Stack, createListCollection, HStack, Field, Badge, Box, NumberInput, IconButton } from "@chakra-ui/react"
 import Modal from "../components/Modal";
 import { useVariants } from '../hooks/useVariants.js'
@@ -157,7 +156,7 @@ function ProductsPage() {
     }
 
     const handleDelete = (id) => {
-        deleteAlert({ deleteFunction: () => deleteProduct(id), textTitle: "Está seguro que desea eliminar esta variante?" })
+        deleteProduct(id)
     }
 
     const handleCreate = () => {

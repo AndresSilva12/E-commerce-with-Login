@@ -6,7 +6,6 @@ import { useForm } from "react-hook-form"
 import { Cell, Label, Pie, PieChart, Tooltip } from "recharts"
 import Calendar from "react-calendar"
 import { useExpenses } from "../hooks/useExpenses.js"
-import { deleteAlert } from "../utils/alerts"
 
 export function ChartProducts({ topProductosVentas, topCategorias, topProductosCantidad }) {
     const chartData = topProductosVentas
@@ -195,7 +194,7 @@ function Dashboard() {
     }
 
     const handleDelete = (id) => {
-        deleteAlert({ deleteFunction: () => { deleteExpense(id) }, textTitle: "Está seguro que desea eliminar este gasto?" })
+        deleteExpense(id)
         setFilters(null)
     }
 
