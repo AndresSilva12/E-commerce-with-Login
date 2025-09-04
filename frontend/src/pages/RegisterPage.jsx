@@ -1,11 +1,10 @@
-import '../App.css'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { userSchema } from '../../../validation/userSchema'
 import { useUser } from '../hooks/useUser.js'
-import { ToastContainer } from 'react-toastify'
-import { notify } from '../utils/notifyToast.js'
+import { Toaster } from "../components/ui/toaster"
+import { toast } from "../utils/notifyToast.js";
 import { Button, Card, Field, Input, Stack, Box, NumberInput } from "@chakra-ui/react"
 import { PasswordInput } from "../components/ui/password-input"
 
@@ -18,11 +17,11 @@ function RegisterPage() {
   })
 
   const onValid = (data) => {
-    createUser(data, setError, notify, navigate)
+    createUser(data, setError, navigate)
   }
 
   const onInvalid = () => {
-    notify('error', 'Porfavor complete todos los campos')
+    toast("Por favor complete los campos", "error")
   }
 
   return (
@@ -85,7 +84,7 @@ function RegisterPage() {
           </Card.Body>
         </Card.Root>
       </Box>
-      <ToastContainer />
+      <Toaster />
     </>
   )
 }

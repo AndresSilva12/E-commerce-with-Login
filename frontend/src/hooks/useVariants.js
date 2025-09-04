@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { notify } from "../utils/notifyToast.js"
+import { toast } from "../utils/notifyToast.js";
 import { useProducts } from "../context/ProductContext.jsx"
 import { uploadImage } from '../utils/uploads.js'
 import isEqual from 'lodash.isequal'
@@ -66,7 +66,7 @@ export function useVariants () {
                 total: formData.stock * purchasePrice
             }
             await createEntry(entryData)
-            notify('success', 'Variante creada con éxito!')
+            toast("variante creada con exito!")
             return {id: data.id}
         } catch (error) {
             console.log(error)
@@ -85,7 +85,7 @@ export function useVariants () {
             const data = await res.json()
             setVariants((prev) => (prev.filter((p) => p.id !== variant.id)))
             await deleteVariantToProduct(data.productId, variant.id)
-            notify('success', 'Variante eliminada con éxito')
+            toast("variante eliminada con exito!")
         }
         setVariants((prev => prev.filter(p => p.localId !== variant.localId)))
     }
@@ -108,7 +108,7 @@ export function useVariants () {
                 return {success: false, errors: data.errors}
             }
             await updateVariantToProduct(data.productId, data.id, data)
-            notify('success', 'Variante actualizada con éxito')
+            toast("variante actualizada con exito!")
         }
         catch (error){
             return {success: false}

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import {toast} from "../utils/notifyToast.js"
 
 export function useUser() {
   const [users, setUsers] = useState([]);
@@ -14,7 +15,7 @@ export function useUser() {
       .then((data) => setUsers(data));
   };
 
-  const createUser = async (formUser, setError, notify, navigate) => {
+  const createUser = async (formUser, setError, navigate) => {
     try {
       const res = await fetch("http://localhost:3000/api/register", {
         method: "POST",
@@ -30,12 +31,12 @@ export function useUser() {
             message: message,
           });
         }
-        notify("error", "Ya se encontró un usuario con estos datos");
+        toast("Usuario ya encontrado","error")
         return;
       }
 
       fetchUsers();
-      notify("success", "Usuario creado con éxito!");
+      toast("usuario creado con exito!")
       setTimeout(() => {
         navigate("/login");
       }, 5000);

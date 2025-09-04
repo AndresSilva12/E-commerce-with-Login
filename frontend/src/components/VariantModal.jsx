@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
-import { notify } from '../utils/notifyToast.js'
+import { toast } from "../utils/notifyToast.js";
 import { variantSchemaWithOutProductId } from '../../../validation/productVariantsSchema.js'
 import { useState, useRef, useEffect } from 'react'
 import { useVariants } from '../hooks/useVariants.js'
@@ -40,14 +40,14 @@ function VariantModal({ onSubmitVariant, variants, variantUpdate, productUpdate 
                     type: "server",
                     message: message
                 })
-                return notify('error', message)
+                return toast(message, "error")
             }
         }
         data.localId = variantUpdate?.localId || crypto.randomUUID()
 
         const result = await getOneVariant(data, setError)
         if (!result.success) {
-            notify('error', 'Este código ya está en uso')
+            toast("Éste codigo ya está en uso", "error")
             return
         }
 
@@ -62,12 +62,12 @@ function VariantModal({ onSubmitVariant, variants, variantUpdate, productUpdate 
     }
 
     const isInvalid = () => {
-        notify('error', 'Por favor ingrese todos los datos')
+        toast("Por favor ingrese todos los datos", "error")
     }
 
     const handleImageChange = (e) => {
         if (!e.target.files[0].type.startsWith("image/")) {
-            notify('error', 'Por favor ingrese un archivo con formato imagen')
+            toast("Por favor ingrese un archivo con formato imagen", "error")
             fileInputRef.current.value = null
             return
         }

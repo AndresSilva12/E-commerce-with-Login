@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
-import { ToastContainer } from "react-toastify";
+import { Toaster } from "../components/ui/toaster"
+import { toast } from "../utils/notifyToast.js";
 import { useProducts } from "../context/ProductContext";
 import ProductModal from "../components/ProductModal";
 import { Button, Card, Image, Text, Grid, GridItem, Checkbox, Select, Portal, InputGroup, Stack, createListCollection, HStack, Field, Badge, Box, NumberInput, IconButton } from "@chakra-ui/react"
 import Modal from "../components/Modal";
 import { useVariants } from '../hooks/useVariants.js'
 import { useCart } from "../context/CartContext";
-import { notify } from "../utils/notifyToast.js";
 import { useForm } from "react-hook-form";
 import { useStockEntries } from "../hooks/useStockEntries";
 import SearchBar from "../components/SearchBar";
@@ -185,7 +185,7 @@ function ProductsPage() {
             }
         }
         addToCart(fullItem)
-        notify("success", "producto agregado al carrito!")
+        toast("añadido al carrito")
     }
 
     const debounce = (fn, delay) => {
@@ -476,7 +476,7 @@ function ProductsPage() {
                     }} />
                 )}
             </Modal>
-            <ToastContainer />
+            <Toaster />
         </>
     )
 }

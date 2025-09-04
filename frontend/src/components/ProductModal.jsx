@@ -1,8 +1,8 @@
 import { useProducts } from '../context/ProductContext.jsx'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useEffect, useState } from 'react'
-import { Controller, useForm } from 'react-hook-form'
-import { notify } from '../utils/notifyToast.js'
+import { useForm } from 'react-hook-form'
+import { toast } from "../utils/notifyToast.js";
 import { productSchema, updateProductSchema } from '../../../validation/productSchema.js'
 import VariantModal from './VariantModal.jsx'
 import { useVariants } from '../hooks/useVariants.js'
@@ -12,12 +12,12 @@ import { useStockEntries } from '../hooks/useStockEntries.js'
 import { Button, Accordion, Box, Avatar, Span, Field, Fieldset, Input, InputGroup, NumberInput, Select, Text, Stack, Portal, createListCollection } from "@chakra-ui/react"
 
 function ProductModal({ productUpdate, onSubmit }) {
-    const { register, handleSubmit, reset, formState: { errors }, setError, control } = useForm({
+    const { register, handleSubmit, reset, formState: { errors }, setError } = useForm({
         mode: 'onChange',
         resolver: zodResolver(productUpdate ? updateProductSchema : productSchema),
         defaultValues: productUpdate
     })
-    const { updateProduct, createProduct, fetchUniqueProduct } = useProducts()
+    const { updateProduct, createProduct } = useProducts()
     const { deleteVariant, submitVariant, } = useVariants()
     const [variants, setVariants] = useState([])
     const [variantUpdate, setVariantUpdate] = useState()
@@ -75,7 +75,7 @@ function ProductModal({ productUpdate, onSubmit }) {
         const result = productUpdate ? await updateProduct(fullProduct, productUpdate, setError) : await createProduct(fullProduct, setError)
 
         if (!result.success) {
-            notify('error', result.error || 'Error al guardar el producto')
+            toast(result.error || "error al guardar el producto", "error")
             return
         }
 
@@ -95,9 +95,8 @@ function ProductModal({ productUpdate, onSubmit }) {
         onSubmit()
     }
 
-    const onInvalid = (error) => {
-        console.log(error)
-        notify('error', 'Por favor ingrese todos los datos')
+    const onInvalid = () => {
+        toast("por favor ingrese todos los datos", "error")
     }
 
 
