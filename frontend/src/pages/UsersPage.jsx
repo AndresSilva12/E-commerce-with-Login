@@ -1,11 +1,10 @@
 import { useState, useEffect, useContext } from 'react'
 import UserModal from '../components/UserModal.jsx'
-import Swal from 'sweetalert2'
 import { useUser } from '../hooks/useUser.js'
 import { useNavigate } from 'react-router-dom'
 import { AuthContext } from '../context/AuthContext'
 import Modal from '../components/Modal.jsx'
-import { Button, Card, Stack, Text, HStack, Avatar, Strong } from "@chakra-ui/react"
+import { Button, Card, Stack, Text, HStack, Avatar, Strong, Box } from "@chakra-ui/react"
 
 function UsersPage() {
     const navigate = useNavigate()
@@ -17,31 +16,8 @@ function UsersPage() {
         fetchUsers()
     }, [])
 
-    const handleDelete = (id) => {
-        Swal.fire({
-            title: "Está seguro que desea eliminar su cuenta?",
-            text: "Esta acción no puede revertirse!",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, elimínalo!"
-        }).then((result) => {
-            if (result.isConfirmed) {
-                deleteUser(id, setIsAuthenticated, navigate).then(() => {
-                    Swal.fire({
-                        title: "Eliminado!",
-                        text: "Tu cuenta a sido eliminada.",
-                        icon: "success"
-                    })
-                })
-
-            }
-        })
-    }
-
     return (
-        <>
+        <Box paddingTop="60px">
             {users.map(user => (
                 <Card.Root width="320px" key={user.id}>
                     <Card.Body>
@@ -73,14 +49,14 @@ function UsersPage() {
                         }>
                             <UserModal user={editUser} />
                         </Modal>
-
-                        <Button variant="subtle" colorPalette="red" flex="1" onClick={() => { handleDelete(user.id) }}>
-                            Eliminar
-                        </Button>
+                        <Modal trigger={<Button variant="subtle" colorPalette="red" flex="1">Eliminar</Button>}>
+                            <h2 >Está seguro que desea eliminar este usuario?</h2>
+                            <Button onClick={() => { deleteUser(user.id, setIsAuthenticated, navigate) }}>Eliminar</Button>
+                        </Modal>
                     </Card.Footer>
                 </Card.Root>
             ))}
-        </>
+        </Box>
     )
 }
 

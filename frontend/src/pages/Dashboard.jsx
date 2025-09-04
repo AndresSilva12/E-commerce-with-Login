@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form"
 import { Cell, Label, Pie, PieChart, Tooltip } from "recharts"
 import Calendar from "react-calendar"
 import { useExpenses } from "../hooks/useExpenses.js"
+import { deleteAlert } from "../utils/alerts"
 
 export function ChartProducts({ topProductosVentas, topCategorias, topProductosCantidad }) {
     const chartData = topProductosVentas
@@ -128,7 +129,7 @@ function Dashboard() {
     const [topCategorias, setTopCategorias] = useState([])
     const [filters, setFilters] = useState()
     const { register, handleSubmit, reset } = useForm()
-    const { createExpense, updateExpense } = useExpenses()
+    const { createExpense, updateExpense, deleteExpense } = useExpenses()
     const [expenseUpdate, setExpenseUpdate] = useState(null)
 
     useEffect(() => {
@@ -191,6 +192,11 @@ function Dashboard() {
 
     const handleUpdate = (expense) => {
         setExpenseUpdate(expense)
+    }
+
+    const handleDelete = (id) => {
+        deleteAlert({ deleteFunction: () => { deleteExpense(id) }, textTitle: "Está seguro que desea eliminar este gasto?" })
+        setFilters(null)
     }
 
 
@@ -325,6 +331,10 @@ function Dashboard() {
                                                 <Button type="submit">Actualizar Gasto</Button>
                                             </Box>
                                         </form>
+                                    </Modal>
+                                    <Modal size={"sm"} trigger={<Button backgroundColor={"red.700"}>Delete</Button>}>
+                                        <h2 >Está seguro que desea eliminar este gasto?</h2>
+                                        <Button onClick={() => { handleDelete(expense.id) }}>Eliminar</Button>
                                     </Modal>
                                 </Table.Cell>
                             </Table.Row>

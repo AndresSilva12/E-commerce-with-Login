@@ -19,8 +19,18 @@ export function useExpenses () {
         console.log(data)
     }
 
+    const deleteExpense = async (id) => {
+        const res = await fetch(`http://localhost:3000/api/expenses/${id}`,{
+            method: 'DELETE',
+            headers: {"Content-Type": "application/json"}
+        })
+        const data = await res.json()
+        console.log(data)
+    }
+
     return {
         createExpense,
-        updateExpense
+        updateExpense,
+        deleteExpense
     }
 }

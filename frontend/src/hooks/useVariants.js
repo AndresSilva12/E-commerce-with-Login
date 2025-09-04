@@ -74,26 +74,21 @@ export function useVariants () {
         }
     }
 
-    const deleteVariant = (variant, setVariants) => {
-        deleteAlert({
-            deleteFunction: async () => {
-                if (variant.id) {
-                    deleteVariant(variant.id)
-                    const res = await fetch(`http://localhost:3000/api/variants/id/${variant.id}`,{
-                        method: 'DELETE',
-                        headers: {
-                            "Content-type": "application/json"
-                        }
-                    })
-                    const data = await res.json()
-                    setVariants((prev) => (prev.filter((p) => p.id !== variant.id)))
-                    await deleteVariantToProduct(data.productId, variant.id)
-                    notify('success', 'Variante eliminada con éxito')
+    const deleteVariant = async(variant, setVariants) => {
+        if (variant.id) {
+            deleteVariant(variant.id)
+            const res = await fetch(`http://localhost:3000/api/variants/id/${variant.id}`,{
+                method: 'DELETE',
+                headers: {
+                    "Content-type": "application/json"
                 }
-                setVariants((prev => prev.filter(p => p.localId !== variant.localId)))
-            },
-            type: "Variant"
-        })
+            })
+            const data = await res.json()
+            setVariants((prev) => (prev.filter((p) => p.id !== variant.id)))
+            await deleteVariantToProduct(data.productId, variant.id)
+            notify('success', 'Variante eliminada con éxito')
+        }
+        setVariants((prev => prev.filter(p => p.localId !== variant.localId)))
     }
 
     const updateVariant = async(formData, variant) =>  {

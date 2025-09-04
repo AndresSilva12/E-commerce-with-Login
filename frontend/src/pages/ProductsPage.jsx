@@ -2,9 +2,8 @@ import { useState, useEffect } from "react";
 import { ToastContainer } from "react-toastify";
 import { useProducts } from "../context/ProductContext";
 import ProductModal from "../components/ProductModal";
-import VariantModal from '../components/VariantModal'
 import { deleteAlert } from "../utils/alerts";
-import { Button, Card, Image, Text, Grid, GridItem, Checkbox, Select, Portal, InputGroup, Stack, Code, createListCollection, Slider, HStack, Field, Badge, Box, Float, NumberInput, IconButton, Container } from "@chakra-ui/react"
+import { Button, Card, Image, Text, Grid, GridItem, Checkbox, Select, Portal, InputGroup, Stack, createListCollection, HStack, Field, Badge, Box, NumberInput, IconButton } from "@chakra-ui/react"
 import Modal from "../components/Modal";
 import { useVariants } from '../hooks/useVariants.js'
 import { useCart } from "../context/CartContext";
@@ -158,7 +157,7 @@ function ProductsPage() {
     }
 
     const handleDelete = (id) => {
-        deleteAlert({ deleteFunction: () => deleteProduct(id), type: "Product" })
+        deleteAlert({ deleteFunction: () => deleteProduct(id), textTitle: "Está seguro que desea eliminar esta variante?" })
     }
 
     const handleCreate = () => {
@@ -440,7 +439,10 @@ function ProductsPage() {
                                         <Modal size={"xl"} trigger={<Button type="button" width="50px" flex="1" onClick={() => handleVariantUpdate(variant, variant.product)}>Editar</Button>}>
                                             <ProductModal productUpdate={productUpdate} onSubmit={onSubmit} />
                                         </Modal>
-                                        <Button colorPalette="red" flex="1" onClick={() => deleteVariant(variant, setVariants)}>Eliminar</Button>
+                                        <Modal trigger={<Button colorPalette="red" flex="1" >Eliminar</Button>}>
+                                            <h2 >Está seguro que desea eliminar esta variante?</h2>
+                                            <Button onClick={() => deleteVariant(variant, setVariants)}>Eliminar</Button>
+                                        </Modal>
                                     </Box>
                                     <Box gap="2" display="flex" justifyContent="center">
                                         <NumberInput.Root value={variant.stock} unstyled spinOnPress={false} >

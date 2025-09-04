@@ -190,32 +190,6 @@ function ProductModal({ productUpdate, onSubmit }) {
                             </Portal>
                         </Select.Root>
 
-
-                        {/* <Select.Root collection={motives} value={categorySelected} defaultValue={["Venta"]} onValueChange={(e) => { setCategorySelected(e.value) }} size="sm" width="320px">
-                            <Select.HiddenSelect />
-                            <Select.Label>Motivo</Select.Label>
-                            <Select.Control>
-                                <Select.Trigger>
-                                    <Select.ValueText placeholder="Motivo" />
-                                </Select.Trigger>
-                                <Select.IndicatorGroup>
-                                    <Select.Indicator />
-                                </Select.IndicatorGroup>
-                            </Select.Control>
-                            <Portal color="red">
-                                <Select.Positioner>
-                                    <Select.Content zIndex="9999">
-                                        {motives.items.map((motive) => (
-                                            <Select.Item item={motive} key={motive.value}>
-                                                {motive.label}
-                                                <Select.ItemIndicator />
-                                            </Select.Item>
-                                        ))}
-                                    </Select.Content>
-                                </Select.Positioner>
-                            </Portal>
-                        </Select.Root> */}
-
                         <Field.Root>
                             <Field.Label>Description</Field.Label>
                             <Input {...register("description")} />
@@ -239,7 +213,10 @@ function ProductModal({ productUpdate, onSubmit }) {
                                                 <Text fontSize="sm" color="fg.muted">Color: {variant.color} Stock: {variant.stock}</Text>
                                             </Stack>
                                         </Accordion.ItemTrigger>
-                                        <Button variant="ghost" onClick={() => { deleteVariant(variant, setVariants) }}>Eliminar</Button>
+                                        <Modal trigger={<Button variant="ghost">Eliminar</Button>}>
+                                            <h2 >Está seguro que desea eliminar esta variante?</h2>
+                                            <Button onClick={() => { deleteVariant(variant, setVariants) }}>Eliminar</Button>
+                                        </Modal>
                                     </Box>
                                     <Accordion.ItemContent>
 
