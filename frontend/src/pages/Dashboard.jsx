@@ -127,8 +127,17 @@ function Dashboard() {
     const [topProductosCantidad, setTopProductosCantidad] = useState([])
     const [topCategorias, setTopCategorias] = useState([])
     const [filters, setFilters] = useState()
-    const { register, handleSubmit } = useForm()
-    const { createExpense } = useExpenses()
+    const { register, handleSubmit, reset } = useForm()
+    const { createExpense, updateExpense } = useExpenses()
+    const [expenseUpdate, setExpenseUpdate] = useState(null)
+
+    useEffect(() => {
+        if (expenseUpdate === null) {
+            reset({ name: "", amount: 0 })
+        } else {
+            reset(expenseUpdate)
+        }
+    }, [expenseUpdate, reset])
 
     useEffect(() => {
         const fetchMetrics = async () => {
@@ -143,7 +152,6 @@ function Dashboard() {
             setCostos(data.costos)
             setTopProductosCantidad(data.topProductosCantidad)
             setTopProductosVentas(data.topProductosVentas)
-            /* setVentasProductos(data.ventasProductos) */
             setTopCategorias(data.topCategorias)
         }
         fetchMetrics()
@@ -175,10 +183,14 @@ function Dashboard() {
                 : setFilters({ year: year })
     }
 
-
     const onValid = (value) => {
-        createExpense(value)
+        expenseUpdate === null ? createExpense(value) : updateExpense(value, expenseUpdate.id)
+        setExpenseUpdate(null)
         setFilters(null)
+    }
+
+    const handleUpdate = (expense) => {
+        setExpenseUpdate(expense)
     }
 
 
@@ -216,7 +228,7 @@ function Dashboard() {
                     <Box width="1/4" display="flex" flexDirection="column" justifyContent="center" gap="2">
                         <ChartPie value={chartGastos} />
                         <Box width="full" height="50px" display="flex" justifyContent="center">
-                            <Modal size={"sm"} trigger={<Button>Agregar nuevo gasto</Button>}>
+                            <Modal size={"sm"} trigger={<Button onClick={() => { setExpenseUpdate(null) }}>Agregar nuevo gasto</Button>}>
                                 <form onSubmit={handleSubmit(onValid)}>
                                     <Box display="flex" flexDirection="column" justifyContent="center" gap="4">
                                         <Fieldset.Root>
@@ -273,6 +285,7 @@ function Dashboard() {
                             <Table.ColumnHeader>Gasto</Table.ColumnHeader>
                             <Table.ColumnHeader>Fecha</Table.ColumnHeader>
                             <Table.ColumnHeader>Precio Final</Table.ColumnHeader>
+                            <Table.ColumnHeader>Editar/Eliminar</Table.ColumnHeader>
                         </Table.Row>
                     </Table.Header>
                     <Table.Body>
@@ -280,7 +293,40 @@ function Dashboard() {
                             <Table.Row key={expense.id}>
                                 <Table.Cell>{expense.name}</Table.Cell>
                                 <Table.Cell>{expense.date}</Table.Cell>
-                                <Table.Cell>$ {new Intl.NumberFormat("es-AR").format(expense.amount)}</Table.Cell>
+                                <Table.Cell>$ {new Intl.NumberFormat("es-AR").format(expense.amount)}
+                                </Table.Cell>
+                                <Table.Cell>
+                                    <Modal size={"sm"} trigger={<Button onClick={() => { handleUpdate(expense) }}>Editar</Button>}>
+                                        <form onSubmit={handleSubmit(onValid)}>
+                                            <Box display="flex" flexDirection="column" justifyContent="center" gap="4">
+                                                <Fieldset.Root>
+                                                    <Fieldset.Content>
+                                                        <Field.Root>
+                                                            <Box display="flex" gap="4" width="100%" justifyContent="space-between">
+                                                                <Field.Label width="50%">Nombre del gasto</Field.Label>
+                                                                <Box width="50%">
+                                                                    <Input {...register("name")} />
+                                                                </Box>
+                                                            </Box>
+                                                        </Field.Root>
+                                                        <Field.Root>
+                                                            <Box display="flex" gap="4" width="100%" justifyContent="space-between">
+                                                                <Field.Label width="50%">Total</Field.Label>
+                                                                <Box width="50%">
+                                                                    <NumberInput.Root defaultValue="1">
+                                                                        <NumberInput.Control />
+                                                                        <NumberInput.Input  {...register("amount")} />
+                                                                    </NumberInput.Root>
+                                                                </Box>
+                                                            </Box>
+                                                        </Field.Root>
+                                                    </Fieldset.Content>
+                                                </Fieldset.Root>
+                                                <Button type="submit">Actualizar Gasto</Button>
+                                            </Box>
+                                        </form>
+                                    </Modal>
+                                </Table.Cell>
                             </Table.Row>
                         ))}
                     </Table.Body>
