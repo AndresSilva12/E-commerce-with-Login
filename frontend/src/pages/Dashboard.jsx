@@ -5,6 +5,7 @@ import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { Cell, Label, Pie, PieChart, Tooltip } from "recharts"
 import Calendar from "react-calendar"
+import { useExpenses } from "../hooks/useExpenses.js"
 
 export function ChartProducts({ topProductosVentas, topCategorias, topProductosCantidad }) {
     const chartData = topProductosVentas
@@ -127,6 +128,7 @@ function Dashboard() {
     const [topCategorias, setTopCategorias] = useState([])
     const [filters, setFilters] = useState()
     const { register, handleSubmit } = useForm()
+    const { createExpense } = useExpenses()
 
     useEffect(() => {
         const fetchMetrics = async () => {
@@ -173,18 +175,6 @@ function Dashboard() {
                 : setFilters({ year: year })
     }
 
-    const createExpense = async (formData) => {
-        console.log(formData)
-        const res = await fetch('http://localhost:3000/api/expenses', {
-            method: 'POST',
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(formData)
-        })
-        const data = await res.json()
-        console.log(data)
-    }
 
     const onValid = (value) => {
         createExpense(value)

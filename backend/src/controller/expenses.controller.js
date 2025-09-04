@@ -1,4 +1,3 @@
-import { date } from "zod/v4"
 import prisma from "../db.js"
 
 export const getAllExpenses = async(req, res) => {
