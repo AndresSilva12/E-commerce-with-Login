@@ -204,7 +204,7 @@ function Dashboard() {
         const res = await fetch('http://localhost:3000/api/report', {
             method: 'POST',
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ metrics: metrics })
+            body: JSON.stringify(metrics)
         })
         const blob = await res.blob()
 

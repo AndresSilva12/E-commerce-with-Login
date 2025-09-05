@@ -96,9 +96,9 @@ export const getMetrics = async(req, res) => {
         const ventasCategorias = Object.entries(categorias).map(([categoria, cantidad]) => ({
             name: categoria,
             quantity: cantidad
-        }))
+        })).sort((a, b) => b.quantity - a.quantity)
 
-        const topCategorias = [...ventasCategorias].sort((a, b) => b.quantity - a.quantity).slice(0, topN)
+        const topCategorias = [...ventasCategorias].slice(0, topN)
         
         const ventasProductos = salesByProduct.map((sale => {
             const cantidadTotal = sale._sum.quantity
@@ -126,6 +126,8 @@ export const getMetrics = async(req, res) => {
         const totalExpenses = expenses.reduce((accumulator, currentValue) => accumulator + Number(currentValue.amount), 0)
 
         return res.json({
+            fechaInicio: where.date.gte,
+            fechaFin: where.date.lt,
             ingresos: ingresos , //total vendido en dinero (ingresosBrutos)
             ventasTotales: ventasTotales, //cantidad de ventas totales
             expenses: expenses, //array de todos los gastos del mes
@@ -134,7 +136,7 @@ export const getMetrics = async(req, res) => {
             gananciaNeta: gananciaNeta, //ingresos brutos - costos
             topProductosVentas: topProductosVentas, //top 5 productos más vendidos
             topProductosCantidad: topProductosCantidad, //top 5 productos con unidades mas vendidas
-            topCategorias: topCategorias // top 5 categorias más vendidas
+            topCategorias: topCategorias, // top 5 categorias más vendidas
         })
 
     } catch (error) {
