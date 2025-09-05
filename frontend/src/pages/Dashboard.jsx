@@ -130,6 +130,7 @@ function Dashboard() {
     const { register, handleSubmit, reset } = useForm()
     const { createExpense, updateExpense, deleteExpense } = useExpenses()
     const [expenseUpdate, setExpenseUpdate] = useState(null)
+    const [metrics, setMetrics] = useState()
 
     useEffect(() => {
         if (expenseUpdate === null) {
@@ -144,6 +145,7 @@ function Dashboard() {
             const query = new URLSearchParams(filters).toString()
             const res = await fetch(`http://localhost:3000/api/dashboard/metrics?${query}`)
             const data = await res.json()
+            setMetrics({ metrics: data })
             setIngresosBrutos(data.ingresos)
             setGananciaNeta(data.gananciaNeta)
             setVentasTotales(data.ventasTotales)
@@ -196,6 +198,15 @@ function Dashboard() {
     const handleDelete = (id) => {
         deleteExpense(id)
         setFilters(null)
+    }
+
+    const handleReport = async () => {
+        const res = await fetch('http://localhost:3000/api/report', {
+            method: 'POST',
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ metrics: metrics })
+        })
+        const data = await res.json()
     }
 
 
@@ -268,7 +279,7 @@ function Dashboard() {
 
                     <Box display="flex" flexDirection="column">
                         <ChartCard value={gananciaNeta + costos - totalGastos} title={"Caja Final"} subtitle={"Total de utilidad"} />
-                        <Button onClick={() => { alert("hola mundo") }}>Generar Reporte</Button>
+                        <Button onClick={() => { handleReport() }}>Generar Reporte</Button>
                     </Box>
 
                 </Box>

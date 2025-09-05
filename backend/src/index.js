@@ -8,6 +8,7 @@ import stockEntries from "./routes/stockEntries.route.js"
 import category from "./routes/category.route.js"
 import metrics from "./routes/metrics.route.js"
 import expenses from "./routes/expenses.route.js"
+import report from "./routes/report.route.js"
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import path from "path";
@@ -49,6 +50,8 @@ App.use("/api", category)
 App.use("/api", metrics)
 
 App.use("/api", expenses)
+
+App.use("/api", report)
 
 App.listen(3000, () => {
   console.log(`Servidor Iniciado en "http://localhost:${PORT}" ...`);
