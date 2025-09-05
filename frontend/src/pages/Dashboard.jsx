@@ -206,7 +206,17 @@ function Dashboard() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ metrics: metrics })
         })
-        const data = await res.json()
+        const blob = await res.blob()
+
+        const url = window.URL.createObjectURL(blob)
+        const a = document.createElement("a")
+
+        a.href = url
+        a.download = "reporte.pdf"
+        document.body.appendChild(a)
+        a.click()
+        a.remove()
+        window.URL.revokeObjectURL(url)
     }
 
 
