@@ -39,8 +39,8 @@ export const validateUpdateExpense = (req, res, next) => {
 
 export const validateExpenseExist = async(req, res, next) => {
     try {
-        const {id} = req.params
-        const idExist = await prisma.expenses.findUnique({where: id})
+        const id = req.params.id
+        const idExist = await prisma.expenses.findUnique({where: {id: id}})
 
         if (!idExist) return res.status(400).json({error: "El gasto seleccionado no existe"})
 

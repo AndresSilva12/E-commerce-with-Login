@@ -6,6 +6,8 @@ import { useForm } from "react-hook-form"
 import { Cell, Label, Pie, PieChart, Tooltip } from "recharts"
 import Calendar from "react-calendar"
 import { useExpenses } from "../hooks/useExpenses.js"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { expensesSchema, updateExpensesSchema } from "../../../validation/expensesSchema.js"
 
 export function ChartProducts({ topProductosVentas, topCategorias, topProductosCantidad }) {
     const chartData = topProductosVentas
@@ -116,6 +118,60 @@ export function ChartCard({ value, title, subtitle }) {
     )
 }
 
+export function ExpensesModal({ expenseUpdate, onSubmitExpense }) {
+    const { createExpense, updateExpense } = useExpenses()
+    const { register, handleSubmit, reset, formState: { errors } } = useForm({
+        mode: 'onChange',
+        resolver: zodResolver(expenseUpdate ? updateExpensesSchema : expensesSchema)
+    })
+
+    useEffect(() => {
+        if (expenseUpdate === null) {
+            reset({ name: "", amount: 0 })
+        } else {
+            reset(expenseUpdate)
+        }
+    }, [expenseUpdate, reset])
+
+    const onValid = (value) => {
+        expenseUpdate === null ? createExpense(value) : updateExpense(value, expenseUpdate.id)
+        onSubmitExpense()
+    }
+
+    return (
+        <form onSubmit={handleSubmit(onValid)}>
+            <Box display="flex" flexDirection="column" justifyContent="center" gap="4">
+                <Fieldset.Root>
+                    <Fieldset.Content>
+                        <Field.Root invalid={!!errors.name}>
+                            <Box display="flex" gap="4" width="100%" justifyContent="space-between">
+                                <Field.Label width="50%">Nombre del gasto</Field.Label>
+                                <Field.ErrorText>{errors.name?.message}</Field.ErrorText>
+                                <Box width="50%">
+                                    <Input {...register("name")} />
+                                </Box>
+                            </Box>
+                        </Field.Root>
+                        <Field.Root invalid={!!errors.amount}>
+                            <Box display="flex" gap="4" width="100%" justifyContent="space-between">
+                                <Field.Label width="50%">Total</Field.Label>
+                                <Field.ErrorText>{errors.amount?.message}</Field.ErrorText>
+                                <Box width="50%">
+                                    <NumberInput.Root defaultValue="1">
+                                        <NumberInput.Control />
+                                        <NumberInput.Input  {...register("amount")} />
+                                    </NumberInput.Root>
+                                </Box>
+                            </Box>
+                        </Field.Root>
+                    </Fieldset.Content>
+                </Fieldset.Root>
+                <Button type="submit">{expenseUpdate ? "Actualizar" : "Crear"} Gasto</Button>
+            </Box>
+        </form>
+    )
+}
+
 function Dashboard() {
     const [ingresosBrutos, setIngresosBrutos] = useState()
     const [ventasTotales, setVentasTotales] = useState()
@@ -127,18 +183,9 @@ function Dashboard() {
     const [topProductosCantidad, setTopProductosCantidad] = useState([])
     const [topCategorias, setTopCategorias] = useState([])
     const [filters, setFilters] = useState()
-    const { register, handleSubmit, reset } = useForm()
-    const { createExpense, updateExpense, deleteExpense } = useExpenses()
     const [expenseUpdate, setExpenseUpdate] = useState(null)
+    const { deleteExpense } = useExpenses()
     const [metrics, setMetrics] = useState()
-
-    useEffect(() => {
-        if (expenseUpdate === null) {
-            reset({ name: "", amount: 0 })
-        } else {
-            reset(expenseUpdate)
-        }
-    }, [expenseUpdate, reset])
 
     useEffect(() => {
         const fetchMetrics = async () => {
@@ -183,12 +230,6 @@ function Dashboard() {
             : selected === "day"
                 ? setFilters({ year: year, month: month, minDay: minDay })
                 : setFilters({ year: year })
-    }
-
-    const onValid = (value) => {
-        expenseUpdate === null ? createExpense(value) : updateExpense(value, expenseUpdate.id)
-        setExpenseUpdate(null)
-        setFilters(null)
     }
 
     const handleUpdate = (expense) => {
@@ -255,34 +296,10 @@ function Dashboard() {
                         <ChartPie value={chartGastos} />
                         <Box width="full" height="50px" display="flex" justifyContent="center">
                             <Modal size={"sm"} trigger={<Button onClick={() => { setExpenseUpdate(null) }}>Agregar nuevo gasto</Button>}>
-                                <form onSubmit={handleSubmit(onValid)}>
-                                    <Box display="flex" flexDirection="column" justifyContent="center" gap="4">
-                                        <Fieldset.Root>
-                                            <Fieldset.Content>
-                                                <Field.Root>
-                                                    <Box display="flex" gap="4" width="100%" justifyContent="space-between">
-                                                        <Field.Label width="50%">Nombre del gasto</Field.Label>
-                                                        <Box width="50%">
-                                                            <Input {...register("name")} />
-                                                        </Box>
-                                                    </Box>
-                                                </Field.Root>
-                                                <Field.Root>
-                                                    <Box display="flex" gap="4" width="100%" justifyContent="space-between">
-                                                        <Field.Label width="50%">Total</Field.Label>
-                                                        <Box width="50%">
-                                                            <NumberInput.Root defaultValue="1">
-                                                                <NumberInput.Control />
-                                                                <NumberInput.Input  {...register("amount")} />
-                                                            </NumberInput.Root>
-                                                        </Box>
-                                                    </Box>
-                                                </Field.Root>
-                                            </Fieldset.Content>
-                                        </Fieldset.Root>
-                                        <Button type="submit">Crear Gasto</Button>
-                                    </Box>
-                                </form>
+                                <ExpensesModal expenseUpdate={expenseUpdate} onSubmitExpense={() => {
+                                    setExpenseUpdate(null)
+                                    setFilters(null)
+                                }} />
                             </Modal>
                         </Box>
                     </Box>
@@ -323,34 +340,10 @@ function Dashboard() {
                                 </Table.Cell>
                                 <Table.Cell>
                                     <Modal size={"sm"} trigger={<Button onClick={() => { handleUpdate(expense) }}>Editar</Button>}>
-                                        <form onSubmit={handleSubmit(onValid)}>
-                                            <Box display="flex" flexDirection="column" justifyContent="center" gap="4">
-                                                <Fieldset.Root>
-                                                    <Fieldset.Content>
-                                                        <Field.Root>
-                                                            <Box display="flex" gap="4" width="100%" justifyContent="space-between">
-                                                                <Field.Label width="50%">Nombre del gasto</Field.Label>
-                                                                <Box width="50%">
-                                                                    <Input {...register("name")} />
-                                                                </Box>
-                                                            </Box>
-                                                        </Field.Root>
-                                                        <Field.Root>
-                                                            <Box display="flex" gap="4" width="100%" justifyContent="space-between">
-                                                                <Field.Label width="50%">Total</Field.Label>
-                                                                <Box width="50%">
-                                                                    <NumberInput.Root defaultValue="1">
-                                                                        <NumberInput.Control />
-                                                                        <NumberInput.Input  {...register("amount")} />
-                                                                    </NumberInput.Root>
-                                                                </Box>
-                                                            </Box>
-                                                        </Field.Root>
-                                                    </Fieldset.Content>
-                                                </Fieldset.Root>
-                                                <Button type="submit">Actualizar Gasto</Button>
-                                            </Box>
-                                        </form>
+                                        <ExpensesModal expenseUpdate={expenseUpdate} onSubmitExpense={() => {
+                                            setExpenseUpdate(null)
+                                            setFilters(null)
+                                        }} />
                                     </Modal>
                                     <Modal size={"sm"} trigger={<Button backgroundColor={"red.700"}>Delete</Button>}>
                                         <h2 >Está seguro que desea eliminar este gasto?</h2>
