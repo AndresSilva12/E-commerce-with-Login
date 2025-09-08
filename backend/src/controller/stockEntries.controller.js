@@ -92,7 +92,7 @@ export const deleteEntry = async(req, res) =>{
 
             const entryDeleted = await tx.stockEntry.delete({
                 where: {
-                    id: idSelected
+                    id: stockEntry.id
                 },
                 include: {
                     items: true

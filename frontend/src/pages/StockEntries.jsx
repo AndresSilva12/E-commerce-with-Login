@@ -47,7 +47,7 @@ export function EntrySelectedModal({ entrySelected }) {
 }
 
 function StockEntriesPage() {
-    const { getAllStockEntries, stockEntries } = useStockEntries()
+    const { getAllStockEntries, stockEntries, deleteEntry } = useStockEntries()
     const [entrySelected, setEntrySelected] = useState([])
     useEffect(() => {
         getAllStockEntries()
@@ -71,6 +71,7 @@ function StockEntriesPage() {
                         <Table.ColumnHeader>Precio unidad</Table.ColumnHeader>
                         <Table.ColumnHeader>Compra total</Table.ColumnHeader>
                         <Table.ColumnHeader>Motivo</Table.ColumnHeader>
+                        <Table.ColumnHeader>Eliminar</Table.ColumnHeader>
                     </Table.Row>
                 </Table.Header>
                 <Table.Body>
@@ -95,6 +96,12 @@ function StockEntriesPage() {
                             ))}
                             <Table.Cell>$ {new Intl.NumberFormat("es-AR").format(entry.total)}</Table.Cell>
                             <Table.Cell>{entry.motive}</Table.Cell>
+                            <Table.Cell>
+                                <Modal size={"sm"} trigger={<Button backgroundColor={"red.700"}>Delete</Button>}>
+                                    <h2 >Está seguro que desea eliminar esta entrada?</h2>
+                                    <Button onClick={() => { deleteEntry(entry.id) }}>Eliminar</Button>
+                                </Modal>
+                            </Table.Cell>
                         </Table.Row>
                     ))}
                 </Table.Body>
