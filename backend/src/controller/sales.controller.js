@@ -114,3 +114,19 @@ export const deleteSale = async(req, res) => {
         return res.status(500).json({ error: "Error interno durante el proceso" });
     }
 }
+
+export const updateSale = async(req, res ) => {
+    try {
+        const result = await prisma.$transaction( async(tx) => {
+            const id = req.params.id
+            const saleUpdated = await tx.sales.update({
+                data: req.body,
+                where: {id: id}
+            })
+            return {saleUpdated}
+        })
+        return res.json({saleUpdated: result.saleUpdated})
+    } catch (error) {
+        return res.status(500).json({ error: "Error interno durante el proceso" });
+    }
+}
