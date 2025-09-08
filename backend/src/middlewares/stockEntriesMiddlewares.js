@@ -48,3 +48,18 @@ export const validateStockEntry = async(req, res, next) => {
         return res.status(500).json({ error: "Error interno durante el proceso" });
     }
 }
+
+export const validateStockEntryExist = async(req, res, next) => {
+    try {
+        const id = req.params.id
+        const stockEntryExist = await prisma.stockEntry.findFirst({
+            where: {id: id},
+            include: {items: true}
+        })
+        if (!stockEntryExist) return res.json({error: "El Id no corresponde a ninguna entrada"})
+        req.stockEntry = stockEntryExist
+        next()
+    } catch (error) {
+        return res.status(500).json({ error: "Error interno durante el proceso" });
+    }
+}

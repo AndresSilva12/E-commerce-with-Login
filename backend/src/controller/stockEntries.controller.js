@@ -74,13 +74,10 @@ export const getAllStockEntries = async(req, res) => {
 export const deleteEntry = async(req, res) =>{
     try {
         const result = await prisma.$transaction( async(tx) => {
-            const idSelected = req.params.id
-            const entryExist = await tx.stockEntry.findFirst({where: {id: idSelected}, include: {items: true}})
-            if (!entryExist) {throw new Error(`Entrada no existente: ${idSelected}`)}
-
+            const stockEntry = req.stockEntry
             const variantsThatNotExist = {}
             const variantsWithLowStock = {}
-            for (const item of entryExist.items){
+            for (const item of stockEntry.items){
                 const variantExist = await tx.productVariant.findFirst({where: {id: item.variantId}})
                 if (!variantExist){
                     variantsThatNotExist[item.variantId] = `Variante inexistente: ${item.variantId}`
