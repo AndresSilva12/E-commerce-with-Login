@@ -63,3 +63,14 @@ export const validateNewSale = async(req, res, next) => {
     }
 }
 
+export const validateSaleExist = async (req, res, next) => {
+    try {
+        const id = req.params.id
+        const idExist = await prisma.sales.findFirst({where: id})
+        if (!idExist) return res.json({error: "El id no corresponde a ninguna venta"})
+            
+        next()
+    } catch (error) {
+        res.status(500).json({ error: "Error interno durante el proceso" });
+    }
+}
