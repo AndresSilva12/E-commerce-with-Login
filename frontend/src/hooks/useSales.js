@@ -6,8 +6,8 @@ export function useSales () {
     const [sales, setSales] = useState()
     const { fetchProducts} = useProducts()
 
-    const getAllSales = async() => {
-        const res = await fetch('http://localhost:3000/api/sales',{
+    const getAllSales = async(query) => {
+        const res = await fetch(`http://localhost:3000/api/sales?${query}`,{
             method: 'GET',
             headers: {
                 "content-type": "application/json"

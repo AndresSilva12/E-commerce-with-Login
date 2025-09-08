@@ -1,4 +1,5 @@
 import prisma from "../db.js"
+import { filterByDate } from "../utils/filterByDate.js"
 export const createNewSale = async(req, res) => {
     try {
         const userId = req.user.id
@@ -46,6 +47,7 @@ export const createNewSale = async(req, res) => {
 
 export const getAllSales = async(req, res) => {
     try {
+        const where = filterByDate(req.query)
         const allSales = await prisma.sales.findMany({
             include: {
                 items: {
@@ -58,7 +60,8 @@ export const getAllSales = async(req, res) => {
                     }
                 },
                 user: true
-            }
+            },
+            where
         })
         return res.json(allSales)
     } catch (error) {
