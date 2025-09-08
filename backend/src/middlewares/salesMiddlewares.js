@@ -66,7 +66,12 @@ export const validateNewSale = async(req, res, next) => {
 export const validateSaleExist = async (req, res, next) => {
     try {
         const id = req.params.id
-        const saleExist = await prisma.sales.findFirst({where: id})
+        const saleExist = await prisma.sales.findFirst({
+            where: {id: id},
+            include: {
+                items: true
+            }
+        })
         if (!saleExist) return res.json({error: "El id no corresponde a ninguna venta"})
         req.sale = saleExist
         next()
