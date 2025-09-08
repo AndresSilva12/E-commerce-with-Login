@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { Fragment } from "react"
 import { useStockEntries } from "../hooks/useStockEntries.js";
-import { Button, Table, Box, DataList, Image, Grid, Stack } from "@chakra-ui/react";
+import { Button, Table, Box, DataList, Image, Grid, GridItem, Stack } from "@chakra-ui/react";
 import Modal from "../components/Modal.jsx";
+import Calendar from "react-calendar"
 
 export function EntrySelectedModal({ entrySelected }) {
     return (
@@ -49,64 +50,89 @@ export function EntrySelectedModal({ entrySelected }) {
 function StockEntriesPage() {
     const { getAllStockEntries, stockEntries, deleteEntry } = useStockEntries()
     const [entrySelected, setEntrySelected] = useState([])
+    const [filters, setFilters] = useState()
     useEffect(() => {
-        getAllStockEntries()
-    }, [])
+        const query = new URLSearchParams(filters).toString()
+        getAllStockEntries(query)
+    }, [filters])
 
 
     const handleEntrySelected = (entry) => {
         setEntrySelected(entry)
     }
 
+    const handleChangeDate = (value, selected) => {
+        const year = value.getFullYear()
+        const month = value.getMonth() + 1
+        const minDay = value.getDate()
+        selected === "month"
+            ? setFilters({ year: year, month: month })
+            : selected === "day"
+                ? setFilters({ year: year, month: month, minDay: minDay })
+                : setFilters({ year: year })
+    }
+
     return (
-        <Box paddingTop="60px">
-            <Table.Root size="sm" striped>
-                <Table.Caption>Product inventory and pricing information</Table.Caption>
-                <Table.Header>
-                    <Table.Row>
-                        <Table.ColumnHeader>Vendedor</Table.ColumnHeader>
-                        <Table.ColumnHeader>Fecha</Table.ColumnHeader>
-                        <Table.ColumnHeader>Producto</Table.ColumnHeader>
-                        <Table.ColumnHeader>Cantidad</Table.ColumnHeader>
-                        <Table.ColumnHeader>Precio unidad</Table.ColumnHeader>
-                        <Table.ColumnHeader>Compra total</Table.ColumnHeader>
-                        <Table.ColumnHeader>Motivo</Table.ColumnHeader>
-                        <Table.ColumnHeader>Eliminar</Table.ColumnHeader>
-                    </Table.Row>
-                </Table.Header>
-                <Table.Body>
-                    {stockEntries && stockEntries.map((entry) => (
-                        <Table.Row key={entry.id}>
-                            <Table.Cell>{entry.user.name} {entry.user.lastName}</Table.Cell>
-                            <Table.Cell>{entry.date}
-                                <Modal trigger={<Button size="sm" variant="surface" onClick={() => { handleEntrySelected(entry) }}>+Info</Button>}>
-                                    <EntrySelectedModal entrySelected={entrySelected} />
-                                </Modal>
-                            </Table.Cell>
-                            {entry.items.map((item) => (
-                                <Fragment key={item.id}>
-                                    <Table.Cell key={item.id}>
-                                        <Box display="flex" alignItems="center">
-                                            {item.variant.product.name} {item.variant.product.brand}
-                                        </Box>
-                                    </Table.Cell>
-                                    <Table.Cell textStyle="lg" color="green">+ {item.quantity}</Table.Cell>
-                                    <Table.Cell>$ {new Intl.NumberFormat("es-AR").format(item.purchasePrice)}</Table.Cell>
-                                </Fragment>
-                            ))}
-                            <Table.Cell>$ {new Intl.NumberFormat("es-AR").format(entry.total)}</Table.Cell>
-                            <Table.Cell>{entry.motive}</Table.Cell>
-                            <Table.Cell>
-                                <Modal size={"sm"} trigger={<Button backgroundColor={"red.700"}>Delete</Button>}>
-                                    <h2 >Está seguro que desea eliminar esta entrada?</h2>
-                                    <Button onClick={() => { deleteEntry(entry.id) }}>Eliminar</Button>
-                                </Modal>
-                            </Table.Cell>
+        <Grid templateColumns="repeat(8, 1fr)" templateRows="repeat(10, 1fr)">
+            <GridItem rowSpan={10} colSpan={1} padding="4" bg="black" display="flex" flexDirection="column" justifyContent="center" gap="4" position="fixed" top="50px" zIndex="50" bottom="0">
+                <Box width="240px">
+                    <Calendar
+                        onClickMonth={(value, e) => { handleChangeDate(value, "month") }}
+                        onClickYear={(value, e) => { handleChangeDate(value, "year") }}
+                        onClickDay={(value, e) => { handleChangeDate(value, "day") }}
+                    />
+                </Box>
+            </GridItem>
+
+            <GridItem rowSpan={9} colSpan={7} display="flex" flexDirection="column" marginLeft="260px" marginTop="60px" width="92%">
+                <Table.Root size="sm" striped>
+                    <Table.Caption>Product inventory and pricing information</Table.Caption>
+                    <Table.Header>
+                        <Table.Row>
+                            <Table.ColumnHeader>Vendedor</Table.ColumnHeader>
+                            <Table.ColumnHeader>Fecha</Table.ColumnHeader>
+                            <Table.ColumnHeader>Producto</Table.ColumnHeader>
+                            <Table.ColumnHeader>Cantidad</Table.ColumnHeader>
+                            <Table.ColumnHeader>Precio unidad</Table.ColumnHeader>
+                            <Table.ColumnHeader>Compra total</Table.ColumnHeader>
+                            <Table.ColumnHeader>Motivo</Table.ColumnHeader>
+                            <Table.ColumnHeader>Eliminar</Table.ColumnHeader>
                         </Table.Row>
-                    ))}
-                </Table.Body>
-            </Table.Root>
-        </Box>
+                    </Table.Header>
+                    <Table.Body>
+                        {stockEntries && stockEntries.map((entry) => (
+                            <Table.Row key={entry.id}>
+                                <Table.Cell>{entry.user.name} {entry.user.lastName}</Table.Cell>
+                                <Table.Cell>{entry.date}
+                                    <Modal trigger={<Button size="sm" variant="surface" onClick={() => { handleEntrySelected(entry) }}>+Info</Button>}>
+                                        <EntrySelectedModal entrySelected={entrySelected} />
+                                    </Modal>
+                                </Table.Cell>
+                                {entry.items.map((item) => (
+                                    <Fragment key={item.id}>
+                                        <Table.Cell key={item.id}>
+                                            <Box display="flex" alignItems="center">
+                                                {item.variant.product.name} {item.variant.product.brand}
+                                            </Box>
+                                        </Table.Cell>
+                                        <Table.Cell textStyle="lg" color="green">+ {item.quantity}</Table.Cell>
+                                        <Table.Cell>$ {new Intl.NumberFormat("es-AR").format(item.purchasePrice)}</Table.Cell>
+                                    </Fragment>
+                                ))}
+                                <Table.Cell>$ {new Intl.NumberFormat("es-AR").format(entry.total)}</Table.Cell>
+                                <Table.Cell>{entry.motive}</Table.Cell>
+                                <Table.Cell>
+                                    <Modal size={"sm"} trigger={<Button backgroundColor={"red.700"}>Delete</Button>}>
+                                        <h2 >Está seguro que desea eliminar esta entrada?</h2>
+                                        <Button onClick={() => { deleteEntry(entry.id) }}>Eliminar</Button>
+                                    </Modal>
+                                </Table.Cell>
+                            </Table.Row>
+                        ))}
+                    </Table.Body>
+                </Table.Root>
+            </GridItem>
+        </Grid >
     )
 }
 

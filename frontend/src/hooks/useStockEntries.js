@@ -6,8 +6,8 @@ export function useStockEntries () {
     const [stockEntries, setStockEntries] = useState([])
     const {updateVariantToProduct} = useProducts()
 
-    const getAllStockEntries = async() => {
-        const res = await fetch('http://localhost:3000/api/entries', {
+    const getAllStockEntries = async(query) => {
+        const res = await fetch(`http://localhost:3000/api/entries?${query}`, {
             method: 'GET',
             headers: {
                 "content-type": "application/json"
