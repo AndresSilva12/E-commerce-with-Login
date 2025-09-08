@@ -37,7 +37,7 @@ export function SaleSelectedModal({ saleSelected }) {
 }
 
 function SalesPage() {
-    const { getAllSales, sales } = useSales()
+    const { getAllSales, sales, deleteSale } = useSales()
     const [saleSelected, setSaleSelected] = useState([])
 
     useEffect(() => {
@@ -60,6 +60,7 @@ function SalesPage() {
                         <Table.ColumnHeader>Precio Unitario</Table.ColumnHeader>
                         <Table.ColumnHeader>Precio Final</Table.ColumnHeader>
                         <Table.ColumnHeader>Motivo</Table.ColumnHeader>
+                        <Table.ColumnHeader>Eliminar</Table.ColumnHeader>
                     </Table.Row>
                 </Table.Header>
                 <Table.Body>
@@ -91,6 +92,12 @@ function SalesPage() {
                             </Table.Cell>
                             <Table.Cell>$ {new Intl.NumberFormat("es-AR").format(sale.totalPrice)}</Table.Cell>
                             <Table.Cell>{sale.motive}</Table.Cell>
+                            <Table.Cell>
+                                <Modal size={"sm"} trigger={<Button backgroundColor={"red.700"}>Delete</Button>}>
+                                    <h2 >Está seguro que desea eliminar esta venta?</h2>
+                                    <Button onClick={() => { deleteSale(sale.id) }}>Eliminar</Button>
+                                </Modal>
+                            </Table.Cell>
                         </Table.Row>
                     ))}
                 </Table.Body>

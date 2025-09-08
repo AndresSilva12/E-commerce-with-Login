@@ -71,7 +71,6 @@ export const deleteSale = async(req, res) => {
     try {
         const result = await prisma.$transaction( async(tx) => {
             const sale = req.sale
-            console.log(sale)
             const variantsThatNotExist = {}
             for (const item of sale.items){
                 const variantExist = await tx.productVariant.findFirst({where: {id: item.variantId}})

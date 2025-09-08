@@ -27,6 +27,7 @@ export function useSales () {
             body:JSON.stringify(saleData),
         })
         const data = await res.json()
+        setSales((prev) => ({...prev, data}))
         toast("Venta registrada con exito!")
         fetchProducts()
         return data
@@ -40,6 +41,7 @@ export function useSales () {
             }
         })
         const data = await res.json()
+        setSales((prev) => (prev.filter((s => s.id !== saleId))))
         toast("Venta eliminada con exito!")
     }
 
