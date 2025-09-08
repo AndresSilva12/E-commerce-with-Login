@@ -11,5 +11,4 @@ router.get('/sales', getAllSales)
 
 router.delete('/sales/:id',validateSaleExist, deleteSale)
 
-router.put('/sales/:id', validateSaleExist, updateSale)
 export default router
