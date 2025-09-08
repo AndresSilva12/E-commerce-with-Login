@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react"
-import { notify } from "../utils/notifyToast.js"
+import { toast } from "../utils/notifyToast.js";
 import { useProducts } from "../context/ProductContext.jsx"
 import { uploadImage } from '../utils/uploads.js'
 import isEqual from 'lodash.isequal'
-import { deleteAlert } from "../utils/alerts.js"
 import { useStockEntries } from "./useStockEntries.js"
 
 export function useVariants () {
@@ -63,36 +62,32 @@ export function useVariants () {
                         purchasePrice: purchasePrice
                     }
                 ],
-                motive: motive || "Stock Inicial"
+                motive: motive || "Stock Inicial",
+                total: formData.stock * purchasePrice
             }
             await createEntry(entryData)
-            notify('success', 'Variante creada con éxito!')
+            toast("variante creada con exito!")
             return {id: data.id}
         } catch (error) {
             console.log(error)
         }
     }
 
-    const deleteVariant = (variant, setVariants) => {
-        deleteAlert({
-            deleteFunction: async () => {
-                if (variant.id) {
-                    deleteVariant(variant.id)
-                    const res = await fetch(`http://localhost:3000/api/variants/id/${variant.id}`,{
-                        method: 'DELETE',
-                        headers: {
-                            "Content-type": "application/json"
-                        }
-                    })
-                    const data = await res.json()
-                    setVariants((prev) => (prev.filter((p) => p.id !== variant.id)))
-                    await deleteVariantToProduct(data.productId, variant.id)
-                    notify('success', 'Variante eliminada con éxito')
+    const deleteVariant = async(variant, setVariants) => {
+        if (variant.id) {
+            deleteVariant(variant.id)
+            const res = await fetch(`http://localhost:3000/api/variants/id/${variant.id}`,{
+                method: 'DELETE',
+                headers: {
+                    "Content-type": "application/json"
                 }
-                setVariants((prev => prev.filter(p => p.localId !== variant.localId)))
-            },
-            type: "Variant"
-        })
+            })
+            const data = await res.json()
+            setVariants((prev) => (prev.filter((p) => p.id !== variant.id)))
+            await deleteVariantToProduct(data.productId, variant.id)
+            toast("variante eliminada con exito!")
+        }
+        setVariants((prev => prev.filter(p => p.localId !== variant.localId)))
     }
 
     const updateVariant = async(formData, variant) =>  {
@@ -113,7 +108,7 @@ export function useVariants () {
                 return {success: false, errors: data.errors}
             }
             await updateVariantToProduct(data.productId, data.id, data)
-            notify('success', 'Variante actualizada con éxito')
+            toast("variante actualizada con exito!")
         }
         catch (error){
             return {success: false}

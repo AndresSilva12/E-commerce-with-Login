@@ -1,14 +1,12 @@
 import { useState, useEffect } from "react";
-import { ToastContainer } from "react-toastify";
+import { Toaster } from "../components/ui/toaster"
+import { toast } from "../utils/notifyToast.js";
 import { useProducts } from "../context/ProductContext";
 import ProductModal from "../components/ProductModal";
-import VariantModal from '../components/VariantModal'
-import { deleteAlert } from "../utils/alerts";
-import { Button, Card, Image, Text, Grid, GridItem, Checkbox, Select, Portal, InputGroup, Stack, Code, createListCollection, Slider, HStack, Field, Badge, Box, Float, NumberInput, IconButton, Container } from "@chakra-ui/react"
+import { Button, Card, Image, Text, Grid, GridItem, Checkbox, Select, Portal, InputGroup, Stack, createListCollection, HStack, Field, Badge, Box, NumberInput, IconButton } from "@chakra-ui/react"
 import Modal from "../components/Modal";
 import { useVariants } from '../hooks/useVariants.js'
 import { useCart } from "../context/CartContext";
-import { notify } from "../utils/notifyToast.js";
 import { useForm } from "react-hook-form";
 import { useStockEntries } from "../hooks/useStockEntries";
 import SearchBar from "../components/SearchBar";
@@ -35,7 +33,8 @@ export function ModalStockUpdate({ variantUpdate }) {
                 quantity: Number(stockEntry),
                 purchasePrice: Number(purchasePrice)
             }],
-            motive: String(motive)
+            motive: String(motive),
+            total: Number(stockEntry) * Number(purchasePrice)
         }
         await createEntry(entryData)
     }
@@ -157,7 +156,7 @@ function ProductsPage() {
     }
 
     const handleDelete = (id) => {
-        deleteAlert({ deleteFunction: () => deleteProduct(id), type: "Product" })
+        deleteProduct(id)
     }
 
     const handleCreate = () => {
@@ -186,7 +185,7 @@ function ProductsPage() {
             }
         }
         addToCart(fullItem)
-        notify("success", "producto agregado al carrito!")
+        toast("añadido al carrito")
     }
 
     const debounce = (fn, delay) => {
@@ -436,19 +435,20 @@ function ProductsPage() {
                                 </Card.Body>
                                 <Card.Footer display="flex" flexDirection="column" justifyContent="center">
                                     <Box display="flex" justifyContent="center" gap="4">
-                                        <Modal trigger={<Button type="button" width="50px" flex="1" onClick={() => handleVariantUpdate(variant, variant.product)}>Editar</Button>}>
-                                            {({ closeModal }) => (
-                                                <ProductModal productUpdate={productUpdate} onSubmit={onSubmit} />
-                                            )}
+                                        <Modal size={"xl"} trigger={<Button type="button" width="50px" flex="1" onClick={() => handleVariantUpdate(variant, variant.product)}>Editar</Button>}>
+                                            <ProductModal productUpdate={productUpdate} onSubmit={onSubmit} />
                                         </Modal>
-                                        <Button colorPalette="red" flex="1" onClick={() => deleteVariant(variant, setVariants)}>Eliminar</Button>
+                                        <Modal trigger={<Button colorPalette="red" flex="1" >Eliminar</Button>}>
+                                            <h2 >Está seguro que desea eliminar esta variante?</h2>
+                                            <Button onClick={() => deleteVariant(variant, setVariants)}>Eliminar</Button>
+                                        </Modal>
                                     </Box>
                                     <Box gap="2" display="flex" justifyContent="center">
                                         <NumberInput.Root value={variant.stock} unstyled spinOnPress={false} >
                                             <HStack>
                                                 <Button colorPalette="green" onClick={() => { handleCart(variant) }}>Cart</Button>
                                                 <NumberInput.ValueText textAlign="center" fontSize="lg" minW="3ch" />
-                                                <Modal trigger={
+                                                <Modal size={"sm"} trigger={
                                                     <NumberInput.Control onClick={() => setVariantUpdate(variant)}>
                                                         <IconButton variant="outline" size="sm">+ Stock</IconButton>
                                                     </NumberInput.Control>
@@ -464,10 +464,10 @@ function ProductsPage() {
                             </Card.Root>
                         ))}
                     </Grid>
-                </GridItem>
+                </GridItem >
 
             </Grid >
-            <Modal trigger={<Button position="fixed" right="0" bottom="0" size="lg" margin="1rem" colorPalette="teal" onClick={handleCreate}>+</Button>}>
+            <Modal size={"xl"} trigger={<Button position="fixed" right="0" bottom="0" size="lg" margin="1rem" colorPalette="teal" onClick={handleCreate}>+</Button>}>
                 {({ closeModal }) => (
                     <ProductModal productUpdate={productUpdate} onSubmit={() => {
                         onSubmit()
@@ -476,7 +476,7 @@ function ProductsPage() {
                     }} />
                 )}
             </Modal>
-            <ToastContainer />
+            <Toaster />
         </>
     )
 }

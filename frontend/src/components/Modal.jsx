@@ -2,7 +2,7 @@ import { Button, CloseButton, Dialog, Portal } from "@chakra-ui/react"
 import { useState } from "react"
 
 
-function Modal({ trigger, children }) {
+function Modal({ trigger, children, size }) {
     const [open, setOpen] = useState()
 
     const closeModal = () => {
@@ -13,7 +13,7 @@ function Modal({ trigger, children }) {
             <div onClick={() => { setOpen(true) }}>
                 {trigger}
             </div>
-            <Dialog.Root open={open} onOpenChange={(e) => setOpen(e.open)} size="xl">
+            <Dialog.Root open={open} onOpenChange={(e) => setOpen(e.open)} size={size}>
                 <Portal >
                     <Dialog.Backdrop />
                     <Dialog.Positioner>

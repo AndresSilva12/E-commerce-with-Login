@@ -51,6 +51,7 @@ model saleItem {
   saleId String
   quantity Int
   unitPrice Float
+  purchasePrice Float
   variantId String
   variant productVariant @relation(fields: [variantId], references: [id])
   sale sales @relation(fields: [saleId], references: [id], onDelete: Cascade)
@@ -81,6 +82,7 @@ model stockEntry {
   date DateTime @default(now())
   userId Int
   motive String
+  total Float
   items stockEntryItem []
   user users @relation(fields: [userId], references: [id])
 }
@@ -89,4 +91,11 @@ model category {
   id String @id @default(cuid())
   name String
   products products[]
+}
+
+model expenses {
+  id String @id @default(cuid())
+  date DateTime @default(now())
+  name String
+  amount Decimal @db.Decimal(10,2)
 }

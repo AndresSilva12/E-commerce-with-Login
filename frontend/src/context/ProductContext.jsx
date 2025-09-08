@@ -1,12 +1,11 @@
 import { createContext, useEffect, useState, useContext } from "react";
-import { notify } from "../utils/notifyToast.js";
+import { toast } from "../utils/notifyToast.js";
 import isEqual from 'lodash.isequal'
 
 const ProductContext = createContext()
 
 export function ProductProvider({ children }) {
     const [products, setProducts] = useState([])
-    /* const [brands, setBrands] = useState([]) */
 
     const fetchProducts = async () => {
         try {
@@ -37,7 +36,7 @@ export function ProductProvider({ children }) {
                 }
             }
             if (Object.keys(errors).length > 0) {
-                notify('error', 'Debe tener almenos uno en stock por variante')
+                toast("debe tener almenos uno en stock por variante")
                 return { success: false, errors: errors }
             }
             console.log(formProduct)
@@ -70,7 +69,7 @@ export function ProductProvider({ children }) {
             }
             setProducts((prev) => [...prev, data])
 
-            notify('success', 'Producto creado con éxito')
+            toast("producto creado con exito!")
             return { success: true, variants: data.variants }
         } catch (error) {
             notify('error', 'No se pudo crear el producto')
@@ -132,7 +131,7 @@ export function ProductProvider({ children }) {
                 return { success: false, errors: data.errors || 'Error Desconocido' }
             }
             setProducts(prev => prev.map(p => p.id === data.id ? data : p))
-            notify('success', 'Producto actualizado con éxito')
+            toast("producto actualizado con exito!")
             return { success: true }
         } catch (error) {
             console.log("Error interno del servidor durante el proceso", error)

@@ -16,5 +16,11 @@ export const stockEntriesSchema = z.object({
             .gte(1, "Debe ser mayor a 0")
         ),
     })).min(1, "Debe tener al menos un item de entrada"),
+    total: z.coerce.number({
+        required_error: "El precio total es obligatorio",
+        invalid_type_error: "Formato no valido. Debe ser un Numero",
+    })
+    .gte(1, "Debe ser un numero mayor a 0")
+    ,
     motive: z.string()
 })

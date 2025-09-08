@@ -1,14 +1,9 @@
-import {toast} from 'react-toastify'
+import {toaster } from "../components/ui/toaster"
 
-export const notify = (type,message) => {
-    toast[type](message, {
-      position: "bottom-left",
-      autoClose: 1700,
-      hideProgressBar: false,
-      closeOnClick: false,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: "dark"
-    })
+export const toast = (title, type) => {
+  toaster.create({
+    title: `${title}`,
+    type: type || "success",
+    max: 2,
+  })
 }

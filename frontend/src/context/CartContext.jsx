@@ -1,4 +1,3 @@
-import { notify } from "../utils/notifyToast.js";
 import { useSales } from "../hooks/useSales.js";
 import { createContext, useContext, useEffect, useState } from "react";
 
@@ -41,7 +40,6 @@ export function CartProvider({ children }) {
         }
         createSale(cartForSale)
         setCart([])
-        notify("success", "compraste todo el carrito!")
     }
 
     const removeFromCart = async (itemRemovedId) => {

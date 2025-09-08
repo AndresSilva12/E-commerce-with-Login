@@ -1,5 +1,5 @@
 import { useProducts } from "../context/ProductContext.jsx"
-import { notify } from "../utils/notifyToast.js"
+import { toast } from "../utils/notifyToast.js";
 import { useState } from "react"
 
 export function useSales () {
@@ -27,7 +27,7 @@ export function useSales () {
             body:JSON.stringify(saleData),
         })
         const data = await res.json()
-        notify("success", "Venta registrada con éxito!")
+        toast("Venta registrada con exito!")
         fetchProducts()
         return data
     }
@@ -40,8 +40,7 @@ export function useSales () {
             }
         })
         const data = await res.json()
-        notify("success", "Venta eliminada con éxito!")
-        console.log("Venta eliminada con éxito! ", data)
+        toast("Venta eliminada con exito!")
     }
 
     return {

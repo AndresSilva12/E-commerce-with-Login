@@ -11,7 +11,8 @@ export const createNewSale = async(req, res) => {
                         create: req.body.items.map((item)=> ({
                             variantId: item.variantId,
                             quantity: item.quantity,
-                            unitPrice: item.unitPrice
+                            unitPrice: item.unitPrice,
+                            purchasePrice: item.purchasePrice
                         }))
                     },
                     motive: req.body.motive || "Venta"

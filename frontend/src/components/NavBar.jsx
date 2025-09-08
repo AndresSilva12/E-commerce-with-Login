@@ -2,10 +2,10 @@ import { Link } from 'react-router-dom'
 import { AuthContext } from '../context/AuthContext'
 import { useContext } from 'react'
 import { useUser } from '../hooks/useUser.js'
-import { logoutAlert } from '../utils/alerts.js'
 import { Box, Flex, IconButton, Button, Stack, Float, Circle } from '@chakra-ui/react'
 import CartDrawer from "./CartDrawer";
 import { useCart } from '../context/CartContext'
+import Modal from './Modal'
 
 
 function NavBar() {
@@ -13,7 +13,7 @@ function NavBar() {
     const { userLogout } = useUser()
     const { cart } = useCart()
 
-    const handleLogout = () => { logoutAlert({ logoutFunction: () => userLogout({ setIsAuthenticated }) }) }
+    const handleLogout = () => { userLogout({ setIsAuthenticated }) }
 
     return (
         <Box position="fixed" zIndex="99" width="full">
@@ -130,10 +130,10 @@ function NavBar() {
                             justify={'flex-end'}
                             direction={'row'}
                             spacing={6}>
-                            <Button as={'a'} fontSize={'sm'} color={'white'}
-                                colorPalette="teal" fontWeight={400} onClick={() => { handleLogout() }}>
-                                Logout
-                            </Button>
+                            <Modal trigger={<Button as={'a'} fontSize={'sm'} color={'white'} colorPalette="teal" fontWeight={400}>Logout</Button>}>
+                                <h2 >Está seguro que desea cerrar sesión</h2>
+                                <Button onClick={() => { handleLogout() }}>Cerrar sesión</Button>
+                            </Modal>
                         </Stack>
                     </Box>
                 }
