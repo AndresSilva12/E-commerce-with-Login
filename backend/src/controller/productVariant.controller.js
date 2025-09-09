@@ -17,7 +17,6 @@ export const createVariant = async(req, res) => {
         return res.json(newVariant)
     }
     catch(error){
-        console.log(error)
         return res.status(500).json({error: "Error interno durante el proceso"})
     }
 }
@@ -40,7 +39,6 @@ export const getVariants = async(req, res) => {
             if (stockMax) where.stock.lte = parseInt(stockMax)
         }
 
-        const totalCount = await prisma.productVariant.count(where)
         if (req.query.name || req.query.brand || req.query.priceMin || req.query.priceMax || req.query.category){
             where.product = {}
             if (req.query.name) where.product.name ={contains: req.query.name}
@@ -53,8 +51,7 @@ export const getVariants = async(req, res) => {
             }
         }
         
-        
-        const totalPages = Math.ceil(totalCount / LIMIT)
+        const totalCount = await prisma.productVariant.count({where})
 
         const variants = await prisma.productVariant.findMany({
             include: {
@@ -73,6 +70,9 @@ export const getVariants = async(req, res) => {
                     : {[sortBy]: sortOrder === 'desc' ? 'desc' : 'asc'} 
                 : undefined
         })
+
+        const totalPages = Math.ceil(totalCount / LIMIT)
+
         const sizes = [...new Set(variants.map(v => v.size))]
         const colors = [...new Set(variants.map(v => v.color))]
         const brands = [...new Set(variants.map(v => v.product.brand))]
@@ -93,7 +93,6 @@ export const getVariants = async(req, res) => {
             }
         })
     } catch (error) {
-        console.log(error)
         return res.status(500).json({error: "Error interno durante el proceso"})
     }
 }
@@ -126,7 +125,6 @@ export const deleteAllVariantsByProduct = async(req, res) => {
         })
         return res.json({variantsDeleted})
     } catch (error) {
-        console.log(error)
         return res.status(500).json({error: "Error interno durante el proceso"})
     }
 }
@@ -144,7 +142,6 @@ export const updateVariant = async(req, res) => {
         })
         return res.json(variantUpdated)
     } catch (error) {
-        console.log(error)
         return res.status(500).json({error: "Error interno durante el proceso"})
     }
 }
@@ -159,7 +156,6 @@ export const getAllVariantsByProduct = async(req, res) => {
         })
         return res.json(variants)
     } catch (error) {
-        console.log(error)
         return res.status(500).json({error: "Error interno durante el proceso"})
     }
 }
@@ -174,7 +170,6 @@ export const getOnlyOneVariant = async(req, res) => {
         })
         return res.json(variant)
     } catch (error) {
-        console.log(error)
         return res.status(500).json({error: "Error interno durante el proceso"})
     }
 }

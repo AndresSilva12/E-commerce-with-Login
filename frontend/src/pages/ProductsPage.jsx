@@ -119,6 +119,7 @@ function ProductsPage() {
             const query = new URLSearchParams(filters).toString()
             const res = await fetch(`http://localhost:3000/api/variants?${query}`)
             const data = await res.json()
+            console.log(data)
             setVariants(data.variants)
             setAvailableFilters({
                 colors: data.filters.colors,
@@ -129,7 +130,7 @@ function ProductsPage() {
             setTotalPages(data.pagination.totalPages)
         }
         fetchSearch()
-    }, [filters, variants])
+    }, [filters])
 
     useEffect(() => {
         if (productUpdate && productUpdate.variants) {
