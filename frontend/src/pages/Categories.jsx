@@ -46,7 +46,7 @@ export function CategoryForm({ categoryUpdate, closeModal }) {
                         </Field.Root>
                     </Fieldset.Content>
                 </Fieldset.Root>
-                <Button type="submit">Actualizar categoria</Button>
+                <Button type="submit">{categoryUpdate ? 'Actualizar' : 'Crear'} categoria</Button>
             </Box>
         </form>
     )
@@ -65,7 +65,6 @@ function Categories() {
     return (
         <Box paddingTop="60px">
             <Table.Root marginLeft="60px" size="sm" striped width="90%">
-                <Table.Caption>Categories inventory and pricing information</Table.Caption>
                 <Table.Header>
                     <Table.Row>
                         <Table.ColumnHeader>Categoria</Table.ColumnHeader>
