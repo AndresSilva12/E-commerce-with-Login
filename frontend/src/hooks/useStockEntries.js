@@ -1,19 +1,22 @@
+import { toast } from "../utils/notifyToast.js"
 import { useProducts } from "../context/ProductContext"
 import { useState } from "react"
 
 export function useStockEntries () {
     const [stockEntries, setStockEntries] = useState([])
+    const [totalPages, setTotalPages] = useState()
     const {updateVariantToProduct} = useProducts()
 
-    const getAllStockEntries = async() => {
-        const res = await fetch('http://localhost:3000/api/entries', {
+    const getAllStockEntries = async(query) => {
+        const res = await fetch(`http://localhost:3000/api/entries?${query}`, {
             method: 'GET',
             headers: {
                 "content-type": "application/json"
             }
         })
         const data = await res.json()
-        setStockEntries(data)
+        setStockEntries(data.allStockEntries)
+        setTotalPages(data.pagination.totalPages)
     }
 
     const createEntry = async(entryData) => {
@@ -40,9 +43,23 @@ export function useStockEntries () {
         }
     }
 
+    const deleteEntry = async(id) => {
+        const res = await fetch(`http://localhost:3000/api/entries/${id}`,{
+            method: 'DELETE',
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+        const data = await res.json()
+        setStockEntries((prev) => (prev.filter(e => e.id !== id)))
+        toast("Entrada eliminada con exito!")
+    }
+
     return {
         stockEntries,
+        totalPages,
         getAllStockEntries,
-        createEntry
+        createEntry,
+        deleteEntry
     }
 }

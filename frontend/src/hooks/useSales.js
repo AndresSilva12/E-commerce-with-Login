@@ -3,18 +3,20 @@ import { toast } from "../utils/notifyToast.js";
 import { useState } from "react"
 
 export function useSales () {
-    const [sales, setSales] = useState()
+    const [sales, setSales] = useState([])
+    const [totalPages, setTotalPages] = useState()
     const { fetchProducts} = useProducts()
 
-    const getAllSales = async() => {
-        const res = await fetch('http://localhost:3000/api/sales',{
+    const getAllSales = async(query) => {
+        const res = await fetch(`http://localhost:3000/api/sales?${query}`,{
             method: 'GET',
             headers: {
                 "content-type": "application/json"
             }
         })
         const data = await res.json()
-        setSales(data)
+        setSales(data.allSales)
+        setTotalPages(data.pagination.totalPages)
     }
 
     const createSale = async(saleData) => {
@@ -27,6 +29,7 @@ export function useSales () {
             body:JSON.stringify(saleData),
         })
         const data = await res.json()
+        setSales((prev) => ({...prev, data}))
         toast("Venta registrada con exito!")
         fetchProducts()
         return data
@@ -40,11 +43,13 @@ export function useSales () {
             }
         })
         const data = await res.json()
+        setSales((prev) => (prev.filter((s => s.id !== saleId))))
         toast("Venta eliminada con exito!")
     }
 
     return {
         sales,
+        totalPages,
         getAllSales,
         createSale,
         deleteSale

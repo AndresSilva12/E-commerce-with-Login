@@ -1,4 +1,5 @@
 import prisma from "../db.js"
+import { filterByDate } from "../utils/filterByDate.js"
 export const createNewSale = async(req, res) => {
     try {
         const userId = req.user.id
@@ -46,6 +47,15 @@ export const createNewSale = async(req, res) => {
 
 export const getAllSales = async(req, res) => {
     try {
+        const LIMIT = 8
+        const page = Number(req.query.page) || 1
+        const skip = (page - 1) * LIMIT
+        const take = LIMIT
+
+        const where = filterByDate(req.query)
+        const totalCount = await prisma.sales.count({where})
+
+
         const allSales = await prisma.sales.findMany({
             include: {
                 items: {
@@ -58,9 +68,24 @@ export const getAllSales = async(req, res) => {
                     }
                 },
                 user: true
+            },
+            where,
+            skip,
+            take,
+            orderBy: {date: 'desc'}
+        })
+
+        const totalPages = Math.ceil(totalCount / LIMIT)
+
+        return res.json({
+            allSales,
+            pagination:{
+                total: totalCount,
+                page: page,
+                totalPages: totalPages,
+                limit: LIMIT
             }
         })
-        return res.json(allSales)
     } catch (error) {
         console.log(error);
         return res.status(500).json({ error: "Error interno durante el proceso" });
@@ -70,12 +95,9 @@ export const getAllSales = async(req, res) => {
 export const deleteSale = async(req, res) => {
     try {
         const result = await prisma.$transaction( async(tx) => {
-            const idSelected = req.params.id
-            const saleExist = await tx.sales.findFirst({where: {id: idSelected}, include: {items: true}})
-            if (!saleExist) throw new Error(`Venta inexistente: ${idSelected}`)
-
+            const sale = req.sale
             const variantsThatNotExist = {}
-            for (const item of saleExist.items){
+            for (const item of sale.items){
                 const variantExist = await tx.productVariant.findFirst({where: {id: item.variantId}})
                 if (!variantExist) {
                     variantsThatNotExist[item.variantId] = `variante inexistente: ${item.variantId}`
@@ -86,7 +108,7 @@ export const deleteSale = async(req, res) => {
 
             const saleDeleted = await tx.sales.delete({
                 where: {
-                    id: idSelected
+                    id: sale.id
                 },
                 include: {
                     items: true
