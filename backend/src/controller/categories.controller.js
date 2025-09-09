@@ -1,3 +1,4 @@
+import { categorySchema } from '../../../validation/categorySchema.js'
 import prisma from '../db.js'
 
 export const getAllCategories = async(req, res) => {
@@ -33,5 +34,21 @@ export const getUniqueCategory = async(req, res) => {
         return res.json(uniqueCategory)
     } catch (error) {
         console.log(error)
+    }
+}
+
+export const updateCategory = async(req, res) => {
+    try {
+        const categoryUpdated = await prisma.category.update({
+            where: {
+                id: req.category.id
+            },
+            data: {
+                name: req.body.name
+            }
+        })
+        return res.json(categoryUpdated)
+    } catch (error) {
+        return res.status(500).json({error: "Error interno del servidor"})
     }
 }
