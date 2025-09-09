@@ -1,35 +1,19 @@
 import { Button, Box, Input, Fieldset, Field, Table, } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from "react-hook-form";
 import { categorySchema } from "../../../validation/categorySchema.js"
+import { useCategories } from "../hooks/useCategories.js";
 import Modal from "../components/Modal.jsx"
 
 function Categories() {
-    const [categories, setCategories] = useState([])
+    const { categories, getCategories, createCategory, updateCategory } = useCategories()
     const { register, handleSubmit, formState: { errors } } = useForm({
         resolver: zodResolver(categorySchema)
     })
     useEffect(() => {
         getCategories()
     }, [categories])
-
-    const getCategories = async () => {
-        const res = await fetch('http://localhost:3000/api/category')
-        const data = await res.json()
-        setCategories(data)
-    }
-
-    const createCategory = async (formData) => {
-        const res = await fetch('http://localhost:3000/api/category', {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(formData)
-        })
-        const data = await res.json()
-    }
 
     const onValid = async (data) => {
         createCategory(data)
@@ -39,7 +23,6 @@ function Categories() {
     }
     return (
         <Box paddingTop="60px">
-            {/* Tabla de categorias */}
             <Table.Root marginLeft="60px" size="sm" striped width="90%">
                 <Table.Caption>Categories inventory and pricing information</Table.Caption>
                 <Table.Header>
