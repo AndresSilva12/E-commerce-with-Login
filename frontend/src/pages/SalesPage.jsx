@@ -1,6 +1,6 @@
 import { Fragment, useEffect, useState } from "react";
 import { useSales } from "../hooks/useSales.js";
-import { Button, Table, Box, DataList, Image, Grid, GridItem, Stack, Text, Strong } from "@chakra-ui/react";
+import { Button, Table, Box, DataList, Image, Grid, GridItem, Stack, Text, Strong, ButtonGroup, IconButton, Pagination } from "@chakra-ui/react";
 import Calendar from "react-calendar";
 import Modal from "../components/Modal.jsx";
 
@@ -46,14 +46,15 @@ export function SaleSelectedModal({ saleSelected }) {
 }
 
 function SalesPage() {
-    const { getAllSales, sales, deleteSale } = useSales()
+    const { getAllSales, sales, deleteSale, totalPages } = useSales()
     const [saleSelected, setSaleSelected] = useState([])
     const [filters, setFilters] = useState()
+    const [page, setPage] = useState(1)
 
     useEffect(() => {
         const query = new URLSearchParams(filters).toString()
         getAllSales(query)
-    }, [filters])
+    }, [filters, page])
 
     const handleSaleSelected = (sale) => {
         setSaleSelected(sale)
@@ -70,6 +71,11 @@ function SalesPage() {
                 : setFilters({ year: year })
     }
 
+    const handleChangePage = (page) => {
+        setPage(page)
+        setFilters((prev) => ({ ...prev, page: page }))
+    }
+
     return (
         <Grid templateColumns="repeat(8, 1fr)" templateRows="repeat(10, 1fr)">
             <GridItem rowSpan={10} colSpan={1} padding="4" bg="black" display="flex" flexDirection="column" justifyContent="center" gap="4" position="fixed" top="50px" zIndex="50" bottom="0">
@@ -83,7 +89,6 @@ function SalesPage() {
             </GridItem>
             <GridItem rowSpan={9} colSpan={7} display="flex" flexDirection="column" marginLeft="260px" marginTop="60px" width="92%">
                 <Table.Root marginLeft="10px" size="sm" striped width="99%">
-                    <Table.Caption>Product inventory and pricing information</Table.Caption>
                     <Table.Header>
                         <Table.Row>
                             <Table.ColumnHeader>Vendedor</Table.ColumnHeader>
@@ -136,6 +141,21 @@ function SalesPage() {
                         ))}
                     </Table.Body>
                 </Table.Root>
+                <Box display="flex" justifyContent="center">
+                    <Pagination.Root count={(totalPages * 2)} pageSize={2} page={page} onPageChange={(e) => handleChangePage(e.page)}>
+                        <ButtonGroup gap="4" size="sm" variant="ghost">
+                            <Pagination.PrevTrigger asChild>
+                                <IconButton>
+                                </IconButton>
+                            </Pagination.PrevTrigger>
+                            <Pagination.PageText />
+                            <Pagination.NextTrigger asChild>
+                                <IconButton>
+                                </IconButton>
+                            </Pagination.NextTrigger>
+                        </ButtonGroup>
+                    </Pagination.Root>
+                </Box>
             </GridItem>
         </Grid>
     )

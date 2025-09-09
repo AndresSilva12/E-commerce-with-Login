@@ -47,7 +47,15 @@ export const createNewSale = async(req, res) => {
 
 export const getAllSales = async(req, res) => {
     try {
+        const LIMIT = 8
+        const page = Number(req.query.page) || 1
+        const skip = (page - 1) * LIMIT
+        const take = LIMIT
+
         const where = filterByDate(req.query)
+        const totalCount = await prisma.sales.count({where})
+
+
         const allSales = await prisma.sales.findMany({
             include: {
                 items: {
@@ -61,9 +69,23 @@ export const getAllSales = async(req, res) => {
                 },
                 user: true
             },
-            where
+            where,
+            skip,
+            take,
+            orderBy: {date: 'desc'}
         })
-        return res.json(allSales)
+
+        const totalPages = Math.ceil(totalCount / LIMIT)
+
+        return res.json({
+            allSales,
+            pagination:{
+                total: totalCount,
+                page: page,
+                totalPages: totalPages,
+                limit: LIMIT
+            }
+        })
     } catch (error) {
         console.log(error);
         return res.status(500).json({ error: "Error interno durante el proceso" });

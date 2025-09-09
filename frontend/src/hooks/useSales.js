@@ -3,7 +3,8 @@ import { toast } from "../utils/notifyToast.js";
 import { useState } from "react"
 
 export function useSales () {
-    const [sales, setSales] = useState()
+    const [sales, setSales] = useState([])
+    const [totalPages, setTotalPages] = useState()
     const { fetchProducts} = useProducts()
 
     const getAllSales = async(query) => {
@@ -14,7 +15,8 @@ export function useSales () {
             }
         })
         const data = await res.json()
-        setSales(data)
+        setSales(data.allSales)
+        setTotalPages(data.pagination.totalPages)
     }
 
     const createSale = async(saleData) => {
@@ -47,6 +49,7 @@ export function useSales () {
 
     return {
         sales,
+        totalPages,
         getAllSales,
         createSale,
         deleteSale
