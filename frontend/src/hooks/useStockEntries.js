@@ -4,6 +4,7 @@ import { useState } from "react"
 
 export function useStockEntries () {
     const [stockEntries, setStockEntries] = useState([])
+    const [totalPages, setTotalPages] = useState()
     const {updateVariantToProduct} = useProducts()
 
     const getAllStockEntries = async(query) => {
@@ -14,7 +15,8 @@ export function useStockEntries () {
             }
         })
         const data = await res.json()
-        setStockEntries(data)
+        setStockEntries(data.allStockEntries)
+        setTotalPages(data.pagination.totalPages)
     }
 
     const createEntry = async(entryData) => {
@@ -55,6 +57,7 @@ export function useStockEntries () {
 
     return {
         stockEntries,
+        totalPages,
         getAllStockEntries,
         createEntry,
         deleteEntry

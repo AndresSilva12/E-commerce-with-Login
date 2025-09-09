@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Fragment } from "react"
 import { useStockEntries } from "../hooks/useStockEntries.js";
-import { Button, Table, Box, DataList, Image, Grid, GridItem, Stack, Text, Strong } from "@chakra-ui/react";
+import { Button, Table, Box, DataList, Image, Grid, GridItem, Stack, Text, Strong, Pagination, ButtonGroup, IconButton } from "@chakra-ui/react";
 import Modal from "../components/Modal.jsx";
 import Calendar from "react-calendar"
 
@@ -47,13 +47,15 @@ export function EntrySelectedModal({ entrySelected }) {
 }
 
 function StockEntriesPage() {
-    const { getAllStockEntries, stockEntries, deleteEntry } = useStockEntries()
+    const { getAllStockEntries, stockEntries, deleteEntry, totalPages } = useStockEntries()
     const [entrySelected, setEntrySelected] = useState([])
     const [filters, setFilters] = useState()
+    const [page, setPage] = useState(1)
+
     useEffect(() => {
         const query = new URLSearchParams(filters).toString()
         getAllStockEntries(query)
-    }, [filters])
+    }, [filters, page])
 
 
     const handleEntrySelected = (entry) => {
@@ -71,6 +73,11 @@ function StockEntriesPage() {
                 : setFilters({ year: year })
     }
 
+    const handleChangePage = (page) => {
+        setPage(page)
+        setFilters((prev) => ({ ...prev, page: page }))
+    }
+
     return (
         <Grid templateColumns="repeat(8, 1fr)" templateRows="repeat(10, 1fr)">
             <GridItem rowSpan={10} colSpan={1} padding="4" bg="black" display="flex" flexDirection="column" justifyContent="center" gap="4" position="fixed" top="50px" zIndex="50" bottom="0">
@@ -85,7 +92,6 @@ function StockEntriesPage() {
 
             <GridItem rowSpan={9} colSpan={7} display="flex" flexDirection="column" marginLeft="260px" marginTop="60px" width="92%">
                 <Table.Root marginLeft="10px" size="sm" striped width="99%">
-                    <Table.Caption>Product inventory and pricing information</Table.Caption>
                     <Table.Header>
                         <Table.Row>
                             <Table.ColumnHeader>Vendedor</Table.ColumnHeader>
@@ -132,6 +138,21 @@ function StockEntriesPage() {
                         ))}
                     </Table.Body>
                 </Table.Root>
+                <Box display="flex" justifyContent="center">
+                    <Pagination.Root count={(totalPages * 2)} pageSize={2} page={page} onPageChange={(e) => handleChangePage(e.page)}>
+                        <ButtonGroup gap="4" size="sm" variant="ghost">
+                            <Pagination.PrevTrigger asChild>
+                                <IconButton>
+                                </IconButton>
+                            </Pagination.PrevTrigger>
+                            <Pagination.PageText />
+                            <Pagination.NextTrigger asChild>
+                                <IconButton>
+                                </IconButton>
+                            </Pagination.NextTrigger>
+                        </ButtonGroup>
+                    </Pagination.Root>
+                </Box>
             </GridItem>
         </Grid >
     )
