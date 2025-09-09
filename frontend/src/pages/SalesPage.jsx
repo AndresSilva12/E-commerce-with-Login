@@ -1,6 +1,6 @@
 import { Fragment, useEffect, useState } from "react";
 import { useSales } from "../hooks/useSales.js";
-import { Button, Table, Box, DataList, Image, Grid, GridItem } from "@chakra-ui/react";
+import { Button, Table, Box, DataList, Image, Grid, GridItem, Stack, Text, Strong } from "@chakra-ui/react";
 import Calendar from "react-calendar";
 import Modal from "../components/Modal.jsx";
 
@@ -9,8 +9,8 @@ export function SaleSelectedModal({ saleSelected }) {
         <Box>
             <DataList.Root orientation="horizontal" divideY="1px" maxW="md">
                 <DataList.Item pt="4">
-                    <DataList.ItemLabel>Vendedor ID</DataList.ItemLabel>
-                    <DataList.ItemValue>{saleSelected.userId}</DataList.ItemValue>
+                    <DataList.ItemLabel>Vendedor</DataList.ItemLabel>
+                    <DataList.ItemValue>{saleSelected.user.name} {saleSelected.user.lastName}</DataList.ItemValue>
                 </DataList.Item>
                 <DataList.Item pt="4">
                     <DataList.ItemLabel>Fecha</DataList.ItemLabel>
@@ -21,10 +21,18 @@ export function SaleSelectedModal({ saleSelected }) {
                     <DataList.ItemValue>{saleSelected.motive}</DataList.ItemValue>
                 </DataList.Item>
                 <DataList.Item pt="4">
-                    <DataList.ItemLabel>Productos</DataList.ItemLabel>
+                    <DataList.ItemLabel>Producto/s</DataList.ItemLabel>
                     <Grid templateColumns="repeat(3, 1fr)" gap="4">
                         {saleSelected.items.map(item => (
-                            <Image key={item.variant.id} src={item.variant.image} h="full" w="40px" fit="contain" />
+                            <Box key={item.id} display="flex" flexDirection="column" textAlign="center" width="100px">
+                                <Image src={item.variant.image} h="100px" w="400px" fit="contain" />
+                                <Stack display="flex" flexDirection="column" textAlign="initial" justifyContent="flex-end" width="100%" height="100%">
+                                    <Strong fontWeight="semibold" textStyle="sm">{item.variant.product.name} {item.variant.product.brand}</Strong>
+                                    <Text color="fg.muted" textStyle="sm">Codigo: {item.variant.code}</Text>
+                                    <Text color="fg.muted" textStyle="sm">Cantidad: {item.quantity}</Text>
+                                    <Text color="fg.muted" textStyle="sm">Precio Unitario: $ {new Intl.NumberFormat("es-AR").format(item.unitPrice)}</Text>
+                                </Stack>
+                            </Box>
                         ))}
                     </Grid>
                 </DataList.Item>
@@ -74,12 +82,13 @@ function SalesPage() {
                 </Box>
             </GridItem>
             <GridItem rowSpan={9} colSpan={7} display="flex" flexDirection="column" marginLeft="260px" marginTop="60px" width="92%">
-                <Table.Root size="sm" striped>
+                <Table.Root marginLeft="10px" size="sm" striped width="99%">
                     <Table.Caption>Product inventory and pricing information</Table.Caption>
                     <Table.Header>
                         <Table.Row>
                             <Table.ColumnHeader>Vendedor</Table.ColumnHeader>
                             <Table.ColumnHeader>Fecha</Table.ColumnHeader>
+                            <Table.ColumnHeader>+ Info</Table.ColumnHeader>
                             <Table.ColumnHeader>Productos</Table.ColumnHeader>
                             <Table.ColumnHeader>Precio Unitario</Table.ColumnHeader>
                             <Table.ColumnHeader>Precio Final</Table.ColumnHeader>
@@ -91,7 +100,8 @@ function SalesPage() {
                         {sales && sales.map((sale) => (
                             <Table.Row key={sale.id}>
                                 <Table.Cell>{sale.user.name} {sale.user.lastName}</Table.Cell>
-                                <Table.Cell>{sale.date}
+                                <Table.Cell>{sale.date.slice(0, 10)}</Table.Cell>
+                                <Table.Cell>
                                     <Modal trigger={<Button size="sm" variant="surface" onClick={() => { handleSaleSelected(sale) }}>+Info</Button>}>
                                         <SaleSelectedModal saleSelected={saleSelected} />
                                     </Modal>

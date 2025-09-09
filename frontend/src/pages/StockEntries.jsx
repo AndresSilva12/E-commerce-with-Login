@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Fragment } from "react"
 import { useStockEntries } from "../hooks/useStockEntries.js";
-import { Button, Table, Box, DataList, Image, Grid, GridItem, Stack } from "@chakra-ui/react";
+import { Button, Table, Box, DataList, Image, Grid, GridItem, Stack, Text, Strong } from "@chakra-ui/react";
 import Modal from "../components/Modal.jsx";
 import Calendar from "react-calendar"
 
@@ -15,7 +15,7 @@ export function EntrySelectedModal({ entrySelected }) {
                 </DataList.Item>
                 <DataList.Item pt="4">
                     <DataList.ItemLabel>Vendedor ID</DataList.ItemLabel>
-                    <DataList.ItemValue>{entrySelected.userId}</DataList.ItemValue>
+                    <DataList.ItemValue>{entrySelected.user.name} {entrySelected.user.lastName}</DataList.ItemValue>
                 </DataList.Item>
                 <DataList.Item pt="4">
                     <DataList.ItemLabel>Motivo</DataList.ItemLabel>
@@ -25,22 +25,21 @@ export function EntrySelectedModal({ entrySelected }) {
                     <DataList.ItemLabel>Producto</DataList.ItemLabel>
                     <Grid templateColumns="repeat(3, 1fr)" gap="4">
                         {entrySelected.items.map(item => (
-                            <Box key={item.id}>
-                                <Image src={item.variant.image} />
-                                <Stack>
-                                    {item.variant.product.name} {item.variant.product.brand}
+                            <Box key={item.id} display="flex" flexDirection="column" textAlign="center" width="100px">
+                                <Image src={item.variant.image} h="100px" w="400px" fit="contain" />
+                                <Stack display="flex" flexDirection="column" textAlign="initial" justifyContent="flex-end" width="100%" height="100%">
+                                    <Strong fontWeight="semibold" textStyle="sm">{item.variant.product.name} {item.variant.product.brand}</Strong>
+                                    <Text color="fg.muted" textStyle="sm">Codigo: {item.variant.code}</Text>
+                                    <Text color="fg.muted" textStyle="sm">Cantidad: {item.quantity}</Text>
+                                    <Text color="fg.muted" textStyle="sm">Precio Unitario: $ {new Intl.NumberFormat("es-AR").format(item.purchasePrice)}</Text>
                                 </Stack>
-                                {item.variant.code}
                             </Box>
                         ))}
                     </Grid>
                 </DataList.Item>
                 <DataList.Item pt="4">
-                    <DataList.ItemLabel>Cantidad</DataList.ItemLabel>
-                    {entrySelected.items.map(item => (
-                        <DataList.ItemValue key={item.id}>{item.quantity} ${item.purchasePrice}</DataList.ItemValue>
-                    ))
-                    }
+                    <DataList.ItemLabel>Precio Final</DataList.ItemLabel>
+                    <DataList.ItemValue>$ {new Intl.NumberFormat("es-AR").format(entrySelected.total)}</DataList.ItemValue>
                 </DataList.Item>
             </DataList.Root>
         </Box>
@@ -85,12 +84,13 @@ function StockEntriesPage() {
             </GridItem>
 
             <GridItem rowSpan={9} colSpan={7} display="flex" flexDirection="column" marginLeft="260px" marginTop="60px" width="92%">
-                <Table.Root size="sm" striped>
+                <Table.Root marginLeft="10px" size="sm" striped width="99%">
                     <Table.Caption>Product inventory and pricing information</Table.Caption>
                     <Table.Header>
                         <Table.Row>
                             <Table.ColumnHeader>Vendedor</Table.ColumnHeader>
                             <Table.ColumnHeader>Fecha</Table.ColumnHeader>
+                            <Table.ColumnHeader>+ Info</Table.ColumnHeader>
                             <Table.ColumnHeader>Producto</Table.ColumnHeader>
                             <Table.ColumnHeader>Cantidad</Table.ColumnHeader>
                             <Table.ColumnHeader>Precio unidad</Table.ColumnHeader>
@@ -103,7 +103,8 @@ function StockEntriesPage() {
                         {stockEntries && stockEntries.map((entry) => (
                             <Table.Row key={entry.id}>
                                 <Table.Cell>{entry.user.name} {entry.user.lastName}</Table.Cell>
-                                <Table.Cell>{entry.date}
+                                <Table.Cell>{entry.date.slice(0, 10)}</Table.Cell>
+                                <Table.Cell>
                                     <Modal trigger={<Button size="sm" variant="surface" onClick={() => { handleEntrySelected(entry) }}>+Info</Button>}>
                                         <EntrySelectedModal entrySelected={entrySelected} />
                                     </Modal>
