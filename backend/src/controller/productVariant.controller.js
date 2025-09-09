@@ -40,6 +40,7 @@ export const getVariants = async(req, res) => {
             if (stockMax) where.stock.lte = parseInt(stockMax)
         }
 
+        const totalCount = await prisma.productVariant.count(where)
         if (req.query.name || req.query.brand || req.query.priceMin || req.query.priceMax || req.query.category){
             where.product = {}
             if (req.query.name) where.product.name ={contains: req.query.name}
@@ -52,7 +53,7 @@ export const getVariants = async(req, res) => {
             }
         }
         
-        const totalCount = await prisma.productVariant.count(where)
+        
         const totalPages = Math.ceil(totalCount / LIMIT)
 
         const variants = await prisma.productVariant.findMany({
