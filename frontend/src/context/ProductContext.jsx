@@ -39,7 +39,6 @@ export function ProductProvider({ children }) {
                 toast("debe tener almenos uno en stock por variante")
                 return { success: false, errors: errors }
             }
-            console.log(formProduct)
             const res = await fetch('http://localhost:3000/api/products', {
                 method: 'POST',
                 headers: {
@@ -73,7 +72,6 @@ export function ProductProvider({ children }) {
             return { success: true, variants: data.variants }
         } catch (error) {
             notify('error', 'No se pudo crear el producto')
-            console.log("el producto no se creo correctamente?", error)
             return { success: false, errors: { general: 'Error interno del servidor' } };
         }
     }
@@ -130,9 +128,12 @@ export function ProductProvider({ children }) {
                 }
                 return { success: false, errors: data.errors || 'Error Desconocido' }
             }
+
             setProducts(prev => prev.map(p => p.id === data.id ? data : p))
+
             toast("producto actualizado con exito!")
-            return { success: true }
+
+            return { success: true, product: data }
         } catch (error) {
             console.log("Error interno del servidor durante el proceso", error)
         }

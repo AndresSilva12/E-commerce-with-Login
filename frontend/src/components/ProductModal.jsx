@@ -24,6 +24,7 @@ function ProductModal({ productUpdate, onSubmit }) {
     const [purchasePrice, setPurchasePrice] = useState(1)
     const [categories, setCategories] = useState()
     const [categorySelected, setCategorySelected] = useState()
+    const [categorySelectedName, setCategorySelectedName] = useState()
     const { createEntry } = useStockEntries()
 
     useEffect(() => {
@@ -60,10 +61,20 @@ function ProductModal({ productUpdate, onSubmit }) {
         }
     }, [productUpdate, reset])
 
+    useEffect(() => {
+        if (productUpdate?.categoryId && categories?.items) {
+            const categoryExist = categories.items.find(c => c.value === productUpdate.categoryId)
+            if (categoryExist) {
+                setCategorySelected(productUpdate.categoryId)
+                setCategorySelectedName(categoryExist.label)
+            }
+        }
+    }, [productUpdate, categories])
+
     const onValid = async (data) => {
         const fullProduct = {
             ...data,
-            categoryId: categorySelected.toString(),
+            categoryId: Array.isArray(categorySelected) ? categorySelected[0] : categorySelected,
             variants: variants.length > 0 ? variants.map(({ localId, ...rest }) => rest) : []
         }
         for (const variant of fullProduct.variants) {
@@ -72,25 +83,29 @@ function ProductModal({ productUpdate, onSubmit }) {
                 variant.image = imageUrl
             }
         }
-        const result = productUpdate ? await updateProduct(fullProduct, productUpdate, setError) : await createProduct(fullProduct, setError)
+        const result = productUpdate
+            ? await updateProduct(fullProduct, productUpdate, setError)
+            : await createProduct(fullProduct, setError)
 
         if (!result.success) {
             toast(result.error || "error al guardar el producto", "error")
             return
         }
 
-        for (const variant of result.variants) {
-            const variantFound = fullProduct.variants.find(v => v.code === variant.code)
-            const entryData = {
-                items: [{
-                    variantId: variant.id,
-                    quantity: variantFound.stock,
-                    purchasePrice: purchasePrice
-                }],
-                motive: "Stock Inicial",
-                total: variantFound.stock * purchasePrice
+        if (!productUpdate) {
+            for (const variant of result.variants) {
+                const variantFound = fullProduct.variants.find(v => v.code === variant.code)
+                const entryData = {
+                    items: [{
+                        variantId: variant.id,
+                        quantity: variantFound.stock,
+                        purchasePrice: purchasePrice
+                    }],
+                    motive: "Stock Inicial",
+                    total: variantFound.stock * purchasePrice
+                }
+                createEntry(entryData)
             }
-            createEntry(entryData)
         }
         onSubmit()
     }
@@ -101,7 +116,7 @@ function ProductModal({ productUpdate, onSubmit }) {
 
 
     const onSubmitVariant = async (data) => {
-        submitVariant({ data, variantUpdate, productUpdate, setVariants })
+        await submitVariant({ data, variantUpdate, productUpdate, setVariants })
     }
 
     const handleCreate = () => {
@@ -164,30 +179,42 @@ function ProductModal({ productUpdate, onSubmit }) {
                             )}
                         </Box>
 
-
-                        <Select.Root value={categorySelected} onValueChange={({ value }) => { setCategorySelected(value) }} collection={categories}>
-                            <Select.HiddenSelect />
-                            <Select.Control>
-                                <Select.Trigger>
-                                    <Select.ValueText placeholder="Select Category" />
-                                </Select.Trigger>
-                                <Select.IndicatorGroup>
-                                    <Select.Indicator />
-                                </Select.IndicatorGroup>
-                            </Select.Control>
-                            <Portal>
-                                <Select.Positioner>
-                                    <Select.Content zIndex="99999">
-                                        {categories?.items?.map((category) => (
-                                            <Select.Item item={category} key={category.value}>
-                                                {category.label}
-                                                <Select.ItemIndicator />
-                                            </Select.Item>
-                                        ))}
-                                    </Select.Content>
-                                </Select.Positioner>
-                            </Portal>
-                        </Select.Root>
+                        {categories && (
+                            <Select.Root
+                                value={categorySelected ? [{ value: categorySelected }] : []}
+                                onValueChange={({ value }) => {
+                                    setCategorySelected(value)
+                                    console.log("value en valueOnChange: ", value)
+                                    const category = categories.items.find(c => c.value === value[0])
+                                    setCategorySelectedName(category?.label || '')
+                                    console.log("name category: ", category)
+                                }}
+                                collection={categories}>
+                                <Select.HiddenSelect />
+                                <Select.Control>
+                                    <Select.Trigger>
+                                        <Select.ValueText>
+                                            {categorySelectedName || 'Seleccione una categoria'}
+                                        </Select.ValueText>
+                                    </Select.Trigger>
+                                    <Select.IndicatorGroup>
+                                        <Select.Indicator />
+                                    </Select.IndicatorGroup>
+                                </Select.Control>
+                                <Portal>
+                                    <Select.Positioner>
+                                        <Select.Content zIndex="99999">
+                                            {categories?.items?.map((category) => (
+                                                <Select.Item item={category} key={category.value}>
+                                                    {category.label}
+                                                    <Select.ItemIndicator />
+                                                </Select.Item>
+                                            ))}
+                                        </Select.Content>
+                                    </Select.Positioner>
+                                </Portal>
+                            </Select.Root>
+                        )}
 
                         <Field.Root>
                             <Field.Label>Description</Field.Label>
@@ -232,7 +259,10 @@ function ProductModal({ productUpdate, onSubmit }) {
                     <Button type="button" onClick={() => { handleCreate() }} variant="surface" >Nueva Variante</Button>
                 </Box>
             </form>
-            <VariantModal onSubmitVariant={(data) => { onSubmitVariant(data) }} variants={variants} variantUpdate={variantUpdate} productUpdate={productUpdate} />
+            <VariantModal onSubmitVariant={(data) => {
+                onSubmitVariant(data)
+                onSubmit()
+            }} variants={variants} variantUpdate={variantUpdate} productUpdate={productUpdate} />
         </Box>
     )
 }

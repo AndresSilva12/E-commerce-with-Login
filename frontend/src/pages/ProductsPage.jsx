@@ -92,12 +92,13 @@ export function ModalStockUpdate({ variantUpdate }) {
 
 function ProductsPage() {
     const [productUpdate, setProductUpdate] = useState(null)
-    const { products, deleteProduct, fetchUniqueProduct } = useProducts()
-    const { deleteVariant, submitVariant, setVariants, variants } = useVariants()
+    const { products, fetchUniqueProduct } = useProducts()
+    const { submitVariant, setVariants, variants } = useVariants()
     const [variantUpdate, setVariantUpdate] = useState()
     const [filters, setFilters] = useState({})
     const [priceMin, setPriceMin] = useState(0)
     const [priceMax, setPriceMax] = useState(0)
+    const [sortBy, setSortBy] = useState()
     const [availableFilters, setAvailableFilters] = useState({
         colors: [],
         sizes: [],
@@ -109,7 +110,6 @@ function ProductsPage() {
         brands: [],
         categories: []
     })
-    const [sortBy, setSortBy] = useState()
     const [page, setPage] = useState(1)
     const [totalPages, setTotalPages] = useState()
     const { addToCart } = useCart()
@@ -119,7 +119,6 @@ function ProductsPage() {
             const query = new URLSearchParams(filters).toString()
             const res = await fetch(`http://localhost:3000/api/variants?${query}`)
             const data = await res.json()
-            console.log(data)
             setVariants(data.variants)
             setAvailableFilters({
                 colors: data.filters.colors,
@@ -153,14 +152,7 @@ function ProductsPage() {
 
     const onSubmit = () => {
         setProductUpdate(null)
-    }
-
-    const handleUpdate = (product) => {
-        setProductUpdate(product)
-    }
-
-    const handleDelete = (id) => {
-        deleteProduct(id)
+        setFilters(null)
     }
 
     const handleCreate = () => {
@@ -313,7 +305,6 @@ function ProductsPage() {
                 return newFilter
             })
         } else {
-            console.log(valueSplit[0], valueSplit[1])
             setFilters((prev) => ({ ...prev, sortBy: valueSplit[0], sortOrder: valueSplit[1] }))
         }
     }
@@ -443,15 +434,20 @@ function ProductsPage() {
                                     <Text textStyle="2xl" fontWeight="medium" letterSpacing="tight" mt="2">${new Intl.NumberFormat("es-AR").format(variant.product.salePrice)}</Text>
                                 </Card.Body>
                                 <Card.Footer display="flex" flexDirection="column" justifyContent="center">
+
                                     <Box display="flex" justifyContent="center" gap="4">
                                         <Modal size={"xl"} trigger={<Button type="button" width="50px" flex="1" onClick={() => handleVariantUpdate(variant, variant.product)}>Editar</Button>}>
-                                            <ProductModal productUpdate={productUpdate} onSubmit={onSubmit} />
+                                            {({ closeModal }) => (
+                                                <ProductModal productUpdate={productUpdate} onSubmit={onSubmit} closeModal={closeModal} />
+                                            )}
                                         </Modal>
+
                                         <Modal trigger={<Button colorPalette="red" flex="1" >Eliminar</Button>}>
                                             <h2 >Está seguro que desea eliminar esta variante?</h2>
                                             <Button onClick={() => deleteVariant(variant, setVariants)}>Eliminar</Button>
                                         </Modal>
                                     </Box>
+
                                     <Box gap="2" display="flex" justifyContent="center">
                                         <NumberInput.Root value={variant.stock} unstyled spinOnPress={false} >
                                             <HStack>
@@ -493,11 +489,7 @@ function ProductsPage() {
             </Grid >
             <Modal size={"xl"} trigger={<Button position="fixed" right="0" bottom="0" size="lg" margin="1rem" colorPalette="teal" onClick={handleCreate}>+</Button>}>
                 {({ closeModal }) => (
-                    <ProductModal productUpdate={productUpdate} onSubmit={() => {
-                        onSubmit()
-                        setFilters(null)
-                        closeModal()
-                    }} />
+                    <ProductModal productUpdate={productUpdate} onSubmit={onSubmit} closeModal={closeModal} />
                 )}
             </Modal>
             <Toaster />
