@@ -20,6 +20,6 @@ router.delete('/variants/product/:productId', deleteAllVariantsByProduct)
 
 router.put('/variants/:id',validateVariantExist, validateUpdateVariant, updateVariant)
 
-router.patch('/variants/:id/disable', disableVariant)
+router.patch('/variants/:id/disable',validateVariantExist, disableVariant)
 
 export default router
