@@ -17,16 +17,19 @@ export const createVariant = async(req, res) => {
         return res.json(newVariant)
     }
     catch(error){
-        console.log(error)
         return res.status(500).json({error: "Error interno durante el proceso"})
     }
 }
 
 export const getVariants = async(req, res) => {
     try {
+        const LIMIT = 10
+        const page = Number(req.query.page) || 1
+        const skip = (page -1) * LIMIT
+        const take = LIMIT
         const {code, size, color, stockMin, stockMax, sortBy, sortOrder} = req.query
         const where = {}
-
+        
         if (code) where.code = {equals: code}
         if (size) where.size = {equals: size}
         if (color) where.color = {equals: color}
@@ -47,6 +50,9 @@ export const getVariants = async(req, res) => {
                 if (req.query.priceMax) where.product.salePrice.lte = parseFloat(req.query.priceMax)
             }
         }
+        
+        const totalCount = await prisma.productVariant.count({where})
+
         const variants = await prisma.productVariant.findMany({
             include: {
                 product: {
@@ -56,12 +62,17 @@ export const getVariants = async(req, res) => {
                 },
             },
             where,
+            take,
+            skip,
             orderBy: sortBy 
                 ? sortBy === 'name' || sortBy === 'brand' || sortBy === 'price'
                     ? { product : { [sortBy === 'price' ? 'salePrice' : sortBy]: sortOrder === 'desc' ? 'desc' : 'asc'}}
                     : {[sortBy]: sortOrder === 'desc' ? 'desc' : 'asc'} 
                 : undefined
         })
+
+        const totalPages = Math.ceil(totalCount / LIMIT)
+
         const sizes = [...new Set(variants.map(v => v.size))]
         const colors = [...new Set(variants.map(v => v.color))]
         const brands = [...new Set(variants.map(v => v.product.brand))]
@@ -73,10 +84,15 @@ export const getVariants = async(req, res) => {
                 colors: colors,
                 brands: brands,
                 categories: categories
+            },
+            pagination: {
+                totalPages: totalPages,
+                totalCount: totalCount,
+                page: page,
+                limit: LIMIT
             }
         })
     } catch (error) {
-        console.log(error)
         return res.status(500).json({error: "Error interno durante el proceso"})
     }
 }
@@ -109,7 +125,6 @@ export const deleteAllVariantsByProduct = async(req, res) => {
         })
         return res.json({variantsDeleted})
     } catch (error) {
-        console.log(error)
         return res.status(500).json({error: "Error interno durante el proceso"})
     }
 }
@@ -127,7 +142,6 @@ export const updateVariant = async(req, res) => {
         })
         return res.json(variantUpdated)
     } catch (error) {
-        console.log(error)
         return res.status(500).json({error: "Error interno durante el proceso"})
     }
 }
@@ -142,7 +156,6 @@ export const getAllVariantsByProduct = async(req, res) => {
         })
         return res.json(variants)
     } catch (error) {
-        console.log(error)
         return res.status(500).json({error: "Error interno durante el proceso"})
     }
 }
@@ -157,7 +170,6 @@ export const getOnlyOneVariant = async(req, res) => {
         })
         return res.json(variant)
     } catch (error) {
-        console.log(error)
         return res.status(500).json({error: "Error interno durante el proceso"})
     }
 }

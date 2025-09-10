@@ -3,7 +3,7 @@ import { Toaster } from "../components/ui/toaster"
 import { toast } from "../utils/notifyToast.js";
 import { useProducts } from "../context/ProductContext";
 import ProductModal from "../components/ProductModal";
-import { Button, Card, Image, Text, Grid, GridItem, Checkbox, Select, Portal, InputGroup, Stack, createListCollection, HStack, Field, Badge, Box, NumberInput, IconButton } from "@chakra-ui/react"
+import { Button, Card, Image, Text, Grid, GridItem, Checkbox, Select, Portal, InputGroup, ButtonGroup, Stack, createListCollection, Pagination, HStack, Field, Badge, Box, NumberInput, IconButton } from "@chakra-ui/react"
 import Modal from "../components/Modal";
 import { useVariants } from '../hooks/useVariants.js'
 import { useCart } from "../context/CartContext";
@@ -110,6 +110,8 @@ function ProductsPage() {
         categories: []
     })
     const [sortBy, setSortBy] = useState()
+    const [page, setPage] = useState(1)
+    const [totalPages, setTotalPages] = useState()
     const { addToCart } = useCart()
 
     useEffect(() => {
@@ -117,6 +119,7 @@ function ProductsPage() {
             const query = new URLSearchParams(filters).toString()
             const res = await fetch(`http://localhost:3000/api/variants?${query}`)
             const data = await res.json()
+            console.log(data)
             setVariants(data.variants)
             setAvailableFilters({
                 colors: data.filters.colors,
@@ -124,9 +127,10 @@ function ProductsPage() {
                 brands: data.filters.brands,
                 categories: data.filters.categories
             })
+            setTotalPages(data.pagination.totalPages)
         }
         fetchSearch()
-    }, [filters, variants])
+    }, [filters])
 
     useEffect(() => {
         if (productUpdate && productUpdate.variants) {
@@ -314,6 +318,11 @@ function ProductsPage() {
         }
     }
 
+    const handleChangePage = (page) => {
+        setPage(page)
+        setFilters((prev) => ({ ...prev, page: page }))
+    }
+
     return (
         <>
             <Grid templateColumns="repeat(8, 1fr)" templateRows="repeat(10, 1fr)">
@@ -464,6 +473,21 @@ function ProductsPage() {
                             </Card.Root>
                         ))}
                     </Grid>
+                    <Box display="flex" justifyContent="center">
+                        <Pagination.Root count={(totalPages * 2)} pageSize={2} page={page} onPageChange={(e) => handleChangePage(e.page)}>
+                            <ButtonGroup gap="4" size="sm" variant="ghost">
+                                <Pagination.PrevTrigger asChild>
+                                    <IconButton>
+                                    </IconButton>
+                                </Pagination.PrevTrigger>
+                                <Pagination.PageText />
+                                <Pagination.NextTrigger asChild>
+                                    <IconButton>
+                                    </IconButton>
+                                </Pagination.NextTrigger>
+                            </ButtonGroup>
+                        </Pagination.Root>
+                    </Box>
                 </GridItem >
 
             </Grid >
