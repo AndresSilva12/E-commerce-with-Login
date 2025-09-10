@@ -27,6 +27,7 @@ model products {
   salePrice Float
   brand String
   categoryId String
+  disabled Boolean @default(false)
   category category @relation(fields: [categoryId], references: [id])
   variants productVariant[]
 }
@@ -39,6 +40,7 @@ model productVariant {
   stock Int
   productId String
   image String
+  disabled Boolean @default(false)
   createdAt DateTime  @default(now())
   product products @relation(fields: [productId], references: [id], onDelete: Cascade)
   @@unique([productId, size, color])
