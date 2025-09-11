@@ -6,6 +6,14 @@ const ProductContext = createContext()
 
 export function ProductProvider({ children }) {
     const [products, setProducts] = useState([])
+    const [variants, setVariants] = useState([])
+    const [totalPages, setTotalPages] = useState(1)
+    const [filters, setFilters] = useState({})
+    const [availableFilters, setAvailableFilters] = useState({
+        colors: [],
+        sizes: [],
+        brands: []
+    })
 
     const fetchProducts = async () => {
         try {
@@ -22,6 +30,27 @@ export function ProductProvider({ children }) {
             const res = await fetch(`http://localhost:3000/api/products/${id}`)
             const data = await res.json()
             return data
+        } catch (error) {
+            console.log("Error interno del servidor durante el proceso")
+        }
+    }
+
+    const fetchVariants = async () => {
+        try {
+            const query = new URLSearchParams(filters).toString()
+            const res = await fetch(`http://localhost:3000/api/variants?${query}`)
+            const data = await res.json()
+
+            setVariants(data.variants)
+            setAvailableFilters({
+                colors: data.filters.colors,
+                sizes: data.filters.sizes,
+                brands: data.filters.brands,
+                categories: data.filters.categories
+            })
+
+            setTotalPages(data.pagination.totalPages)
+
         } catch (error) {
             console.log("Error interno del servidor durante el proceso")
         }
@@ -67,7 +96,7 @@ export function ProductProvider({ children }) {
 
             }
             setProducts((prev) => [...prev, data])
-
+            fetchVariants()
             toast("producto creado con exito!")
             return { success: true, variants: data.variants }
         } catch (error) {
@@ -129,8 +158,7 @@ export function ProductProvider({ children }) {
                 return { success: false, errors: data.errors || 'Error Desconocido' }
             }
 
-            setProducts(prev => prev.map(p => p.id === data.id ? data : p))
-
+            fetchVariants()
             toast("producto actualizado con exito!")
 
             return { success: true, product: data }
@@ -152,11 +180,27 @@ export function ProductProvider({ children }) {
     }
 
     useEffect(() => {
-        fetchProducts()
-    }, [])
+        fetchVariants()
+    }, [filters])
 
     return (
-        <ProductContext.Provider value={{ products, fetchUniqueProduct, createProduct, fetchProducts, deleteProduct, updateProduct, addVariantToProduct, deleteVariantToProduct, updateVariantToProduct }}>
+        <ProductContext.Provider value={{
+            products,
+            fetchProducts,
+            fetchUniqueProduct,
+            createProduct,
+            updateProduct,
+            deleteProduct,
+            variants,
+            fetchVariants,
+            filters,
+            setFilters,
+            availableFilters,
+            totalPages,
+            addVariantToProduct,
+            deleteVariantToProduct,
+            updateVariantToProduct
+        }}>
             {children}
         </ProductContext.Provider>
     )

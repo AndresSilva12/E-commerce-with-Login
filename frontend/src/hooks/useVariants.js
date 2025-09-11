@@ -1,20 +1,13 @@
 import { useEffect, useState } from "react"
 import { toast } from "../utils/notifyToast.js";
 import { useProducts } from "../context/ProductContext.jsx"
-import { uploadImage } from '../utils/uploads.js'
 import isEqual from 'lodash.isequal'
 import { useStockEntries } from "./useStockEntries.js"
 
 export function useVariants () {
-    const { addVariantToProduct, updateVariantToProduct} = useProducts()
+    const { updateVariantToProduct, fetchVariants} = useProducts()
     const {createEntry} = useStockEntries()
     const [variants, setVariants] = useState([])
-
-    const fetchVariants = async() => {
-        const res = await fetch('http://localhost:3000/api/variants')
-        const data = await res.json()
-        setVariants(data.variants)
-    }
 
     const getOneVariant = async(variant, setError) => {
         try{
@@ -67,8 +60,12 @@ export function useVariants () {
                 total: formDataClean.stock * purchasePrice
             }
             await createEntry(entryData)
+            await fetchVariants()
             toast("variante creada con exito!")
-            return {id: data.id}
+            return {
+                ...data,
+                stock: formData.stock
+            }
         } catch (error) {
             console.log(error)
         }
@@ -99,7 +96,7 @@ export function useVariants () {
                 headers: {
                     "Content-type": "application/json"
                 },
-                body: JSON.stringify(formDataWithoutMotive)
+                body: JSON.stringify(formData)
             })
             const data = await res.json()
             if (!res.ok) {
@@ -107,54 +104,12 @@ export function useVariants () {
             }
             await updateVariantToProduct(data.productId, data.id, data)
             toast("variante actualizada con exito!")
+            return data
         }
         catch (error){
             return {success: false}
         }
     }
-
-    const submitVariant = async({setVariants, productUpdate, variantUpdate, data }) => {
-        const resolveImage = async(image, prevImage) => {
-            if (image === prevImage) return image
-            if (image instanceof File) return await uploadImage(image)
-            return image
-        }
-
-        if (variantUpdate && 'id' in variantUpdate) {
-            const { productId, ...variantWithoutProductId } = variantUpdate
-            if (isEqual(data, variantWithoutProductId)) {
-                return 
-            }
-        }
-
-        const fullVariant = {...data}
-        if (productUpdate) {
-            fullVariant.productId = productUpdate.id
-            fullVariant.image = await resolveImage(data.image, variantUpdate?.image)
-
-            if (variantUpdate) {
-                await updateVariant(fullVariant, variantUpdate)
-                setVariants((prev => prev.map(p => p.localId === data.localId ? { ...fullVariant, id: variantUpdate.id } : p)))
-            } else {
-                const resultVariant = await createVariant(fullVariant)
-                if (resultVariant?.id) {
-                    const newVariant = {
-                        ...fullVariant,
-                        id: resultVariant.id
-                    }
-                    setVariants(prev => [...prev.filter(p => p.localId !== data.localId), newVariant])
-                    await addVariantToProduct(productUpdate.id, newVariant)
-                }
-            }
-        } else {
-            if (variantUpdate){
-                setVariants((prev => prev.map(p => p.localId === data.localId ? data : p)))
-            }else{
-                setVariants((prev) => [...prev, data])
-            }
-        }
-    }
-
     useEffect(() => {
         fetchVariants()
     }, [])
@@ -162,11 +117,9 @@ export function useVariants () {
     return{
         variants,
         setVariants,
-        fetchVariants,
         createVariant,
         disableVariant,
         updateVariant,
-        getOneVariant,
-        submitVariant
+        getOneVariant
     }
 }

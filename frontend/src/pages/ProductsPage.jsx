@@ -5,7 +5,6 @@ import { useProducts } from "../context/ProductContext";
 import ProductModal from "../components/ProductModal";
 import { Button, Card, Image, Text, Grid, GridItem, Checkbox, Select, Portal, InputGroup, ButtonGroup, Stack, createListCollection, Pagination, HStack, Field, Badge, Box, NumberInput, IconButton } from "@chakra-ui/react"
 import Modal from "../components/Modal";
-import { useVariants } from '../hooks/useVariants.js'
 import { useCart } from "../context/CartContext";
 import { useForm } from "react-hook-form";
 import { useStockEntries } from "../hooks/useStockEntries";
@@ -92,18 +91,11 @@ export function ModalStockUpdate({ variantUpdate }) {
 
 function ProductsPage() {
     const [productUpdate, setProductUpdate] = useState(null)
-    const { products, fetchUniqueProduct } = useProducts()
-    const { submitVariant, setVariants, variants } = useVariants()
+    const { products, fetchUniqueProduct, variants, availableFilters, totalPages, setFilters } = useProducts()
     const [variantUpdate, setVariantUpdate] = useState()
-    const [filters, setFilters] = useState({})
     const [priceMin, setPriceMin] = useState(0)
     const [priceMax, setPriceMax] = useState(0)
     const [sortBy, setSortBy] = useState()
-    const [availableFilters, setAvailableFilters] = useState({
-        colors: [],
-        sizes: [],
-        brands: []
-    })
     const [filtersChecked, setFiltersChecked] = useState({
         colors: [],
         sizes: [],
@@ -111,35 +103,7 @@ function ProductsPage() {
         categories: []
     })
     const [page, setPage] = useState(1)
-    const [totalPages, setTotalPages] = useState()
     const { addToCart } = useCart()
-
-    useEffect(() => {
-        const fetchSearch = async () => {
-            const query = new URLSearchParams(filters).toString()
-            const res = await fetch(`http://localhost:3000/api/variants?${query}`)
-            const data = await res.json()
-            setVariants(data.variants)
-            setAvailableFilters({
-                colors: data.filters.colors,
-                sizes: data.filters.sizes,
-                brands: data.filters.brands,
-                categories: data.filters.categories
-            })
-            setTotalPages(data.pagination.totalPages)
-        }
-        fetchSearch()
-    }, [filters])
-
-    useEffect(() => {
-        if (productUpdate && productUpdate.variants) {
-            const variantsWithLocalId = productUpdate.variants.map(v => ({
-                ...v,
-                localId: v.id || crypto.randomUUID()
-            }))
-            setVariants(variantsWithLocalId)
-        }
-    }, [])
 
     const sorts = createListCollection({
         items: [
@@ -157,10 +121,6 @@ function ProductsPage() {
 
     const handleCreate = () => {
         setProductUpdate(null)
-    }
-
-    const onSubmitVariant = async (data) => {
-        submitVariant({ setVariants, productUpdate, variantUpdate, data })
     }
 
     const handleVariantUpdate = async (variant, product) => {
@@ -444,7 +404,7 @@ function ProductsPage() {
 
                                         <Modal trigger={<Button colorPalette="red" flex="1" >Eliminar</Button>}>
                                             <h2 >Está seguro que desea eliminar esta variante?</h2>
-                                            <Button onClick={() => deleteVariant(variant, setVariants)}>Eliminar</Button>
+                                            <Button onClick={() => { }}>Eliminar</Button>
                                         </Modal>
                                     </Box>
 

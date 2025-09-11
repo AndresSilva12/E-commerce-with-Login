@@ -1,24 +1,25 @@
+import { Button, Accordion, Box, Avatar, Span, Field, Fieldset, Input, InputGroup, NumberInput, Select, Text, Stack, Portal, createListCollection } from "@chakra-ui/react"
+import { productSchema, updateProductSchema } from '../../../validation/productSchema.js'
+import { useStockEntries } from '../hooks/useStockEntries.js'
 import { useProducts } from '../context/ProductContext.jsx'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useEffect, useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { toast } from "../utils/notifyToast.js";
-import { productSchema, updateProductSchema } from '../../../validation/productSchema.js'
-import VariantModal from './VariantModal.jsx'
 import { useVariants } from '../hooks/useVariants.js'
 import { uploadImage } from '../utils/uploads.js'
+import { toast } from "../utils/notifyToast.js";
+import VariantModal from './VariantModal.jsx'
+import { useEffect, useState } from 'react'
+import { useForm } from 'react-hook-form'
+import isEqual from 'lodash.isequal'
 import Modal from "./Modal.jsx";
-import { useStockEntries } from '../hooks/useStockEntries.js'
-import { Button, Accordion, Box, Avatar, Span, Field, Fieldset, Input, InputGroup, NumberInput, Select, Text, Stack, Portal, createListCollection } from "@chakra-ui/react"
 
-function ProductModal({ productUpdate, onSubmit }) {
+function ProductModal({ productUpdate, onSubmit, closeModal }) {
     const { register, handleSubmit, reset, formState: { errors }, setError } = useForm({
         mode: 'onChange',
         resolver: zodResolver(productUpdate ? updateProductSchema : productSchema),
         defaultValues: productUpdate
     })
     const { updateProduct, createProduct } = useProducts()
-    const { deleteVariant, submitVariant, } = useVariants()
+    const { deleteVariant, createVariant, updateVariant } = useVariants()
     const [variants, setVariants] = useState([])
     const [variantUpdate, setVariantUpdate] = useState()
     const [purchasePrice, setPurchasePrice] = useState(1)
@@ -92,22 +93,22 @@ function ProductModal({ productUpdate, onSubmit }) {
             return
         }
 
-        if (!productUpdate) {
-            for (const variant of result.variants) {
-                const variantFound = fullProduct.variants.find(v => v.code === variant.code)
-                const entryData = {
-                    items: [{
-                        variantId: variant.id,
-                        quantity: variantFound.stock,
-                        purchasePrice: purchasePrice
-                    }],
-                    motive: "Stock Inicial",
-                    total: variantFound.stock * purchasePrice
-                }
-                createEntry(entryData)
+        const variantes = productUpdate ? result.product.variants : result.variants
+        for (const variant of variantes) {
+            const variantFound = fullProduct.variants.find(v => v.code === variant.code)
+            const entryData = {
+                items: [{
+                    variantId: variant.id,
+                    quantity: variantFound.stock,
+                    purchasePrice: purchasePrice
+                }],
+                motive: "Stock Inicial",
+                total: variantFound.stock * purchasePrice
             }
+            createEntry(entryData)
         }
         onSubmit()
+        closeModal()
     }
 
     const onInvalid = () => {
@@ -116,7 +117,44 @@ function ProductModal({ productUpdate, onSubmit }) {
 
 
     const onSubmitVariant = async (data) => {
-        await submitVariant({ data, variantUpdate, productUpdate, setVariants })
+        let newVariant
+        const resolveImage = async (image, prevImage) => {
+            if (image === prevImage) return image
+            if (image instanceof File) return await uploadImage(image)
+            return image
+        }
+
+        if (variantUpdate && 'id' in variantUpdate) {
+            const { productId, ...variantWithoutProductId } = variantUpdate
+            if (isEqual(data, variantWithoutProductId)) {
+                return
+            }
+        }
+
+        if (productUpdate) {
+            const fullVariant = {
+                ...data,
+                productId: productUpdate.id,
+                image: await resolveImage(data.image, variantUpdate?.image)
+            }
+
+            if (variantUpdate) {
+                newVariant = await updateVariant(fullVariant, variantUpdate)
+                setVariants(prev => prev.map(v => v.id === variantUpdate.id ? newVariant : v))
+            }
+            else {
+                newVariant = await createVariant(fullVariant)
+                setVariants(prev => [...prev, newVariant])
+            }
+        }
+        else {
+            if (variantUpdate) {
+                setVariants(prev => prev.map(v => v.localId === data.localId ? data : v))
+            }
+            else {
+                setVariants(prev => [...prev, { ...data, localId: crypto.randomUUID() }])
+            }
+        }
     }
 
     const handleCreate = () => {
@@ -224,8 +262,8 @@ function ProductModal({ productUpdate, onSubmit }) {
                     </Fieldset.Content>
 
                     <Box height="200px" overflowY="scroll">
-                        {variants && variants.map((variant) => (
-                            <Accordion.Root collapsible key={variant.localId} size="sm" onClick={() => { handleUpdate(variant) }}>
+                        {variants && variants.map((variant, index) => (
+                            <Accordion.Root collapsible key={index} size="sm" onClick={() => { handleUpdate(variant) }}>
                                 <Accordion.Item >
                                     <Box display="flex">
                                         <Accordion.ItemTrigger>
@@ -259,10 +297,7 @@ function ProductModal({ productUpdate, onSubmit }) {
                     <Button type="button" onClick={() => { handleCreate() }} variant="surface" >Nueva Variante</Button>
                 </Box>
             </form>
-            <VariantModal onSubmitVariant={(data) => {
-                onSubmitVariant(data)
-                onSubmit()
-            }} variants={variants} variantUpdate={variantUpdate} productUpdate={productUpdate} />
+            <VariantModal onSubmitVariant={(data) => { onSubmitVariant(data) }} variants={variants} variantUpdate={variantUpdate} productUpdate={productUpdate} />
         </Box>
     )
 }
