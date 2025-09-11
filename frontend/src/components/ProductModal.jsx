@@ -10,7 +10,6 @@ import VariantModal from './VariantModal.jsx'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import isEqual from 'lodash.isequal'
-import Modal from "./Modal.jsx";
 
 function ProductModal({ productUpdate, onSubmit, closeModal }) {
     const { register, handleSubmit, reset, formState: { errors }, setError } = useForm({
@@ -19,7 +18,7 @@ function ProductModal({ productUpdate, onSubmit, closeModal }) {
         defaultValues: productUpdate
     })
     const { updateProduct, createProduct } = useProducts()
-    const { deleteVariant, createVariant, updateVariant } = useVariants()
+    const { createVariant, updateVariant } = useVariants()
     const [variants, setVariants] = useState([])
     const [variantUpdate, setVariantUpdate] = useState()
     const [purchasePrice, setPurchasePrice] = useState(1)
@@ -46,10 +45,12 @@ function ProductModal({ productUpdate, onSubmit, closeModal }) {
 
     useEffect(() => {
         if (productUpdate && productUpdate.variants) {
-            const variantsWithLocalId = productUpdate.variants.map(v => ({
-                ...v,
-                localId: v.id || crypto.randomUUID()
-            }))
+            const variantsWithLocalId = productUpdate.variants
+                .filter(v => !v.disabled)
+                .map(v => ({
+                    ...v,
+                    localId: v.id || crypto.randomUUID()
+                }))
             setVariants(variantsWithLocalId)
         } else {
             setVariants([])
@@ -277,10 +278,6 @@ function ProductModal({ productUpdate, onSubmit, closeModal }) {
                                                 <Text fontSize="sm" color="fg.muted">Color: {variant.color} Stock: {variant.stock}</Text>
                                             </Stack>
                                         </Accordion.ItemTrigger>
-                                        <Modal trigger={<Button variant="ghost">Eliminar</Button>}>
-                                            <h2 >Está seguro que desea eliminar esta variante?</h2>
-                                            <Button onClick={() => { deleteVariant(variant, setVariants) }}>Eliminar</Button>
-                                        </Modal>
                                     </Box>
                                     <Accordion.ItemContent>
 

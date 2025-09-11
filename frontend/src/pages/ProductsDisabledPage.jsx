@@ -1,5 +1,4 @@
 import { Button, Card, Image, Text, Grid, HStack, Badge, Box } from "@chakra-ui/react"
-import { useProducts } from "../context/ProductContext";
 import { useVariants } from "../hooks/useVariants";
 import Modal from "../components/Modal";
 import { useEffect } from "react";

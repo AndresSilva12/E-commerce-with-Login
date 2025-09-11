@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { toast } from "../utils/notifyToast.js";
 import { useProducts } from "../context/ProductContext.jsx"
 import isEqual from 'lodash.isequal'
