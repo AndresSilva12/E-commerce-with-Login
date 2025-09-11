@@ -1,14 +1,15 @@
-import { useState, useEffect } from "react";
-import { Toaster } from "../components/ui/toaster"
-import { toast } from "../utils/notifyToast.js";
+import { Button, Card, Image, Text, Grid, GridItem, Checkbox, Select, Portal, InputGroup, ButtonGroup, Stack, createListCollection, Pagination, HStack, Field, Badge, Box, NumberInput, IconButton } from "@chakra-ui/react"
+import { useStockEntries } from "../hooks/useStockEntries";
 import { useProducts } from "../context/ProductContext";
 import ProductModal from "../components/ProductModal";
-import { Button, Card, Image, Text, Grid, GridItem, Checkbox, Select, Portal, InputGroup, ButtonGroup, Stack, createListCollection, Pagination, HStack, Field, Badge, Box, NumberInput, IconButton } from "@chakra-ui/react"
-import Modal from "../components/Modal";
+import { Toaster } from "../components/ui/toaster";
+import { useVariants } from "../hooks/useVariants";
 import { useCart } from "../context/CartContext";
-import { useForm } from "react-hook-form";
-import { useStockEntries } from "../hooks/useStockEntries";
+import { toast } from "../utils/notifyToast.js";
 import SearchBar from "../components/SearchBar";
+import { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import Modal from "../components/Modal";
 
 export function ModalStockUpdate({ variantUpdate }) {
     const { handleSubmit } = useForm()
@@ -92,6 +93,7 @@ export function ModalStockUpdate({ variantUpdate }) {
 function ProductsPage() {
     const [productUpdate, setProductUpdate] = useState(null)
     const { products, fetchUniqueProduct, variants, availableFilters, totalPages, setFilters } = useProducts()
+    const { disableVariant } = useVariants()
     const [variantUpdate, setVariantUpdate] = useState()
     const [priceMin, setPriceMin] = useState(0)
     const [priceMax, setPriceMax] = useState(0)
@@ -130,12 +132,11 @@ function ProductsPage() {
     }
 
     const handleCart = (variant) => {
-        const item = products.find((product) => product.id === variant.productId)
-        const onlyVariant = item.variants.find((v) => v.id === variant.id)
+        const item = variant.product
         const fullItem = {
             ...item,
             variants: {
-                ...onlyVariant,
+                ...variant,
                 quantity: 1,
                 unitPrice: item.salePrice
             }
@@ -274,6 +275,11 @@ function ProductsPage() {
         setFilters((prev) => ({ ...prev, page: page }))
     }
 
+    const handleDisable = async (id, closeModal) => {
+        await disableVariant(id)
+        closeModal()
+    }
+
     return (
         <>
             <Grid templateColumns="repeat(8, 1fr)" templateRows="repeat(10, 1fr)">
@@ -402,9 +408,13 @@ function ProductsPage() {
                                             )}
                                         </Modal>
 
-                                        <Modal trigger={<Button colorPalette="red" flex="1" >Eliminar</Button>}>
-                                            <h2 >Está seguro que desea eliminar esta variante?</h2>
-                                            <Button onClick={() => { }}>Eliminar</Button>
+                                        <Modal trigger={<Button colorPalette="red" flex="1" >Deshabilitar</Button>}>
+                                            {({ closeModal }) => (
+                                                <>
+                                                    <h2 >Está seguro que desea deshabilitar esta variante?</h2>
+                                                    <Button onClick={() => { handleDisable(variant.id, closeModal) }}>Deshabilitar</Button>
+                                                </>
+                                            )}
                                         </Modal>
                                     </Box>
 

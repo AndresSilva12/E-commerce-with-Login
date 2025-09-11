@@ -9,6 +9,7 @@ import NavBar from '../components/NavBar';
 import ProtectedRoutes from '../components/ProtectedRoutes';
 import GuestOnlyRoute from '../components/GuestOnlyRoute';
 import ProductsPage from '../pages/ProductsPage';
+import ProductsDisabledPage from '../pages/ProductsDisabledPage';
 import StockEntriesPage from '../pages/StockEntries';
 import Categories from '../pages/Categories';
 
@@ -31,6 +32,11 @@ function AppRouter() {
                 <Route path='/products' element={
                     <ProtectedRoutes>
                         <ProductsPage />
+                    </ProtectedRoutes>
+                } />
+                <Route path='/productsDisabled' element={
+                    <ProtectedRoutes>
+                        <ProductsDisabledPage />
                     </ProtectedRoutes>
                 } />
                 <Route path='/users' element={

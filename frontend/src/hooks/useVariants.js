@@ -7,9 +7,15 @@ import { useStockEntries } from "./useStockEntries.js"
 export function useVariants () {
     const { updateVariantToProduct, fetchVariants} = useProducts()
     const {createEntry} = useStockEntries()
-    const [variants, setVariants] = useState([])
+    const [variantsDisabled, setVariantsDisabled] = useState([])
 
-    const getOneVariant = async(variant, setError) => {
+    const fetchVariantsDisabled = async() => {
+        const res = await fetch(`http://localhost:3000/api/variants?onlyDisabled=true`)
+        const data = await res.json()
+        setVariantsDisabled(data.variants)
+    }
+
+    /* const getOneVariant = async(variant, setError) => {
         try{
             const res = await fetch(`http://localhost:3000/api/variants/${variant.code}/check`,{
                 method: 'POST',
@@ -31,7 +37,7 @@ export function useVariants () {
         catch(error){
             console.log(error)
         }
-    }
+    } */
 
     const createVariant = async(formData) => {
         const {motive, purchasePrice, ...formDataClean} = formData
@@ -71,18 +77,29 @@ export function useVariants () {
         }
     }
 
-    const disableVariant = async(variant) => {
-        if (variant.id) {
-            deleteVariant(variant.id)
-            const res = await fetch(`http://localhost:3000/api/variants/id/${variant.id}/disable`,{
-                method: 'PATCH',
-                headers: {
-                    "Content-type": "application/json"
-                }
-            })
-            const data = await res.json()
-            toast("variante eliminada con exito!")
-        }
+    const disableVariant = async(id) => {
+        const res = await fetch(`http://localhost:3000/api/variants/${id}/disable`,{
+            method: 'PATCH',
+            headers: {
+                "Content-type": "application/json"
+            }
+        })
+        const data = await res.json()
+        toast("variante deshabilitada con exito!")
+        fetchVariants()
+    }
+
+    const enableVariant = async(id) => {
+        const res = await fetch(`http://localhost:3000/api/variants/${id}/enable`,{
+            method: 'PATCH',
+            headers: {
+                "Content-type": "application/json"
+            }
+        })
+        const data = await res.json()
+        toast("variante habilitada con exito!")
+        fetchVariantsDisabled()
+        fetchVariants()
     }
 
     const updateVariant = async(formData, variant) =>  {
@@ -110,16 +127,15 @@ export function useVariants () {
             return {success: false}
         }
     }
-    useEffect(() => {
-        fetchVariants()
-    }, [])
 
     return{
-        variants,
-        setVariants,
+        variantsDisabled,
+        setVariantsDisabled,
+        fetchVariantsDisabled,
         createVariant,
         disableVariant,
-        updateVariant,
-        getOneVariant
+        enableVariant,
+        updateVariant
+        /* getOneVariant */
     }
 }
