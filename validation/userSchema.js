@@ -47,3 +47,11 @@ export const userSchema = z.object({
 })
 
 export const updateUserSchema = userSchema.partial()
+
+export const loginSchema = z.object({
+    username: z.string().trim()
+    .min(1, "El nombre de usuario es obligatorio")
+    ,
+    password: z.string().trim()
+    .min(1, "La contraseña es obligatoria")
+})

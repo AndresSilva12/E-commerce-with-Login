@@ -110,6 +110,7 @@ export function useUser() {
     const data = await res.json();
 
     if (!res.ok) {
+      console.log(data)
       for (const [field, message] of Object.entries(data.errors)) {
         setError(field, {
           type: "server",

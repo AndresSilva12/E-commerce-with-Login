@@ -1,4 +1,4 @@
-import {userSchema, updateUserSchema} from "../../../validation/userSchema.js"
+import {userSchema, updateUserSchema, loginSchema} from "../../../validation/userSchema.js"
 import bcrypt from 'bcrypt'
 import prisma from "../db.js" 
 
@@ -129,6 +129,13 @@ export const validateUpdateUser = async (req, res, next) => {
     export const validateLoginUser = async (req, res, next) => {
         try{
             const errors = {}
+            const parsed = loginSchema.safeParse(req.body)
+            if (!parsed.success){
+                for (const error of parsed.error.errors){
+                    errors[error.path] = error.message
+                }
+                return res.status(400).json({errors})
+            }
             const {username, password} = req.body
             const usernameClean = username.trim()
             const passwordClean = password.trim()
@@ -144,14 +151,14 @@ export const validateUpdateUser = async (req, res, next) => {
                 }
             })
         
-            if (!userExist) errors.username = "El usuario no existe"
+            if (!userExist) return res.status(400).json({errors: {username: "El usuario no existe"}})
             
             if (!passwordClean) errors.password = "La contraseña es obligatoria"
 
-            if (Object.keys(errors).length > 0) return res.status(400).json({errors})
             const passwordIsValid = bcrypt.compareSync(passwordClean, userExist.password)
             if (!passwordIsValid) errors.password = "Contraseña Incorrecta"
-
+            
+            if (Object.keys(errors).length > 0) return res.status(400).json({errors})
 
             req.passwordHashed = userExist.password
             req.body.id = userExist.id
