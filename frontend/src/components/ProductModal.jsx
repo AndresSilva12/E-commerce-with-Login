@@ -1,29 +1,30 @@
+import { Button, Accordion, Box, Avatar, Span, Field, Fieldset, Input, InputGroup, NumberInput, Select, Text, Stack, Portal, createListCollection } from "@chakra-ui/react"
+import { productSchema, updateProductSchema } from '../../../validation/productSchema.js'
+import { useStockEntries } from '../hooks/useStockEntries.js'
 import { useProducts } from '../context/ProductContext.jsx'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useEffect, useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { toast } from "../utils/notifyToast.js";
-import { productSchema, updateProductSchema } from '../../../validation/productSchema.js'
-import VariantModal from './VariantModal.jsx'
 import { useVariants } from '../hooks/useVariants.js'
 import { uploadImage } from '../utils/uploads.js'
-import Modal from "./Modal.jsx";
-import { useStockEntries } from '../hooks/useStockEntries.js'
-import { Button, Accordion, Box, Avatar, Span, Field, Fieldset, Input, InputGroup, NumberInput, Select, Text, Stack, Portal, createListCollection } from "@chakra-ui/react"
+import { toast } from "../utils/notifyToast.js";
+import VariantModal from './VariantModal.jsx'
+import { useEffect, useState } from 'react'
+import { useForm } from 'react-hook-form'
+import isEqual from 'lodash.isequal'
 
-function ProductModal({ productUpdate, onSubmit }) {
+function ProductModal({ productUpdate, onSubmit, closeModal }) {
     const { register, handleSubmit, reset, formState: { errors }, setError } = useForm({
         mode: 'onChange',
         resolver: zodResolver(productUpdate ? updateProductSchema : productSchema),
         defaultValues: productUpdate
     })
     const { updateProduct, createProduct } = useProducts()
-    const { deleteVariant, submitVariant, } = useVariants()
+    const { createVariant, updateVariant } = useVariants()
     const [variants, setVariants] = useState([])
     const [variantUpdate, setVariantUpdate] = useState()
     const [purchasePrice, setPurchasePrice] = useState(1)
     const [categories, setCategories] = useState()
     const [categorySelected, setCategorySelected] = useState()
+    const [categorySelectedName, setCategorySelectedName] = useState()
     const { createEntry } = useStockEntries()
 
     useEffect(() => {
@@ -44,10 +45,12 @@ function ProductModal({ productUpdate, onSubmit }) {
 
     useEffect(() => {
         if (productUpdate && productUpdate.variants) {
-            const variantsWithLocalId = productUpdate.variants.map(v => ({
-                ...v,
-                localId: v.id || crypto.randomUUID()
-            }))
+            const variantsWithLocalId = productUpdate.variants
+                .filter(v => !v.disabled)
+                .map(v => ({
+                    ...v,
+                    localId: v.id || crypto.randomUUID()
+                }))
             setVariants(variantsWithLocalId)
         } else {
             setVariants([])
@@ -60,10 +63,20 @@ function ProductModal({ productUpdate, onSubmit }) {
         }
     }, [productUpdate, reset])
 
+    useEffect(() => {
+        if (productUpdate?.categoryId && categories?.items) {
+            const categoryExist = categories.items.find(c => c.value === productUpdate.categoryId)
+            if (categoryExist) {
+                setCategorySelected(productUpdate.categoryId)
+                setCategorySelectedName(categoryExist.label)
+            }
+        }
+    }, [productUpdate, categories])
+
     const onValid = async (data) => {
         const fullProduct = {
             ...data,
-            categoryId: categorySelected.toString(),
+            categoryId: Array.isArray(categorySelected) ? categorySelected[0] : categorySelected,
             variants: variants.length > 0 ? variants.map(({ localId, ...rest }) => rest) : []
         }
         for (const variant of fullProduct.variants) {
@@ -72,14 +85,17 @@ function ProductModal({ productUpdate, onSubmit }) {
                 variant.image = imageUrl
             }
         }
-        const result = productUpdate ? await updateProduct(fullProduct, productUpdate, setError) : await createProduct(fullProduct, setError)
+        const result = productUpdate
+            ? await updateProduct(fullProduct, productUpdate, setError)
+            : await createProduct(fullProduct, setError)
 
         if (!result.success) {
             toast(result.error || "error al guardar el producto", "error")
             return
         }
 
-        for (const variant of result.variants) {
+        const variantes = productUpdate ? result.product.variants : result.variants
+        for (const variant of variantes) {
             const variantFound = fullProduct.variants.find(v => v.code === variant.code)
             const entryData = {
                 items: [{
@@ -93,6 +109,7 @@ function ProductModal({ productUpdate, onSubmit }) {
             createEntry(entryData)
         }
         onSubmit()
+        closeModal()
     }
 
     const onInvalid = () => {
@@ -101,7 +118,44 @@ function ProductModal({ productUpdate, onSubmit }) {
 
 
     const onSubmitVariant = async (data) => {
-        submitVariant({ data, variantUpdate, productUpdate, setVariants })
+        let newVariant
+        const resolveImage = async (image, prevImage) => {
+            if (image === prevImage) return image
+            if (image instanceof File) return await uploadImage(image)
+            return image
+        }
+
+        if (variantUpdate && 'id' in variantUpdate) {
+            const { productId, ...variantWithoutProductId } = variantUpdate
+            if (isEqual(data, variantWithoutProductId)) {
+                return
+            }
+        }
+
+        if (productUpdate) {
+            const fullVariant = {
+                ...data,
+                productId: productUpdate.id,
+                image: await resolveImage(data.image, variantUpdate?.image)
+            }
+
+            if (variantUpdate) {
+                newVariant = await updateVariant(fullVariant, variantUpdate)
+                setVariants(prev => prev.map(v => v.id === variantUpdate.id ? newVariant : v))
+            }
+            else {
+                newVariant = await createVariant(fullVariant)
+                setVariants(prev => [...prev, newVariant])
+            }
+        }
+        else {
+            if (variantUpdate) {
+                setVariants(prev => prev.map(v => v.localId === data.localId ? data : v))
+            }
+            else {
+                setVariants(prev => [...prev, { ...data, localId: crypto.randomUUID() }])
+            }
+        }
     }
 
     const handleCreate = () => {
@@ -164,30 +218,42 @@ function ProductModal({ productUpdate, onSubmit }) {
                             )}
                         </Box>
 
-
-                        <Select.Root value={categorySelected} onValueChange={({ value }) => { setCategorySelected(value) }} collection={categories}>
-                            <Select.HiddenSelect />
-                            <Select.Control>
-                                <Select.Trigger>
-                                    <Select.ValueText placeholder="Select Category" />
-                                </Select.Trigger>
-                                <Select.IndicatorGroup>
-                                    <Select.Indicator />
-                                </Select.IndicatorGroup>
-                            </Select.Control>
-                            <Portal>
-                                <Select.Positioner>
-                                    <Select.Content zIndex="99999">
-                                        {categories?.items?.map((category) => (
-                                            <Select.Item item={category} key={category.value}>
-                                                {category.label}
-                                                <Select.ItemIndicator />
-                                            </Select.Item>
-                                        ))}
-                                    </Select.Content>
-                                </Select.Positioner>
-                            </Portal>
-                        </Select.Root>
+                        {categories && (
+                            <Select.Root
+                                value={categorySelected ? [{ value: categorySelected }] : []}
+                                onValueChange={({ value }) => {
+                                    setCategorySelected(value)
+                                    console.log("value en valueOnChange: ", value)
+                                    const category = categories.items.find(c => c.value === value[0])
+                                    setCategorySelectedName(category?.label || '')
+                                    console.log("name category: ", category)
+                                }}
+                                collection={categories}>
+                                <Select.HiddenSelect />
+                                <Select.Control>
+                                    <Select.Trigger>
+                                        <Select.ValueText>
+                                            {categorySelectedName || 'Seleccione una categoria'}
+                                        </Select.ValueText>
+                                    </Select.Trigger>
+                                    <Select.IndicatorGroup>
+                                        <Select.Indicator />
+                                    </Select.IndicatorGroup>
+                                </Select.Control>
+                                <Portal>
+                                    <Select.Positioner>
+                                        <Select.Content zIndex="99999">
+                                            {categories?.items?.map((category) => (
+                                                <Select.Item item={category} key={category.value}>
+                                                    {category.label}
+                                                    <Select.ItemIndicator />
+                                                </Select.Item>
+                                            ))}
+                                        </Select.Content>
+                                    </Select.Positioner>
+                                </Portal>
+                            </Select.Root>
+                        )}
 
                         <Field.Root>
                             <Field.Label>Description</Field.Label>
@@ -197,8 +263,8 @@ function ProductModal({ productUpdate, onSubmit }) {
                     </Fieldset.Content>
 
                     <Box height="200px" overflowY="scroll">
-                        {variants && variants.map((variant) => (
-                            <Accordion.Root collapsible key={variant.localId} size="sm" onClick={() => { handleUpdate(variant) }}>
+                        {variants && variants.map((variant, index) => (
+                            <Accordion.Root collapsible key={index} size="sm" onClick={() => { handleUpdate(variant) }}>
                                 <Accordion.Item >
                                     <Box display="flex">
                                         <Accordion.ItemTrigger>
@@ -212,10 +278,6 @@ function ProductModal({ productUpdate, onSubmit }) {
                                                 <Text fontSize="sm" color="fg.muted">Color: {variant.color} Stock: {variant.stock}</Text>
                                             </Stack>
                                         </Accordion.ItemTrigger>
-                                        <Modal trigger={<Button variant="ghost">Eliminar</Button>}>
-                                            <h2 >Está seguro que desea eliminar esta variante?</h2>
-                                            <Button onClick={() => { deleteVariant(variant, setVariants) }}>Eliminar</Button>
-                                        </Modal>
                                     </Box>
                                     <Accordion.ItemContent>
 

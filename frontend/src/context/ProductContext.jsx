@@ -6,6 +6,14 @@ const ProductContext = createContext()
 
 export function ProductProvider({ children }) {
     const [products, setProducts] = useState([])
+    const [variants, setVariants] = useState([])
+    const [totalPages, setTotalPages] = useState(1)
+    const [filters, setFilters] = useState({})
+    const [availableFilters, setAvailableFilters] = useState({
+        colors: [],
+        sizes: [],
+        brands: []
+    })
 
     const fetchProducts = async () => {
         try {
@@ -27,6 +35,27 @@ export function ProductProvider({ children }) {
         }
     }
 
+    const fetchVariants = async () => {
+        try {
+            const query = new URLSearchParams(filters).toString()
+            const res = await fetch(`http://localhost:3000/api/variants?${query}`)
+            const data = await res.json()
+
+            setVariants(data.variants)
+            setAvailableFilters({
+                colors: data.filters.colors,
+                sizes: data.filters.sizes,
+                brands: data.filters.brands,
+                categories: data.filters.categories
+            })
+
+            setTotalPages(data.pagination.totalPages)
+
+        } catch (error) {
+            console.log("Error interno del servidor durante el proceso")
+        }
+    }
+
     const createProduct = async (formProduct, setError) => {
         try {
             const errors = {}
@@ -39,7 +68,6 @@ export function ProductProvider({ children }) {
                 toast("debe tener almenos uno en stock por variante")
                 return { success: false, errors: errors }
             }
-            console.log(formProduct)
             const res = await fetch('http://localhost:3000/api/products', {
                 method: 'POST',
                 headers: {
@@ -68,12 +96,11 @@ export function ProductProvider({ children }) {
 
             }
             setProducts((prev) => [...prev, data])
-
+            fetchVariants()
             toast("producto creado con exito!")
             return { success: true, variants: data.variants }
         } catch (error) {
             notify('error', 'No se pudo crear el producto')
-            console.log("el producto no se creo correctamente?", error)
             return { success: false, errors: { general: 'Error interno del servidor' } };
         }
     }
@@ -130,9 +157,11 @@ export function ProductProvider({ children }) {
                 }
                 return { success: false, errors: data.errors || 'Error Desconocido' }
             }
-            setProducts(prev => prev.map(p => p.id === data.id ? data : p))
+
+            fetchVariants()
             toast("producto actualizado con exito!")
-            return { success: true }
+
+            return { success: true, product: data }
         } catch (error) {
             console.log("Error interno del servidor durante el proceso", error)
         }
@@ -151,11 +180,27 @@ export function ProductProvider({ children }) {
     }
 
     useEffect(() => {
-        fetchProducts()
-    }, [])
+        fetchVariants()
+    }, [filters])
 
     return (
-        <ProductContext.Provider value={{ products, fetchUniqueProduct, createProduct, fetchProducts, deleteProduct, updateProduct, addVariantToProduct, deleteVariantToProduct, updateVariantToProduct }}>
+        <ProductContext.Provider value={{
+            products,
+            fetchProducts,
+            fetchUniqueProduct,
+            createProduct,
+            updateProduct,
+            deleteProduct,
+            variants,
+            fetchVariants,
+            filters,
+            setFilters,
+            availableFilters,
+            totalPages,
+            addVariantToProduct,
+            deleteVariantToProduct,
+            updateVariantToProduct
+        }}>
             {children}
         </ProductContext.Provider>
     )

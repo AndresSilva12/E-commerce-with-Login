@@ -31,7 +31,8 @@ export function useStockEntries () {
             })
             const data = await res.json()
             if (!res.ok){
-                    console.log("Hubo un error durante la creación", res)
+                    console.log("Hubo un error durante la creación", data)
+                    return
                 }
             setStockEntries((prev) => ([...prev, data]))
             for (const variant of data.updatedVariants){

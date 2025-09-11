@@ -29,6 +29,9 @@ export const getVariants = async(req, res) => {
         const take = LIMIT
         const {code, size, color, stockMin, stockMax, sortBy, sortOrder} = req.query
         const where = {}
+        const onlyDisabled = req.query.onlyDisabled === "true";
+
+        where.disabled = { equals: onlyDisabled ? true : false }
         
         if (code) where.code = {equals: code}
         if (size) where.size = {equals: size}
@@ -166,6 +169,38 @@ export const getOnlyOneVariant = async(req, res) => {
         const variant = await prisma.productVariant.findUnique({
             where: {
                 id: idParsed
+            }
+        })
+        return res.json(variant)
+    } catch (error) {
+        return res.status(500).json({error: "Error interno durante el proceso"})
+    }
+}
+
+export const disableVariant = async(req, res) => {
+    try {
+        const variant = await prisma.productVariant.update({
+            where: {
+                id: req.params.id
+            },
+            data: {
+                disabled: true
+            }
+        })
+        return res.json(variant)
+    } catch (error) {
+        return res.status(500).json({error: "Error interno durante el proceso"})
+    }
+}
+
+export const enableVariant = async(req, res) => {
+    try {
+        const variant = await prisma.productVariant.update({
+            where: {
+                id: req.params.id
+            },
+            data: {
+                disabled: false
             }
         })
         return res.json(variant)

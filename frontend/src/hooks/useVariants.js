@@ -1,22 +1,21 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { toast } from "../utils/notifyToast.js";
 import { useProducts } from "../context/ProductContext.jsx"
-import { uploadImage } from '../utils/uploads.js'
 import isEqual from 'lodash.isequal'
 import { useStockEntries } from "./useStockEntries.js"
 
 export function useVariants () {
-    const { addVariantToProduct, deleteVariantToProduct, updateVariantToProduct} = useProducts()
+    const { updateVariantToProduct, fetchVariants} = useProducts()
     const {createEntry} = useStockEntries()
-    const [variants, setVariants] = useState([])
+    const [variantsDisabled, setVariantsDisabled] = useState([])
 
-    const fetchVariants = async() => {
-        const res = await fetch('http://localhost:3000/api/variants')
+    const fetchVariantsDisabled = async() => {
+        const res = await fetch(`http://localhost:3000/api/variants?onlyDisabled=true`)
         const data = await res.json()
-        setVariants(data)
+        setVariantsDisabled(data.variants)
     }
 
-    const getOneVariant = async(variant, setError) => {
+    /* const getOneVariant = async(variant, setError) => {
         try{
             const res = await fetch(`http://localhost:3000/api/variants/${variant.code}/check`,{
                 method: 'POST',
@@ -38,7 +37,7 @@ export function useVariants () {
         catch(error){
             console.log(error)
         }
-    }
+    } */
 
     const createVariant = async(formData) => {
         const {motive, purchasePrice, ...formDataClean} = formData
@@ -50,10 +49,11 @@ export function useVariants () {
                 },
                 body: JSON.stringify(formDataClean)
             })
-            if (!res.ok){
-                console.log("Hubo un error durante la creación", res)
-            }
             const data = await res.json()
+            if (!res.ok){
+                console.log("Hubo un error durante la creación", data)
+                return
+            }
             const entryData = {
                 items: [
                     {
@@ -63,31 +63,43 @@ export function useVariants () {
                     }
                 ],
                 motive: motive || "Stock Inicial",
-                total: formData.stock * purchasePrice
+                total: formDataClean.stock * purchasePrice
             }
             await createEntry(entryData)
+            await fetchVariants()
             toast("variante creada con exito!")
-            return {id: data.id}
+            return {
+                ...data,
+                stock: formData.stock
+            }
         } catch (error) {
             console.log(error)
         }
     }
 
-    const deleteVariant = async(variant, setVariants) => {
-        if (variant.id) {
-            deleteVariant(variant.id)
-            const res = await fetch(`http://localhost:3000/api/variants/id/${variant.id}`,{
-                method: 'DELETE',
-                headers: {
-                    "Content-type": "application/json"
-                }
-            })
-            const data = await res.json()
-            setVariants((prev) => (prev.filter((p) => p.id !== variant.id)))
-            await deleteVariantToProduct(data.productId, variant.id)
-            toast("variante eliminada con exito!")
-        }
-        setVariants((prev => prev.filter(p => p.localId !== variant.localId)))
+    const disableVariant = async(id) => {
+        const res = await fetch(`http://localhost:3000/api/variants/${id}/disable`,{
+            method: 'PATCH',
+            headers: {
+                "Content-type": "application/json"
+            }
+        })
+        const data = await res.json()
+        toast("variante deshabilitada con exito!")
+        fetchVariants()
+    }
+
+    const enableVariant = async(id) => {
+        const res = await fetch(`http://localhost:3000/api/variants/${id}/enable`,{
+            method: 'PATCH',
+            headers: {
+                "Content-type": "application/json"
+            }
+        })
+        const data = await res.json()
+        toast("variante habilitada con exito!")
+        fetchVariantsDisabled()
+        fetchVariants()
     }
 
     const updateVariant = async(formData, variant) =>  {
@@ -101,7 +113,7 @@ export function useVariants () {
                 headers: {
                     "Content-type": "application/json"
                 },
-                body: JSON.stringify(formDataWithoutMotive)
+                body: JSON.stringify(formData)
             })
             const data = await res.json()
             if (!res.ok) {
@@ -109,67 +121,21 @@ export function useVariants () {
             }
             await updateVariantToProduct(data.productId, data.id, data)
             toast("variante actualizada con exito!")
+            return data
         }
         catch (error){
             return {success: false}
         }
     }
 
-    const submitVariant = async({setVariants, productUpdate, variantUpdate, data }) => {
-        const resolveImage = async(image, prevImage) => {
-            if (image === prevImage) return image
-            if (image instanceof File) return await uploadImage(image)
-            return image
-        }
-
-        if (variantUpdate && 'id' in variantUpdate) {
-            const { productId, ...variantWithoutProductId } = variantUpdate
-            if (isEqual(data, variantWithoutProductId)) {
-                return 
-            }
-        }
-
-        const fullVariant = {...data}
-        if (productUpdate) {
-            fullVariant.productId = productUpdate.id
-            fullVariant.image = await resolveImage(data.image, variantUpdate?.image)
-
-            if (variantUpdate) {
-                await updateVariant(fullVariant, variantUpdate)
-                setVariants((prev => prev.map(p => p.localId === data.localId ? { ...fullVariant, id: variantUpdate.id } : p)))
-            } else {
-                const resultVariant = await createVariant(fullVariant)
-                if (resultVariant?.id) {
-                    const newVariant = {
-                        ...fullVariant,
-                        id: resultVariant.id
-                    }
-                    setVariants(prev => [...prev.filter(p => p.localId !== data.localId), newVariant])
-
-                    await addVariantToProduct(productUpdate.id, newVariant)
-                }
-            }
-        } else {
-            if (variantUpdate){
-                setVariants((prev => prev.map(p => p.localId === data.localId ? data : p)))
-            }else{
-                setVariants((prev) => [...prev, data])
-            }
-        }
-    }
-
-    useEffect(() => {
-        fetchVariants()
-    }, [])
-
     return{
-        variants,
-        setVariants,
-        fetchVariants,
+        variantsDisabled,
+        setVariantsDisabled,
+        fetchVariantsDisabled,
         createVariant,
-        deleteVariant,
-        updateVariant,
-        getOneVariant,
-        submitVariant
+        disableVariant,
+        enableVariant,
+        updateVariant
+        /* getOneVariant */
     }
 }

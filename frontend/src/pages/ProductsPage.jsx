@@ -1,15 +1,15 @@
-import { useState, useEffect } from "react";
-import { Toaster } from "../components/ui/toaster"
-import { toast } from "../utils/notifyToast.js";
+import { Button, Card, Image, Text, Grid, GridItem, Checkbox, Select, Portal, InputGroup, ButtonGroup, Stack, createListCollection, Pagination, HStack, Field, Badge, Box, NumberInput, IconButton } from "@chakra-ui/react"
+import { useStockEntries } from "../hooks/useStockEntries";
 import { useProducts } from "../context/ProductContext";
 import ProductModal from "../components/ProductModal";
-import { Button, Card, Image, Text, Grid, GridItem, Checkbox, Select, Portal, InputGroup, ButtonGroup, Stack, createListCollection, Pagination, HStack, Field, Badge, Box, NumberInput, IconButton } from "@chakra-ui/react"
-import Modal from "../components/Modal";
-import { useVariants } from '../hooks/useVariants.js'
+import { Toaster } from "../components/ui/toaster";
+import { useVariants } from "../hooks/useVariants";
 import { useCart } from "../context/CartContext";
-import { useForm } from "react-hook-form";
-import { useStockEntries } from "../hooks/useStockEntries";
+import { toast } from "../utils/notifyToast.js";
 import SearchBar from "../components/SearchBar";
+import { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import Modal from "../components/Modal";
 
 export function ModalStockUpdate({ variantUpdate }) {
     const { handleSubmit } = useForm()
@@ -92,55 +92,20 @@ export function ModalStockUpdate({ variantUpdate }) {
 
 function ProductsPage() {
     const [productUpdate, setProductUpdate] = useState(null)
-    const { products, deleteProduct, fetchUniqueProduct } = useProducts()
-    const { deleteVariant, submitVariant, setVariants, variants } = useVariants()
+    const { products, fetchUniqueProduct, variants, availableFilters, totalPages, setFilters } = useProducts()
+    const { disableVariant } = useVariants()
     const [variantUpdate, setVariantUpdate] = useState()
-    const [filters, setFilters] = useState({})
     const [priceMin, setPriceMin] = useState(0)
     const [priceMax, setPriceMax] = useState(0)
-    const [availableFilters, setAvailableFilters] = useState({
-        colors: [],
-        sizes: [],
-        brands: []
-    })
+    const [sortBy, setSortBy] = useState()
     const [filtersChecked, setFiltersChecked] = useState({
         colors: [],
         sizes: [],
         brands: [],
         categories: []
     })
-    const [sortBy, setSortBy] = useState()
     const [page, setPage] = useState(1)
-    const [totalPages, setTotalPages] = useState()
     const { addToCart } = useCart()
-
-    useEffect(() => {
-        const fetchSearch = async () => {
-            const query = new URLSearchParams(filters).toString()
-            const res = await fetch(`http://localhost:3000/api/variants?${query}`)
-            const data = await res.json()
-            console.log(data)
-            setVariants(data.variants)
-            setAvailableFilters({
-                colors: data.filters.colors,
-                sizes: data.filters.sizes,
-                brands: data.filters.brands,
-                categories: data.filters.categories
-            })
-            setTotalPages(data.pagination.totalPages)
-        }
-        fetchSearch()
-    }, [filters])
-
-    useEffect(() => {
-        if (productUpdate && productUpdate.variants) {
-            const variantsWithLocalId = productUpdate.variants.map(v => ({
-                ...v,
-                localId: v.id || crypto.randomUUID()
-            }))
-            setVariants(variantsWithLocalId)
-        }
-    }, [])
 
     const sorts = createListCollection({
         items: [
@@ -153,22 +118,11 @@ function ProductsPage() {
 
     const onSubmit = () => {
         setProductUpdate(null)
-    }
-
-    const handleUpdate = (product) => {
-        setProductUpdate(product)
-    }
-
-    const handleDelete = (id) => {
-        deleteProduct(id)
+        setFilters(null)
     }
 
     const handleCreate = () => {
         setProductUpdate(null)
-    }
-
-    const onSubmitVariant = async (data) => {
-        submitVariant({ setVariants, productUpdate, variantUpdate, data })
     }
 
     const handleVariantUpdate = async (variant, product) => {
@@ -178,12 +132,11 @@ function ProductsPage() {
     }
 
     const handleCart = (variant) => {
-        const item = products.find((product) => product.id === variant.productId)
-        const onlyVariant = item.variants.find((v) => v.id === variant.id)
+        const item = variant.product
         const fullItem = {
             ...item,
             variants: {
-                ...onlyVariant,
+                ...variant,
                 quantity: 1,
                 unitPrice: item.salePrice
             }
@@ -313,7 +266,6 @@ function ProductsPage() {
                 return newFilter
             })
         } else {
-            console.log(valueSplit[0], valueSplit[1])
             setFilters((prev) => ({ ...prev, sortBy: valueSplit[0], sortOrder: valueSplit[1] }))
         }
     }
@@ -321,6 +273,11 @@ function ProductsPage() {
     const handleChangePage = (page) => {
         setPage(page)
         setFilters((prev) => ({ ...prev, page: page }))
+    }
+
+    const handleDisable = async (id, closeModal) => {
+        await disableVariant(id)
+        closeModal()
     }
 
     return (
@@ -443,15 +400,24 @@ function ProductsPage() {
                                     <Text textStyle="2xl" fontWeight="medium" letterSpacing="tight" mt="2">${new Intl.NumberFormat("es-AR").format(variant.product.salePrice)}</Text>
                                 </Card.Body>
                                 <Card.Footer display="flex" flexDirection="column" justifyContent="center">
+
                                     <Box display="flex" justifyContent="center" gap="4">
                                         <Modal size={"xl"} trigger={<Button type="button" width="50px" flex="1" onClick={() => handleVariantUpdate(variant, variant.product)}>Editar</Button>}>
-                                            <ProductModal productUpdate={productUpdate} onSubmit={onSubmit} />
+                                            {({ closeModal }) => (
+                                                <ProductModal productUpdate={productUpdate} onSubmit={onSubmit} closeModal={closeModal} />
+                                            )}
                                         </Modal>
-                                        <Modal trigger={<Button colorPalette="red" flex="1" >Eliminar</Button>}>
-                                            <h2 >Está seguro que desea eliminar esta variante?</h2>
-                                            <Button onClick={() => deleteVariant(variant, setVariants)}>Eliminar</Button>
+
+                                        <Modal trigger={<Button colorPalette="red" flex="1" >Deshabilitar</Button>}>
+                                            {({ closeModal }) => (
+                                                <>
+                                                    <h2 >Está seguro que desea deshabilitar esta variante?</h2>
+                                                    <Button onClick={() => { handleDisable(variant.id, closeModal) }}>Deshabilitar</Button>
+                                                </>
+                                            )}
                                         </Modal>
                                     </Box>
+
                                     <Box gap="2" display="flex" justifyContent="center">
                                         <NumberInput.Root value={variant.stock} unstyled spinOnPress={false} >
                                             <HStack>
@@ -493,11 +459,7 @@ function ProductsPage() {
             </Grid >
             <Modal size={"xl"} trigger={<Button position="fixed" right="0" bottom="0" size="lg" margin="1rem" colorPalette="teal" onClick={handleCreate}>+</Button>}>
                 {({ closeModal }) => (
-                    <ProductModal productUpdate={productUpdate} onSubmit={() => {
-                        onSubmit()
-                        setFilters(null)
-                        closeModal()
-                    }} />
+                    <ProductModal productUpdate={productUpdate} onSubmit={onSubmit} closeModal={closeModal} />
                 )}
             </Modal>
             <Toaster />

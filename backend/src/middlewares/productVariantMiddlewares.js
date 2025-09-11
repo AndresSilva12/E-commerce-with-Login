@@ -1,3 +1,4 @@
+import { id } from "zod/v4/locales"
 import { idVariantSchema, updateVariantSchema, variantSchema } from "../../../validation/productVariantsSchema.js"
 import prisma from "../db.js"
 
@@ -30,6 +31,7 @@ export const validateVariantExist = async(req, res, next) => {
         })
         if(!variant) return res.status(404).json({error: "La variante no existe"})
         req.variant = variant
+        req.params.id = idParsed.data
         next()
     } catch (error) {
         console.log(error)

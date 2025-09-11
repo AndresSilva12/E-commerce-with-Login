@@ -1,5 +1,5 @@
 import {Router} from 'express'
-import { createVariant, deleteAllVariantsByProduct, deleteVariant, getVariants, getAllVariantsByProduct, getOnlyOneVariant, updateVariant } from '../controller/productVariant.controller.js';
+import { createVariant, deleteAllVariantsByProduct, deleteVariant, getVariants, getAllVariantsByProduct, getOnlyOneVariant, updateVariant, disableVariant, enableVariant } from '../controller/productVariant.controller.js';
 import { validateCreateVariant, validateUpdateVariant, validateVariantExist, validateUniqueCode } from '../middlewares/productVariantMiddlewares.js';
 
 const router = Router()
@@ -19,5 +19,9 @@ router.delete('/variants/id/:id', validateVariantExist, deleteVariant)
 router.delete('/variants/product/:productId', deleteAllVariantsByProduct)
 
 router.put('/variants/:id',validateVariantExist, validateUpdateVariant, updateVariant)
+
+router.patch('/variants/:id/disable',validateVariantExist, disableVariant)
+
+router.patch('/variants/:id/enable',validateVariantExist, enableVariant)
 
 export default router
