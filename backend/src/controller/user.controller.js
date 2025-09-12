@@ -5,9 +5,15 @@ import { convertToUserPublic } from "../utils/userUtils.js";
 
 export const createUser = async (req, res, next) => {
   try {
-    const { username, password, email, phoneNumber, name, lastName, age } =
-      req.body;
+    const { username, password, email, phoneNumber, name, lastName, age } = req.body;
     const passwordHashed = await bcrypt.hash(password, 10);
+
+    const countAdmin = await prisma.users.count({
+      where: {
+        role: "ADMIN"
+      }
+    })
+    const newRole = countAdmin < process.env.MAX_ADMINS_AT_START ? "ADMIN" : "USER"
     const newUser = await prisma.users.create({
       data: {
         username: username,
@@ -17,11 +23,11 @@ export const createUser = async (req, res, next) => {
         name: name,
         lastName: lastName,
         age: age,
+        role: newRole
       },
     });
     return res.json(convertToUserPublic(newUser));
   } catch (error) {
-    console.log(error);
     return res.status(500).json({ error: "Error interno al crear el usuario" });
   }
 };
