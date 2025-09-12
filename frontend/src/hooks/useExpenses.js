@@ -3,7 +3,8 @@ export function useExpenses () {
         const res = await fetch('http://localhost:3000/api/expenses',{
             method: 'POST',
             headers: {"Content-Type": "application/json"},
-            body: JSON.stringify(formData)
+            body: JSON.stringify(formData),
+            credentials: "include"
         })
         const data = await res.json()
         console.log(data)
@@ -13,7 +14,8 @@ export function useExpenses () {
         const res = await fetch(`http://localhost:3000/api/expenses/${id}`,{
             method: 'PUT',
             headers: {"Content-Type": "application/json"},
-            body: JSON.stringify(formData)
+            body: JSON.stringify(formData),
+            credentials: "include"
         })
         const data = await res.json()
         console.log(data)
@@ -22,7 +24,8 @@ export function useExpenses () {
     const deleteExpense = async (id) => {
         const res = await fetch(`http://localhost:3000/api/expenses/${id}`,{
             method: 'DELETE',
-            headers: {"Content-Type": "application/json"}
+            headers: {"Content-Type": "application/json"},
+            credentials: "include"
         })
         const data = await res.json()
         console.log(data)
