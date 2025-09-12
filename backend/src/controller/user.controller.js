@@ -120,8 +120,8 @@ export const updateUserSelected = async (req, res, next) => {
 };
 
 export const loginUser = async (req, res, next) => {
-  const { id, username } = req.body;
-  const accessToken = jwt.sign({ id : id, username: username}, process.env.JWT_ACCESS_SECRET, { expiresIn: "12m" });
+  const { id, username, role } = req.body;
+  const accessToken = jwt.sign({ id : id, username: username, role: role}, process.env.JWT_ACCESS_SECRET, { expiresIn: "12m" });
   res.cookie("accessToken", accessToken, {
     httpOnly: true,
     sameSite: "strict",

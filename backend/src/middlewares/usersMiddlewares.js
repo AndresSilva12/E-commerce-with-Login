@@ -147,7 +147,8 @@ export const validateUpdateUser = async (req, res, next) => {
                 },
                 select: {
                     id: true,
-                    password: true
+                    password: true,
+                    role: true,
                 }
             })
         
@@ -164,6 +165,7 @@ export const validateUpdateUser = async (req, res, next) => {
             req.body.id = userExist.id
             req.body.username = usernameClean
             req.body.password = passwordClean
+            req.body.role = userExist.role
             next()
         }
         catch (error){
