@@ -1,5 +1,6 @@
-import { useNavigate } from "react-router-dom"
 import { AuthContext } from "../context/AuthContext"
+import { toast } from "../utils/notifyToast.js";
+import { useNavigate } from "react-router-dom"
 import { handleAuth } from "../utils/auth.js"
 import { useContext } from "react"
 
@@ -21,8 +22,8 @@ export function useExpenses () {
                 handleAuth(data, setIsAuthenticated, navigate)
                 return
             }
-            console.log(data)
-            
+            toast("Gasto registrada con exito!")
+            return data
         } catch (error) {
             console.log(error.message)
         }
@@ -42,7 +43,8 @@ export function useExpenses () {
                 handleAuth(data, setIsAuthenticated, navigate)
                 return
             }
-            console.log(data)
+            toast("Gasto Actualizado con exito!")
+            return data
         } catch (error) {
             console.log(error.message)
         }
@@ -61,7 +63,8 @@ export function useExpenses () {
                 handleAuth(data, setIsAuthenticated, navigate)
                 return
             }
-            console.log(data)
+            toast("Gasto eliminado con exito!")
+            return id
         } catch (error) {
             console.log(error.message)
         }
