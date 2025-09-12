@@ -1,7 +1,9 @@
 export const handleAuth = (data, setIsAuthenticated, navigate) => {
     if (data.error === "Debe iniciar sesión"){
         setIsAuthenticated(false);
-        navigate("/login");
+        if (navigate){
+            navigate("/login");
+        }
     }
     throw new Error (data.error)
 }

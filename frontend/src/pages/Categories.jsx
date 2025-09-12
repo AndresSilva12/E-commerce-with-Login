@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { categorySchema } from "../../../validation/categorySchema.js"
 import { useCategories } from "../hooks/useCategories.js";
 import Modal from "../components/Modal.jsx"
+import { Toaster } from "../components/ui/toaster";
 
 export function CategoryForm({ categoryUpdate, closeModal }) {
     const { createCategory, updateCategory } = useCategories()
