@@ -5,7 +5,7 @@ import { authenticate } from "../middlewares/authMiddlewares.js"
 const router = Router()
 
 router.post('/entries', authenticate, validateStockEntry, createStockEntry)
-router.get('/entries', getAllStockEntries)
-router.delete('/entries/:id', validateStockEntryExist,  deleteEntry)
+router.get('/entries', authenticate, getAllStockEntries)
+router.delete('/entries/:id', authenticate, validateStockEntryExist,  deleteEntry)
 
 export default router

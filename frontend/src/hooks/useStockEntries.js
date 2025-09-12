@@ -12,7 +12,8 @@ export function useStockEntries () {
             method: 'GET',
             headers: {
                 "content-type": "application/json"
-            }
+            },
+            credentials: "include"
         })
         const data = await res.json()
         setStockEntries(data.allStockEntries)
@@ -23,11 +24,11 @@ export function useStockEntries () {
         try{
             const res = await fetch('http://localhost:3000/api/entries', {
                 method: 'POST',
-                credentials: "include",
                 headers: {
                     "content-type": "application/json"
                 },
-                body: JSON.stringify(entryData)
+                body: JSON.stringify(entryData),
+                credentials: "include"
             })
             const data = await res.json()
             if (!res.ok){
@@ -49,7 +50,8 @@ export function useStockEntries () {
             method: 'DELETE',
             headers: {
                 "Content-Type": "application/json"
-            }
+            },
+            credentials: "include"
         })
         const data = await res.json()
         setStockEntries((prev) => (prev.filter(e => e.id !== id)))
