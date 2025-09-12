@@ -1,4 +1,3 @@
-import { categorySchema } from '../../../validation/categorySchema.js'
 import prisma from '../db.js'
 
 export const getAllCategories = async(req, res) => {

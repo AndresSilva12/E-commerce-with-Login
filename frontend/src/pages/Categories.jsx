@@ -8,7 +8,7 @@ import Modal from "../components/Modal.jsx"
 
 export function CategoryForm({ categoryUpdate, closeModal }) {
     const { createCategory, updateCategory } = useCategories()
-    const { register, handleSubmit, reset, formState: { errors } } = useForm({
+    const { register, handleSubmit, reset, formState: { errors }, setError } = useForm({
         resolver: zodResolver(categorySchema)
     })
 
@@ -21,19 +21,14 @@ export function CategoryForm({ categoryUpdate, closeModal }) {
     }, [categoryUpdate, reset])
 
     const onValid = async (data) => {
-        categoryUpdate ? updateCategory(categoryUpdate.id, data) : createCategory(data)
+        categoryUpdate ? updateCategory(categoryUpdate.id, data, setError, closeModal) : createCategory(data, setError, closeModal)
     }
     const onInvalid = async (data) => {
         console.log("error", data)
     }
 
     return (
-        <form onSubmit={handleSubmit(
-            async (data) => {
-                await onValid(data)
-                if (closeModal) closeModal()
-            }, onInvalid
-        )}>
+        <form onSubmit={handleSubmit(onValid, onInvalid)}>
             <Box display="flex" flexDirection="column" justifyContent="center" gap="4">
                 <Fieldset.Root>
                     <Fieldset.Content>
