@@ -4,7 +4,9 @@ export function useCategories () {
     const [categories, setCategories] = useState([])
 
     const getCategories = async () => {
-        const res = await fetch('http://localhost:3000/api/category')
+        const res = await fetch('http://localhost:3000/api/category',{
+            credentials: "include"
+        })
         const data = await res.json()
         setCategories(data)
     }
@@ -15,7 +17,8 @@ export function useCategories () {
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify(formData)
+            body: JSON.stringify(formData),
+            credentials: "include"
         })
         const data = await res.json()
         setCategories((prev) => ({...prev, data}))
@@ -27,7 +30,8 @@ export function useCategories () {
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify(formData)
+            body: JSON.stringify(formData),
+            credentials: "include"
         })
         const data = await res.json()
         setCategories((prev) => (prev.filter(c => c.id !== id ? c : data)))
