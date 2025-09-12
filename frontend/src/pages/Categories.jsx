@@ -86,6 +86,7 @@ function Categories() {
                     <CategoryForm closeModal={closeModal} categoryUpdate={categoryUpdate} />
                 )}
             </Modal>
+            <Toaster />
         </Box>
     )
 }

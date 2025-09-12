@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { AuthContext } from '../context/AuthContext'
+import { toast } from "../utils/notifyToast.js";
 import { useContext, useState } from 'react'
 import { handleAuth } from '../utils/auth.js'
 
@@ -52,6 +53,7 @@ export function useCategories () {
             }
 
             setCategories((prev) => ([...prev, data]))
+            toast("Categoría registrada con exito!")
             closeModal()
         } catch (error) {
             console.log(error.message)
@@ -84,6 +86,7 @@ export function useCategories () {
             }
 
             setCategories((prev) => (prev.map(c => c.id === id ? data : c)))
+            toast("Categoría actualizada con exito!")
             closeModal()
         } catch (error) {
             console.log(error.message)
