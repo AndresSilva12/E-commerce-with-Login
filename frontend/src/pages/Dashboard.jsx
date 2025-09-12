@@ -10,6 +10,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { expensesSchema, updateExpensesSchema } from "../../../validation/expensesSchema.js"
 import { Toaster } from "../components/ui/toaster";
 import { useMetrics } from "../hooks/useMetrics.js"
+import { generatePdfReport } from "../utils/pdfReport.js"
 
 export function ChartProducts({ topProductosVentas, topCategorias, topProductosCantidad }) {
     const chartData = topProductosVentas
@@ -213,26 +214,6 @@ function Dashboard() {
         if (idDeleted) setFilters({})
     }
 
-    const handleReport = async () => {
-        const res = await fetch('http://localhost:3000/api/report', {
-            method: 'POST',
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(metrics)
-        })
-        const blob = await res.blob()
-
-        const url = window.URL.createObjectURL(blob)
-        const a = document.createElement("a")
-
-        a.href = url
-        a.download = "reporte.pdf"
-        document.body.appendChild(a)
-        a.click()
-        a.remove()
-        window.URL.revokeObjectURL(url)
-    }
-
-
     return (
         <Grid templateColumns="repeat(8, 1fr)" templateRows="repeat(10, 1fr)">
             <GridItem rowSpan={10} colSpan={1} padding="4" bg="black" display="flex" flexDirection="column" justifyContent="center" gap="4" position="fixed" top="50px" zIndex="50" bottom="0">
@@ -280,7 +261,7 @@ function Dashboard() {
 
                     <Box display="flex" flexDirection="column">
                         <ChartCard value={gananciaNeta + costos - totalGastos} title={"Caja Final"} subtitle={"Total de utilidad"} />
-                        <Button onClick={() => { handleReport() }}>Generar Reporte</Button>
+                        <Button onClick={() => { generatePdfReport(metrics) }}>Generar Reporte</Button>
                     </Box>
 
                 </Box>
