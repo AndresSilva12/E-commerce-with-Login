@@ -12,7 +12,8 @@ export function useSales () {
             method: 'GET',
             headers: {
                 "content-type": "application/json"
-            }
+            },
+            credentials: "include"
         })
         const data = await res.json()
         setSales(data.allSales)
@@ -22,11 +23,11 @@ export function useSales () {
     const createSale = async(saleData) => {
         const res = await fetch('http://localhost:3000/api/sales',{
             method: 'POST',
-            credentials: "include",
             headers: {
                 "content-type": "application/json"
             },
             body:JSON.stringify(saleData),
+            credentials: "include",
         })
         const data = await res.json()
         setSales((prev) => ({...prev, data}))
@@ -40,7 +41,8 @@ export function useSales () {
             method: 'DELETE',
             headers: {
                 "content-type": "application/json"
-            }
+            },
+            credentials: "include"
         })
         const data = await res.json()
         setSales((prev) => (prev.filter((s => s.id !== saleId))))

@@ -7,8 +7,8 @@ const router = Router()
 
 router.post('/sales', authenticate, validateNewSale, createNewSale)
 
-router.get('/sales', getAllSales)
+router.get('/sales', authenticate, getAllSales)
 
-router.delete('/sales/:id',validateSaleExist, deleteSale)
+router.delete('/sales/:id',authenticate, validateSaleExist, deleteSale)
 
 export default router
