@@ -9,6 +9,8 @@ import { useExpenses } from "../hooks/useExpenses.js"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { expensesSchema, updateExpensesSchema } from "../../../validation/expensesSchema.js"
 import { Toaster } from "../components/ui/toaster";
+import { useMetrics } from "../hooks/useMetrics.js"
+
 export function ChartProducts({ topProductosVentas, topCategorias, topProductosCantidad }) {
     const chartData = topProductosVentas
         ? topProductosVentas.map((item) => ({
@@ -119,6 +121,7 @@ export function ChartCard({ value, title, subtitle }) {
 }
 
 export function ExpensesModal({ expenseUpdate, onSubmitExpense }) {
+    const { createExpense, updateExpense } = useExpenses()
     const { register, handleSubmit, reset, formState: { errors } } = useForm({
         mode: 'onChange',
         resolver: zodResolver(expenseUpdate ? updateExpensesSchema : expensesSchema)
@@ -132,8 +135,9 @@ export function ExpensesModal({ expenseUpdate, onSubmitExpense }) {
         }
     }, [expenseUpdate, reset])
 
-    const onValid = (data) => {
-        onSubmitExpense(data)
+    const onValid = async (data) => {
+        expenseUpdate ? await updateExpense(data, expenseUpdate.id) : await createExpense(data)
+        onSubmitExpense()
     }
 
     return (
@@ -171,36 +175,11 @@ export function ExpensesModal({ expenseUpdate, onSubmitExpense }) {
 }
 
 function Dashboard() {
-    const [ingresosBrutos, setIngresosBrutos] = useState()
-    const [ventasTotales, setVentasTotales] = useState()
-    const [gananciaNeta, setGananciaNeta] = useState()
-    const [totalGastos, setTotalGastos] = useState()
-    const [expenses, setExpenses] = useState([])
-    const { createExpense, updateExpense, deleteExpense } = useExpenses()
-    const [costos, setCostos] = useState()
-    const [topProductosVentas, setTopProductosVentas] = useState([])
-    const [topProductosCantidad, setTopProductosCantidad] = useState([])
-    const [topCategorias, setTopCategorias] = useState([])
-    const [filters, setFilters] = useState()
+    const { deleteExpense } = useExpenses()
+    const { metrics, fetchMetrics, filters, setFilters, topProductosCantidad, topProductosVentas, ingresosBrutos, topCategorias, ventasTotales, gananciaNeta, totalGastos, expenses, costos } = useMetrics()
     const [expenseUpdate, setExpenseUpdate] = useState(null)
-    const [metrics, setMetrics] = useState()
 
     useEffect(() => {
-        const fetchMetrics = async () => {
-            const query = new URLSearchParams(filters).toString()
-            const res = await fetch(`http://localhost:3000/api/dashboard/metrics?${query}`)
-            const data = await res.json()
-            setMetrics({ metrics: data })
-            setIngresosBrutos(data.ingresos)
-            setGananciaNeta(data.gananciaNeta)
-            setVentasTotales(data.ventasTotales)
-            setTotalGastos(data.totalExpenses)
-            setExpenses(data.expenses)
-            setCostos(data.costos)
-            setTopProductosCantidad(data.topProductosCantidad)
-            setTopProductosVentas(data.topProductosVentas)
-            setTopCategorias(data.topCategorias)
-        }
         fetchMetrics()
     }, [filters])
 
@@ -229,22 +208,9 @@ function Dashboard() {
                 ? setFilters({ year: year, month: month, minDay: minDay })
                 : setFilters({ year: year })
     }
-
-    const handleUpdateExpense = async (data, id, closeModal) => {
-        const updatedExpense = await updateExpense(data, id)
-        if (updatedExpense) setExpenses(prev => prev.map(e => e.id === id ? updatedExpense : e))
-        closeModal()
-    }
-
     const handleDeleteExpense = async (id) => {
         const idDeleted = await deleteExpense(id)
-        if (idDeleted) setExpenses(prev => prev.filter(e => e.id !== idDeleted))
-    }
-
-    const handleCreateExpense = async (data, closeModal) => {
-        const newExpense = await createExpense(data)
-        if (newExpense) setExpenses(prev => [...prev, newExpense])
-        closeModal()
+        if (idDeleted) setFilters({})
     }
 
     const handleReport = async () => {
@@ -303,7 +269,10 @@ function Dashboard() {
                         <Box width="full" height="50px" display="flex" justifyContent="center">
                             <Modal size={"sm"} trigger={<Button onClick={() => { setExpenseUpdate(null) }}>Agregar nuevo gasto</Button>}>
                                 {({ closeModal }) => (
-                                    <ExpensesModal expenseUpdate={expenseUpdate} onSubmitExpense={(data) => { handleCreateExpense(data, closeModal) }} />
+                                    <ExpensesModal expenseUpdate={expenseUpdate} onSubmitExpense={() => {
+                                        closeModal()
+                                        setFilters({})
+                                    }} />
                                 )}
                             </Modal>
                         </Box>
@@ -345,7 +314,10 @@ function Dashboard() {
                                 <Table.Cell>
                                     <Modal size={"sm"} trigger={<Button onClick={() => { setExpenseUpdate(expense) }}>Editar</Button>}>
                                         {({ closeModal }) => (
-                                            <ExpensesModal expenseUpdate={expenseUpdate} onSubmitExpense={(data) => { handleUpdateExpense(data, expenseUpdate.id, closeModal) }} />
+                                            <ExpensesModal expenseUpdate={expenseUpdate} onSubmitExpense={() => {
+                                                closeModal()
+                                                setFilters({})
+                                            }} />
                                         )}
                                     </Modal>
                                     <Modal size={"sm"} trigger={<Button backgroundColor={"red.700"}>Delete</Button>}>
