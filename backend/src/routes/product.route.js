@@ -1,17 +1,14 @@
 import { Router } from "express";
-import { createProduct, deleteProduct, getProducts, getOneProduct, updateProduct } from "../controller/products.controller.js";
+import { createProduct, getProducts, updateProduct } from "../controller/products.controller.js";
 import { validateProduct, validateProductExist, validateUpdateProduct } from "../middlewares/productsMiddlewares.js";
+import { authenticate } from "../middlewares/authMiddlewares.js"
 
 const router = Router()
 
-router.get('/products', getProducts)
+router.get('/products', authenticate, getProducts)
 
-router.post('/products', validateProduct ,createProduct)
+router.post('/products', authenticate, validateProduct ,createProduct)
 
-router.get('/products/:id',validateProductExist, getOneProduct)
-
-router.delete('/products/:id',validateProductExist ,deleteProduct)
-
-router.put('/products/:id',validateProductExist, validateUpdateProduct, updateProduct)
+router.put('/products/:id', authenticate, validateProductExist, validateUpdateProduct, updateProduct)
 
 export default router

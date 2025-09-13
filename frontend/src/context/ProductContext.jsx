@@ -17,19 +17,15 @@ export function ProductProvider({ children }) {
 
     const fetchProducts = async () => {
         try {
-            const res = await fetch('http://localhost:3000/api/products')
+            const res = await fetch('http://localhost:3000/api/products', {
+                credentials: "include"
+            })
             const data = await res.json()
-            setProducts([...data])
-        } catch (error) {
-            console.log("Error interno del servidor durante el proceso")
-        }
-    }
 
-    const fetchUniqueProduct = async (id) => {
-        try {
-            const res = await fetch(`http://localhost:3000/api/products/${id}`)
-            const data = await res.json()
-            return data
+            if (!res.ok) {
+                throw new Error(data.error)
+            }
+            setProducts([...data])
         } catch (error) {
             console.log("Error interno del servidor durante el proceso")
         }
@@ -73,23 +69,26 @@ export function ProductProvider({ children }) {
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify(formProduct)
+                body: JSON.stringify(formProduct),
+                credentials: "include"
             })
             const data = await res.json()
             if (!res.ok) {
-                for (const [field, message] of Object.entries(data.errors)) {
-                    if (field === 'variants') {
-                        for (const [code, messageVariant] of Object.entries(data.errors.variants)) {
-                            setError(`variants.${code}`, {
+                if (data.errors) {
+                    for (const [field, message] of Object.entries(data.errors)) {
+                        if (field === 'variants') {
+                            for (const [code, messageVariant] of Object.entries(data.errors.variants)) {
+                                setError(`variants.${code}`, {
+                                    type: "server",
+                                    message: messageVariant
+                                })
+                            }
+                        } else {
+                            setError(field, {
                                 type: "server",
-                                message: messageVariant
+                                message: message
                             })
                         }
-                    } else {
-                        setError(field, {
-                            type: "server",
-                            message: message
-                        })
                     }
                 }
                 return { success: false, errors: data.errors || 'Error Desconocido' }
@@ -102,18 +101,6 @@ export function ProductProvider({ children }) {
         } catch (error) {
             notify('error', 'No se pudo crear el producto')
             return { success: false, errors: { general: 'Error interno del servidor' } };
-        }
-    }
-
-    const deleteProduct = async (id) => {
-        try {
-            const res = await fetch(`http://localhost:3000/api/products/${id}`, {
-                method: 'DELETE'
-            })
-            const data = await res.json()
-            setProducts(prev => prev.filter(p => p.id != id))
-        } catch (error) {
-            console.log("Error interno del servidor durante el proceso")
         }
     }
 
@@ -136,23 +123,27 @@ export function ProductProvider({ children }) {
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify(formUpdateProduct)
+                body: JSON.stringify(formUpdateProduct),
+                credentials: "include"
             })
             const data = await res.json()
+
             if (!res.ok) {
-                for (const [field, message] of Object.entries(data.errors)) {
-                    if (field === 'variants') {
-                        for (const [code, messageVariant] of Object.entries(data.errors.variants)) {
-                            setError(`variants.${code}`, {
+                if (data.errors) {
+                    for (const [field, message] of Object.entries(data.errors)) {
+                        if (field === 'variants') {
+                            for (const [code, messageVariant] of Object.entries(data.errors.variants)) {
+                                setError(`variants.${code}`, {
+                                    type: "server",
+                                    message: messageVariant
+                                })
+                            }
+                        } else {
+                            setError(field, {
                                 type: "server",
-                                message: messageVariant
+                                message: message
                             })
                         }
-                    } else {
-                        setError(field, {
-                            type: "server",
-                            message: message
-                        })
                     }
                 }
                 return { success: false, errors: data.errors || 'Error Desconocido' }
@@ -187,10 +178,8 @@ export function ProductProvider({ children }) {
         <ProductContext.Provider value={{
             products,
             fetchProducts,
-            fetchUniqueProduct,
             createProduct,
             updateProduct,
-            deleteProduct,
             variants,
             fetchVariants,
             filters,

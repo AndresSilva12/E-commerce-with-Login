@@ -1,6 +1,7 @@
 import { Button, Accordion, Box, Avatar, Span, Field, Fieldset, Input, InputGroup, NumberInput, Select, Text, Stack, Portal, createListCollection } from "@chakra-ui/react"
 import { productSchema, updateProductSchema } from '../../../validation/productSchema.js'
 import { useStockEntries } from '../hooks/useStockEntries.js'
+import { useCategories } from '../hooks/useCategories.js'
 import { useProducts } from '../context/ProductContext.jsx'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useVariants } from '../hooks/useVariants.js'
@@ -19,28 +20,28 @@ function ProductModal({ productUpdate, onSubmit, closeModal }) {
     })
     const { updateProduct, createProduct } = useProducts()
     const { createVariant, updateVariant } = useVariants()
+    const { getCategories, categories } = useCategories()
     const [variants, setVariants] = useState([])
     const [variantUpdate, setVariantUpdate] = useState()
     const [purchasePrice, setPurchasePrice] = useState(1)
-    const [categories, setCategories] = useState()
+    const [categoriesCollection, setCategoriesCollection] = useState()
     const [categorySelected, setCategorySelected] = useState()
     const [categorySelectedName, setCategorySelectedName] = useState()
     const { createEntry } = useStockEntries()
 
     useEffect(() => {
-        getCategories()
+        fetchCategories()
     }, [])
 
-    const getCategories = async () => {
-        const res = await fetch('http://localhost:3000/api/category')
-        const data = await res.json()
+    const fetchCategories = async () => {
+        const categoriesFetch = await getCategories()
         const collection = createListCollection({
-            items: data.map((category) => ({
+            items: categoriesFetch.map((category) => ({
                 label: category.name,
                 value: category.id,
             })),
         })
-        setCategories(collection)
+        setCategoriesCollection(collection)
     }
 
     useEffect(() => {
@@ -64,14 +65,14 @@ function ProductModal({ productUpdate, onSubmit, closeModal }) {
     }, [productUpdate, reset])
 
     useEffect(() => {
-        if (productUpdate?.categoryId && categories?.items) {
-            const categoryExist = categories.items.find(c => c.value === productUpdate.categoryId)
+        if (productUpdate?.categoryId && categoriesCollection?.items) {
+            const categoryExist = categoriesCollection.items.find(c => c.value === productUpdate.categoryId)
             if (categoryExist) {
                 setCategorySelected(productUpdate.categoryId)
                 setCategorySelectedName(categoryExist.label)
             }
         }
-    }, [productUpdate, categories])
+    }, [productUpdate, categoriesCollection])
 
     const onValid = async (data) => {
         const fullProduct = {
@@ -218,17 +219,15 @@ function ProductModal({ productUpdate, onSubmit, closeModal }) {
                             )}
                         </Box>
 
-                        {categories && (
+                        {categoriesCollection && (
                             <Select.Root
                                 value={categorySelected ? [{ value: categorySelected }] : []}
                                 onValueChange={({ value }) => {
                                     setCategorySelected(value)
-                                    console.log("value en valueOnChange: ", value)
-                                    const category = categories.items.find(c => c.value === value[0])
+                                    const category = categoriesCollection.items.find(c => c.value === value[0])
                                     setCategorySelectedName(category?.label || '')
-                                    console.log("name category: ", category)
                                 }}
-                                collection={categories}>
+                                collection={categoriesCollection}>
                                 <Select.HiddenSelect />
                                 <Select.Control>
                                     <Select.Trigger>
@@ -243,7 +242,7 @@ function ProductModal({ productUpdate, onSubmit, closeModal }) {
                                 <Portal>
                                     <Select.Positioner>
                                         <Select.Content zIndex="99999">
-                                            {categories?.items?.map((category) => (
+                                            {categoriesCollection?.items?.map((category) => (
                                                 <Select.Item item={category} key={category.value}>
                                                     {category.label}
                                                     <Select.ItemIndicator />
