@@ -1,18 +1,35 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import {toast} from "../utils/notifyToast.js"
+import { handleAuth } from "../utils/auth.js";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext.jsx";
 
 export function useUser() {
+  const navigate = useNavigate()
+  const { setIsAuthenticated } = useContext(AuthContext)
   const [users, setUsers] = useState([]);
 
-  const fetchUsers = () => {
-    fetch("http://localhost:3000/api/users", {
-      method: "GET",
-      headers: {
-        "Content-Type": "Application/json",
-      },
-    })
-      .then((res) => res.json())
-      .then((data) => setUsers(data));
+  const fetchUsers = async() => {
+    try {
+      const res = await fetch("http://localhost:3000/api/users", {
+        method: "GET",
+        headers: {
+          "Content-Type": "Application/json",
+        },
+        credentials: "include"
+      })
+      const data = await res.json()
+
+      if (!res.ok){
+        handleAuth(data, setIsAuthenticated, navigate)
+        return
+      }
+
+      setUsers(data)
+    } catch (error) {
+      console.log(error.message)
+    }
+
   };
 
   const createUser = async (formUser, setError, navigate) => {
@@ -25,23 +42,25 @@ export function useUser() {
       const data = await res.json();
 
       if (!res.ok) {
-        for (const [field, message] of Object.entries(data.errors)) {
-          setError(field, {
-            type: "server",
-            message: message,
-          });
+        if (data.errors){
+          for (const [field, message] of Object.entries(data.errors)) {
+            setError(field, {
+              type: "server",
+              message: message,
+            });
+          }
+          toast("Usuario ya encontrado","error")
         }
-        toast("Usuario ya encontrado","error")
         return;
       }
 
-      fetchUsers();
+      setUsers(prev => [...prev, data])
       toast("usuario creado con exito!")
       setTimeout(() => {
         navigate("/login");
-      }, 5000);
+      }, 2000);
     } catch (error) {
-      console.log(error);
+      console.log(error.message);
     }
   };
 
@@ -55,84 +74,100 @@ export function useUser() {
         credentials: "include",
       });
       const data = await res.json();
+
+      if (!res.ok){
+        handleAuth(data, setIsAuthenticated, navigate)
+        return
+      }
+
       if (data.logout) {
         setIsAuthenticated(false);
         navigate("/");
       }
 
       fetchUsers();
+      toast("usuario eliminado con exito!")
     } catch (error) {
-      console.log("Error: ", error);
+      console.log(error.message);
     }
   };
 
-  const updateUser = (formUser, id, setError) => {
-    fetch(`http://localhost:3000/api/users/${id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "Application/json",
-      },
-      body: JSON.stringify(formUser),
-    })
-      .then((res) => {
-        if (!res.ok)
-          return res.json().then((data) => {
-            throw data.errors;
-          });
-        return res.json();
+  const updateUser = async(formUser, id, setError) => {
+    try {
+      const res = await fetch(`http://localhost:3000/api/users/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "Application/json",
+        },
+        body: JSON.stringify(formUser),
       })
-      .then((data) => {
-        fetchUsers();
-        console.log("Usuario actualizado con exito! ", data);
-      })
-      .catch((errors) => {
-        for (const [field, message] of Object.entries(errors)) {
+      const data = await res.json()
+      
+      if (!res.ok){
+        if (data.errors){
+          for (const [field, message] of Object.entries(errors)) {
+            setError(field, {
+              type: "server",
+              message: message,
+            });
+          }
+        }
+        handleAuth(data, setIsAuthenticated, navigate)
+        return
+      }
+  
+      setUsers(prev => prev.map(u => u.id === id ? data : u))
+      toast("usuario actualizado con exito!")
+    } catch (error) {
+      console.log(error.message) 
+    }
+  };
+
+  const userLogin = async (formLoginData,setIsAuthenticated,navigate,setError) => {
+    try {
+      const res = await fetch("http://localhost:3000/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formLoginData),
+        credentials: "include",
+      });
+      const data = await res.json();
+  
+      if (!res.ok) {
+        for (const [field, message] of Object.entries(data.errors)) {
           setError(field, {
             type: "server",
             message: message,
           });
         }
-      });
-  };
-
-  const userLogin = async (
-    formLoginData,
-    setIsAuthenticated,
-    navigate,
-    setError
-  ) => {
-    const res = await fetch("http://localhost:3000/api/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(formLoginData),
-      credentials: "include",
-    });
-    const data = await res.json();
-
-    if (!res.ok) {
-      console.log(data)
-      for (const [field, message] of Object.entries(data.errors)) {
-        setError(field, {
-          type: "server",
-          message: message,
-        });
+        return;
       }
-      return;
+  
+      setIsAuthenticated(true);
+      navigate("/");
+    } catch (error) {
+      console.log(error)
     }
-
-    setIsAuthenticated(true);
-    navigate("/");
   };
 
-  const userLogout = ({ setIsAuthenticated }) => {
-    fetch("http://localhost:3000/api/logout", {
-      method: "POST",
-      credentials: "include",
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        setIsAuthenticated(false);
-      });
+  const userLogout = async({ setIsAuthenticated }) => {
+    try {
+      const res = await fetch("http://localhost:3000/api/logout", {
+        method: "POST",
+        credentials: "include",
+      })
+      const data = await res.json()
+      
+      if (!res.ok){
+        handleAuth(data, setIsAuthenticated, navigate)
+        return
+      }
+
+      setIsAuthenticated(false);
+
+    } catch (error) {
+      console.log(error.message)
+    }
   };
 
   return {

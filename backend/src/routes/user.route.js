@@ -1,6 +1,7 @@
 import { Router } from "express"
-import { createUser, getAllUsers, getOneUser, deleteUserSelected, updateUserSelected, loginUser, dashboardProtected, logoutUser, refreshSesion } from "../controller/user.controller.js"
+import { createUser, getAllUsers, deleteUserSelected, updateUserSelected, loginUser, dashboardProtected, logoutUser, refreshSesion } from "../controller/user.controller.js"
 import { validateCreateUsers, validateUserExist, validateLoginUser, validateUpdateUser } from "../middlewares/usersMiddlewares.js"
+import { authenticate } from "../middlewares/authMiddlewares.js"
 
 const router = Router()
 
@@ -8,18 +9,16 @@ router.post('/register', validateCreateUsers, createUser)
 
 router.post('/login', validateLoginUser, loginUser)
 
-router.post('/refresh-token', refreshSesion)
+router.post('/refresh-token', authenticate, refreshSesion)
 
-router.post('/logout', logoutUser)
+router.post('/logout', authenticate, logoutUser)
 
 router.get('/dashboard', dashboardProtected)
 
-router.get('/users', getAllUsers)
+router.get('/users', authenticate, getAllUsers)
 
-router.get('/users/:id', validateUserExist, getOneUser)
+router.delete('/users/:id', authenticate, validateUserExist, deleteUserSelected)
 
-router.delete('/users/:id', validateUserExist, deleteUserSelected)
-
-router.put('/users/:id', validateUserExist, validateUpdateUser, updateUserSelected)
+router.put('/users/:id',authenticate,  validateUserExist, validateUpdateUser, updateUserSelected)
 
 export default router
