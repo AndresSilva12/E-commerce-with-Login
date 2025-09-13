@@ -34,8 +34,14 @@ export function ProductProvider({ children }) {
     const fetchVariants = async () => {
         try {
             const query = new URLSearchParams(filters).toString()
-            const res = await fetch(`http://localhost:3000/api/variants?${query}`)
+            const res = await fetch(`http://localhost:3000/api/variants?${query}`, {
+                credentials: "include"
+            })
             const data = await res.json()
+
+            if (!res.ok) {
+                throw new Error(data.error)
+            }
 
             setVariants(data.variants)
             setAvailableFilters({
