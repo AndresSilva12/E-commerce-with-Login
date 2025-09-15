@@ -17,7 +17,7 @@ export const authenticate = async(req, res, next) => {
 export const authorizeRoles = (req, res, next) => {
     const isAdmin = req.user.role === 'ADMIN'
     if (!isAdmin){
-        return res.status(403).json({error: "No tiene permiso para continuar"})
+        return res.status(403).json({error: "No tiene permiso para realizar esta acción"})
     }
     next()
 }

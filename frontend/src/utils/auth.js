@@ -1,9 +1,13 @@
-export const handleAuth = (data, setIsAuthenticated, navigate) => {
-    if (data.error === "Debe iniciar sesión"){
+import { toast } from "./notifyToast";
+
+export const handleAuth = (res, data, setIsAuthenticated, navigate) => {
+    if (res.status === 401){
         setIsAuthenticated(false);
-        if (navigate){
-            navigate("/login");
-        }
+        if (navigate) navigate("/login");
+        return true
+    } else if (res.status === 403){
+        toast(`${data.error}` || "No tiene permiso para realizar esta acción", "error")
+        return true
     }
-    throw new Error (data.error)
+    return false
 }
