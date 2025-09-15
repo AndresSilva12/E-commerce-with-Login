@@ -19,7 +19,7 @@ export function useExpenses () {
             const data = await res.json()
 
             if (!res.ok){
-                handleAuth(data, setIsAuthenticated, navigate)
+                handleAuth(res, data, setIsAuthenticated, navigate)
                 return
             }
             toast("Gasto registrada con exito!")
@@ -40,7 +40,7 @@ export function useExpenses () {
             const data = await res.json()
             
             if (!res.ok){
-                handleAuth(data, setIsAuthenticated, navigate)
+                handleAuth(res, data, setIsAuthenticated, navigate)
                 return
             }
             toast("Gasto Actualizado con exito!")
@@ -60,7 +60,7 @@ export function useExpenses () {
             const data = await res.json()
             
             if (!res.ok){
-                handleAuth(data, setIsAuthenticated, navigate)
+                handleAuth(res, data, setIsAuthenticated, navigate)
                 return
             }
             toast("Gasto eliminado con exito!")
