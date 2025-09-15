@@ -26,7 +26,7 @@ export function useMetrics () {
         const data = await res.json()
 
         if (!res.ok) {
-            handleAuth(data, setIsAuthenticated, navigate)
+            handleAuth(res, data, setIsAuthenticated, navigate)
             return
         }
 
