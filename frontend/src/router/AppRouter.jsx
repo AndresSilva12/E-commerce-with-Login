@@ -25,7 +25,7 @@ function AppRouter() {
                     </GuestOnlyRoute>
                 } />
                 <Route path='/dashboard' element={
-                    <ProtectedRoutes>
+                    <ProtectedRoutes roles={['ADMIN']}>
                         <Dashboard />
                     </ProtectedRoutes>
                 } />
@@ -35,7 +35,7 @@ function AppRouter() {
                     </ProtectedRoutes>
                 } />
                 <Route path='/productsDisabled' element={
-                    <ProtectedRoutes>
+                    <ProtectedRoutes roles={['ADMIN']}>
                         <ProductsDisabledPage />
                     </ProtectedRoutes>
                 } />
