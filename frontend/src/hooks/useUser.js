@@ -21,7 +21,7 @@ export function useUser() {
       const data = await res.json()
 
       if (!res.ok){
-        handleAuth(data, setIsAuthenticated, navigate)
+        handleAuth(res, data, setIsAuthenticated, navigate)
         return
       }
 
@@ -76,7 +76,7 @@ export function useUser() {
       const data = await res.json();
 
       if (!res.ok){
-        handleAuth(data, setIsAuthenticated, navigate)
+        handleAuth(res, data, setIsAuthenticated, navigate)
         return
       }
 
@@ -104,7 +104,8 @@ export function useUser() {
       const data = await res.json()
       
       if (!res.ok){
-        if (data.errors){
+        const authError = handleAuth(res, data, setIsAuthenticated, navigate)
+        if (!authError && data.errors){
           for (const [field, message] of Object.entries(errors)) {
             setError(field, {
               type: "server",
@@ -112,7 +113,6 @@ export function useUser() {
             });
           }
         }
-        handleAuth(data, setIsAuthenticated, navigate)
         return
       }
   
@@ -159,7 +159,7 @@ export function useUser() {
       const data = await res.json()
       
       if (!res.ok){
-        handleAuth(data, setIsAuthenticated, navigate)
+        handleAuth(res, data, setIsAuthenticated, navigate)
         return
       }
 

@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import { AuthContext } from '../context/AuthContext'
 import Modal from '../components/Modal.jsx'
 import { Button, Card, Stack, Text, HStack, Avatar, Strong, Box } from "@chakra-ui/react"
+import { Toaster } from "../components/ui/toaster";
 
 function UsersPage() {
     const navigate = useNavigate()
@@ -56,6 +57,7 @@ function UsersPage() {
                     </Card.Footer>
                 </Card.Root>
             ))}
+            <Toaster />
         </Box>
     )
 }

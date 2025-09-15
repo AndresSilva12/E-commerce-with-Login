@@ -61,14 +61,9 @@ export const getOneUser = async (req, res, next) => {
   }
 };
 
-export const deleteUserSelected = async (req, res, next) => {
+export const deleteUserSelected = async (req, res) => {
   try {
-    const accessToken = req.cookies.accessToken;
-    if (!accessToken) {
-      return res
-        .status(403)
-        .json({ error: "Acceso denegado. Debes iniciar sesion primero" });
-    }
+    if (req.user.role !== 'ADMIN' && req.user.id !== req.params.id) return res.status(403).json({error: "No cuenta con los permisos para eliminar este usuario"})
     const userDeleted = await prisma.users.delete({
       where: {
         id: req.params.id,
@@ -91,8 +86,9 @@ export const deleteUserSelected = async (req, res, next) => {
   }
 };
 
-export const updateUserSelected = async (req, res, next) => {
+export const updateUserSelected = async (req, res) => {
   try {
+    if (req.user.role !== 'ADMIN' && req.user.id !== req.params.id) return res.status(403).json({error: "No cuenta con los permisos para eliminar este usuario"})
     const { username, password, email, phoneNumber, name, lastName, age } =
       req.body;
     const dataToUpdate = {};
