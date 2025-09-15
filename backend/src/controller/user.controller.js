@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { convertToUserPublic } from "../utils/userUtils.js";
 
-export const createUser = async (req, res, next) => {
+export const createUser = async (req, res) => {
   try {
     const { username, password, email, phoneNumber, name, lastName, age } = req.body;
     const passwordHashed = await bcrypt.hash(password, 10);
@@ -32,7 +32,7 @@ export const createUser = async (req, res, next) => {
   }
 };
 
-export const getAllUsers = async (req, res, next) => {
+export const getAllUsers = async (req, res) => {
   try {
     const users = await prisma.users.findMany();
     const usersPublic = users.map((user) => convertToUserPublic(user));
@@ -45,7 +45,7 @@ export const getAllUsers = async (req, res, next) => {
   }
 };
 
-export const getOneUser = async (req, res, next) => {
+export const getOneUser = async (req, res) => {
   try {
     const user = await prisma.users.findUnique({
       where: {
@@ -115,7 +115,7 @@ export const updateUserSelected = async (req, res) => {
   }
 };
 
-export const loginUser = async (req, res, next) => {
+export const loginUser = async (req, res) => {
   const { id, username, role } = req.body;
   const accessToken = jwt.sign({ id : id, username: username, role: role}, process.env.JWT_ACCESS_SECRET, { expiresIn: "12m" });
   res.cookie("accessToken", accessToken, {
@@ -133,7 +133,7 @@ export const loginUser = async (req, res, next) => {
   return res.json("Sesion iniciada correctamente!");
 };
 
-export const refreshSesion = async (req, res, next) => {
+export const refreshSesion = async (req, res) => {
   const refreshToken = req.cookies.refreshToken
   if (!refreshToken){
     return res.status(400).json({error: "Acceso denegado. Debe iniciar sesión primero"})
@@ -152,25 +152,12 @@ export const refreshSesion = async (req, res, next) => {
   }
 }
 
-export const dashboardProtected = (req, res, next) => {
-  const accessToken = req.cookies.accessToken;
-  if (!accessToken)
-    return res
-      .status(403)
-      .json({ error: "Acceso denegado. Debes iniciar sesion primero" });
-  try {
-    const data = jwt.verify(accessToken, process.env.JWT_ACCESS_SECRET);
-    return res
-      .status(200)
-      .json(`Hola ${data.username}. Estamos accediendo a la dashboard...`);
-  } catch (error) {
-    return res
-      .status(403)
-      .json({ error: "Acceso denegado. Debes iniciar sesion primero" });
-  }
+export const getCurrentUser = (req, res) => {
+  const {id, username, role} = req.user
+  res.status(200).json({id, username, role})
 };
 
-export const logoutUser = (req, res, next) => {
+export const logoutUser = (req, res) => {
   res.clearCookie("accessToken");
   return res.json("Logout realizado con exito!");
 };

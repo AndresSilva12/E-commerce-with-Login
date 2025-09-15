@@ -2,10 +2,12 @@ import { createContext, useEffect, useState, useContext } from "react";
 import { toast } from "../utils/notifyToast.js";
 import isEqual from 'lodash.isequal'
 import { handleAuth } from "../utils/auth.js";
+import { AuthContext } from "./AuthContext.jsx";
 
 const ProductContext = createContext()
 
 export function ProductProvider({ children }) {
+    const { isAuthenticated } = useContext(AuthContext)
     const [products, setProducts] = useState([])
     const [variants, setVariants] = useState([])
     const [totalPages, setTotalPages] = useState(1)
@@ -197,8 +199,10 @@ export function ProductProvider({ children }) {
     }
 
     useEffect(() => {
-        fetchVariants()
-    }, [filters])
+        if (isAuthenticated) {
+            fetchVariants()
+        }
+    }, [filters, isAuthenticated])
 
     return (
         <ProductContext.Provider value={{

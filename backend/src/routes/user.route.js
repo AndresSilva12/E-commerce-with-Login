@@ -1,5 +1,5 @@
 import { Router } from "express"
-import { createUser, getAllUsers, deleteUserSelected, updateUserSelected, loginUser, dashboardProtected, logoutUser, refreshSesion } from "../controller/user.controller.js"
+import { createUser, getAllUsers, deleteUserSelected, updateUserSelected, loginUser, getCurrentUser, logoutUser, refreshSesion } from "../controller/user.controller.js"
 import { validateCreateUsers, validateUserExist, validateLoginUser, validateUpdateUser } from "../middlewares/usersMiddlewares.js"
 import { authenticate, authorizeRoles } from "../middlewares/authMiddlewares.js"
 
@@ -13,7 +13,7 @@ router.post('/refresh-token', authenticate, refreshSesion)
 
 router.post('/logout', authenticate, logoutUser)
 
-router.get('/dashboard', dashboardProtected)
+router.get('/me', authenticate, getCurrentUser)
 
 router.get('/users', authenticate, authorizeRoles, getAllUsers)
 
