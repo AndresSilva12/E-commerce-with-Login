@@ -4,6 +4,7 @@ import { useStockEntries } from "../hooks/useStockEntries.js";
 import { Button, Table, Box, DataList, Image, Grid, GridItem, Stack, Text, Strong, Pagination, ButtonGroup, IconButton } from "@chakra-ui/react";
 import Modal from "../components/Modal.jsx";
 import Calendar from "react-calendar"
+import { Toaster } from "../components/ui/toaster";
 
 export function EntrySelectedModal({ entrySelected }) {
     return (
@@ -154,6 +155,7 @@ function StockEntriesPage() {
                     </Pagination.Root>
                 </Box>
             </GridItem>
+            <Toaster />
         </Grid >
     )
 }
