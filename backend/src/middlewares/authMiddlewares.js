@@ -10,7 +10,14 @@ export const authenticate = async(req, res, next) => {
         req.user = payload
         next()
     } catch (error) {
-        console.log("error durante Authenticate: ", error)
         return res.status(401).json({error: "Token inválido o expirado"})
     }
+}
+
+export const authorizeRoles = (req, res, next) => {
+    const isAdmin = req.user.role === 'ADMIN'
+    if (!isAdmin){
+        return res.status(403).json({error: "No tiene permiso para continuar"})
+    }
+    next()
 }
