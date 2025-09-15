@@ -6,7 +6,7 @@ import { AuthContext } from "../context/AuthContext.jsx";
 
 export function useUser() {
   const navigate = useNavigate()
-  const { setIsAuthenticated } = useContext(AuthContext)
+  const { setIsAuthenticated, setUser } = useContext(AuthContext)
   const [users, setUsers] = useState([]);
 
   const fetchUsers = async() => {
@@ -144,6 +144,7 @@ export function useUser() {
       }
   
       setIsAuthenticated(true);
+      setUser(data)
       navigate("/");
     } catch (error) {
       console.log(error)
@@ -164,6 +165,7 @@ export function useUser() {
       }
 
       setIsAuthenticated(false);
+      setUser(null)
 
     } catch (error) {
       console.log(error.message)

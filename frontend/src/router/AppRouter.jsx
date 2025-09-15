@@ -40,7 +40,7 @@ function AppRouter() {
                     </ProtectedRoutes>
                 } />
                 <Route path='/users' element={
-                    <ProtectedRoutes>
+                    <ProtectedRoutes roles={['ADMIN']}>
                         <UsersPage />
                     </ProtectedRoutes>
                 } />

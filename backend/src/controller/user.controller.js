@@ -130,7 +130,7 @@ export const loginUser = async (req, res) => {
     sameSite: "strict",
     maxAge: 1000 * 60 * 60 * 24 * 7
   })
-  return res.json("Sesion iniciada correctamente!");
+  return res.json(req.body);
 };
 
 export const refreshSesion = async (req, res) => {
@@ -159,5 +159,6 @@ export const getCurrentUser = (req, res) => {
 
 export const logoutUser = (req, res) => {
   res.clearCookie("accessToken");
+  res.clearCookie("refreshToken");
   return res.json("Logout realizado con exito!");
 };
