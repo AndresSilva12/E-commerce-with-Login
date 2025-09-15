@@ -2,7 +2,7 @@ import { useProducts } from "../context/ProductContext.jsx"
 import { toast } from "../utils/notifyToast.js";
 import { useState, useContext } from "react"
 import { AuthContext } from '../context/AuthContext'
-import {handleAuth} from "../utils/auth.js"
+import { handleAuth } from "../utils/auth.js"
 
 export function useSales () {
     const [sales, setSales] = useState([])
@@ -19,7 +19,7 @@ export function useSales () {
             const data = await res.json()
 
             if (!res.ok){
-                handleAuth(data, setIsAuthenticated)
+                handleAuth(res, data, setIsAuthenticated)
                 return
             }
 
@@ -43,7 +43,7 @@ export function useSales () {
             const data = await res.json()
 
             if (!res.ok){
-                handleAuth(data, setIsAuthenticated, navigate)
+                handleAuth(res, data, setIsAuthenticated)
                 return
             }
 
@@ -68,7 +68,7 @@ export function useSales () {
             const data = await res.json()
 
             if (!res.ok){
-                handleAuth(data, setIsAuthenticated, navigate)
+                handleAuth(res, data, setIsAuthenticated)
                 return
             }
 

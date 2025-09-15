@@ -2,6 +2,7 @@ import { Fragment, useEffect, useState } from "react";
 import { useSales } from "../hooks/useSales.js";
 import { Button, Table, Box, DataList, Image, Grid, GridItem, Stack, Text, Strong, ButtonGroup, IconButton, Pagination } from "@chakra-ui/react";
 import Calendar from "react-calendar";
+import { Toaster } from "../components/ui/toaster";
 import Modal from "../components/Modal.jsx";
 
 export function SaleSelectedModal({ saleSelected }) {
@@ -157,6 +158,7 @@ function SalesPage() {
                     </Pagination.Root>
                 </Box>
             </GridItem>
+            <Toaster />
         </Grid>
     )
 }
