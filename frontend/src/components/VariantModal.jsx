@@ -47,8 +47,7 @@ function VariantModal({ onSubmitVariant, variants, variantUpdate, productUpdate 
 
         const result = await getOneVariant(data, setError)
         if (!result.success) {
-            toast("Éste codigo ya está en uso", "error")
-            return
+            return { success: false, error: result.error || "Error validando variante" }
         }
 
         data.image = image || variantUpdate?.image

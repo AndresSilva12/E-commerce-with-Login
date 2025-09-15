@@ -9,7 +9,7 @@ import { handleAuth } from "../utils/auth.js";
 
 export function useVariants () {
     const navigate = useNavigate()
-    const { setIsAuthenticate } = useContext(AuthContext)
+    const { setIsAuthenticated } = useContext(AuthContext)
     const { updateVariantToProduct, fetchVariants} = useProducts()
     const {createEntry} = useStockEntries()
     const [variantsDisabled, setVariantsDisabled] = useState([])
@@ -22,12 +22,42 @@ export function useVariants () {
             const data = await res.json()
     
             if (!res.ok){
-                handleAuth(data, setIsAuthenticate, navigate)
+                handleAuth(res, data, setIsAuthenticated, navigate)
                 return
             }
             setVariantsDisabled(data.variants)
         } catch (error) {
             console.log(error.message)
+        }
+    }
+
+    const getOneVariant = async(variant, setError) => {
+        try{
+            const res = await fetch(`http://localhost:3000/api/variants/${variant.code}/check`,{
+                method: 'POST',
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(variant),
+                credentials: "include"
+            })
+            const data = await res.json()
+            if (!res.ok){
+                const authError = handleAuth(res, data, setIsAuthenticated, navigate)
+                if (!authError && data.message){
+                    setError("code", {
+                        type: "server",
+                        message: data.message
+                    })
+                    toast(data.message, "error")
+                    return {success: false, error: data.message}
+                }
+                return {success: false, error: data.error}
+            }
+            return {success: true}
+        }
+        catch(error){
+            return { success: false, error: "Ocurrió un error inesperado." }
         }
     }
 
@@ -45,8 +75,8 @@ export function useVariants () {
             const data = await res.json()
 
             if (!res.ok){
-                handleAuth(data, setIsAuthenticate, navigate)
-                return
+                handleAuth(res, data, setIsAuthenticated, navigate)
+                return {success: false, errors: data.errors}
             }
             const entryData = {
                 items: [
@@ -81,7 +111,7 @@ export function useVariants () {
             const data = await res.json()
     
             if (!res.ok){
-                handleAuth(data, setIsAuthenticate, navigate)
+                handleAuth(res, data, setIsAuthenticated, navigate)
                 return
             }
             
@@ -104,7 +134,7 @@ export function useVariants () {
             const data = await res.json()
     
             if (!res.ok){
-                handleAuth(data, setIsAuthenticate, navigate)
+                handleAuth(res, data, setIsAuthenticated, navigate)
                 return
             }
     
@@ -132,7 +162,7 @@ export function useVariants () {
             })
             const data = await res.json()
             if (!res.ok) {
-                handleAuth(data, setIsAuthenticate, navigate)
+                handleAuth(res, data, setIsAuthenticated, navigate)
                 return {success: false, errors: data.errors}
             }
             await updateVariantToProduct(data.productId, data.id, data)
@@ -148,6 +178,7 @@ export function useVariants () {
         variantsDisabled,
         setVariantsDisabled,
         fetchVariantsDisabled,
+        getOneVariant,
         createVariant,
         disableVariant,
         enableVariant,
