@@ -91,8 +91,7 @@ function ProductModal({ productUpdate, onSubmit, closeModal }) {
             : await createProduct(fullProduct, setError)
 
         if (!result.success) {
-            toast(result.error || "error al guardar el producto", "error")
-            return
+            return { error: "Error interno del servidor" }
         }
 
         const variantes = productUpdate ? result.product.variants : result.variants

@@ -1,6 +1,7 @@
 import { createContext, useEffect, useState, useContext } from "react";
 import { toast } from "../utils/notifyToast.js";
 import isEqual from 'lodash.isequal'
+import { handleAuth } from "../utils/auth.js";
 
 const ProductContext = createContext()
 
@@ -26,6 +27,23 @@ export function ProductProvider({ children }) {
                 throw new Error(data.error)
             }
             setProducts([...data])
+        } catch (error) {
+            console.log("Error interno del servidor durante el proceso")
+        }
+    }
+
+    const fetchUniqueProduct = async (id) => {
+        try {
+            const res = await fetch(`http://localhost:3000/api/products/${id}`, {
+                credentials: "include"
+            })
+            const data = await res.json()
+
+            if (!res.ok) {
+                handleAuth(res, data)
+                return { error: data.error }
+            }
+            return data
         } catch (error) {
             console.log("Error interno del servidor durante el proceso")
         }
@@ -80,7 +98,8 @@ export function ProductProvider({ children }) {
             })
             const data = await res.json()
             if (!res.ok) {
-                if (data.errors) {
+                const authError = handleAuth(res, data)
+                if (!authError && data.errors) {
                     for (const [field, message] of Object.entries(data.errors)) {
                         if (field === 'variants') {
                             for (const [code, messageVariant] of Object.entries(data.errors.variants)) {
@@ -135,7 +154,8 @@ export function ProductProvider({ children }) {
             const data = await res.json()
 
             if (!res.ok) {
-                if (data.errors) {
+                const authError = handleAuth(res, data)
+                if (!authError && data.errors) {
                     for (const [field, message] of Object.entries(data.errors)) {
                         if (field === 'variants') {
                             for (const [code, messageVariant] of Object.entries(data.errors.variants)) {
@@ -184,6 +204,7 @@ export function ProductProvider({ children }) {
         <ProductContext.Provider value={{
             products,
             fetchProducts,
+            fetchUniqueProduct,
             createProduct,
             updateProduct,
             variants,
