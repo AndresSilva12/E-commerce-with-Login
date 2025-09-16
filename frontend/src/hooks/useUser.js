@@ -64,7 +64,7 @@ export function useUser() {
     }
   };
 
-  const deleteUser = async (id) => {
+  const deleteUser = async (id, closeModal) => {
     try {
       const res = await fetch(`http://localhost:3000/api/users/${id}`, {
         method: "DELETE",
@@ -79,6 +79,7 @@ export function useUser() {
         const authError = handleAuth(res, data, setIsAuthenticated, navigate)
         if (!authError){
           toast("No puede eliminar una cuenta que ya tiene entradas o salidas registradas", "error")
+          closeModal()
         }
         return
       }
@@ -88,8 +89,9 @@ export function useUser() {
         navigate("/");
       }
 
-      fetchUsers();
+      setUsers(prev => prev.filter(u => u.id !== id))
       toast("usuario eliminado con exito!")
+      closeModal()
     } catch (error) {
       console.log(error.message);
     }
@@ -154,7 +156,7 @@ export function useUser() {
     }
   }
 
-  const userLogin = async (formLoginData) => {
+  const userLogin = async (formLoginData, setError) => {
     try {
       const res = await fetch("http://localhost:3000/api/login", {
         method: "POST",
@@ -203,7 +205,7 @@ export function useUser() {
     }
   };
 
-  const changeRol = async (id) => {
+  const changeRol = async (id, closeModal) => {
     try {
       const res = await fetch(`http://localhost:3000/api/users/${id}`, {
         method: 'PATCH',
@@ -225,6 +227,8 @@ export function useUser() {
       }
 
       toast("Rol de usuario cambiado con éxito!")
+      setUsers(prev => prev.map(u => u.id === id ? data : u))
+      closeModal()
     } catch (error) {
       console.log(error.message)
     }

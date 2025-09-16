@@ -19,27 +19,33 @@ function UsersPage() {
                         <HStack mb="6" gap="3">
                             <Stack gap="0">
                                 <Text fontWeight="semibold" textStyle="sm">
-                                    {user.name} {user.lastName}
+                                    {user.username}
                                 </Text>
                                 <Text color="fg.muted" textStyle="sm">
-                                    {user.email}
+                                    {user.name} {user.lastName}
                                 </Text>
                             </Stack>
                         </HStack>
                         <Card.Description>
-                            <Strong color="fg">Nate Foss </Strong>
-                            has requested to join your team. You can approve or decline their
-                            request.
+                            <Strong color="fg">{user.email}</Strong>
                         </Card.Description>
                     </Card.Body>
                     <Card.Footer>
                         <Modal trigger={<Button variant="subtle" colorPalette="red" flex="1">Eliminar</Button>}>
-                            <h2 >Está seguro que desea eliminar este usuario?</h2>
-                            <Button onClick={() => { deleteUser(user.id) }}>Eliminar</Button>
+                            {({ closeModal }) => (
+                                <>
+                                    <h2 >Está seguro que desea eliminar este usuario?</h2>
+                                    <Button onClick={() => { deleteUser(user.id, closeModal) }}>Eliminar</Button>
+                                </>
+                            )}
                         </Modal>
                         <Modal trigger={<Button variant="subtle" colorPalette="blue" flex="1">{user.role}</Button>}>
-                            <h2 >Está seguro que desea cambiar el rol de este usuario?</h2>
-                            <Button onClick={() => { changeRol(user.id) }}>Cambiar</Button>
+                            {({ closeModal }) => (
+                                <>
+                                    <h2 >Está seguro que desea cambiar el rol de este usuario?</h2>
+                                    <Button onClick={() => { changeRol(user.id, closeModal) }}>Cambiar</Button>
+                                </>
+                            )}
                         </Modal>
                     </Card.Footer>
                 </Card.Root>

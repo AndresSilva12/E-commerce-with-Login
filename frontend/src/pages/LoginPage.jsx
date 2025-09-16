@@ -1,21 +1,16 @@
 import { useForm } from 'react-hook-form'
 import { useUser } from '../hooks/useUser'
-import { useNavigate } from 'react-router-dom'
-import { useContext } from 'react'
-import { AuthContext } from '../context/AuthContext'
 import { Button, Field, Input, Stack, Box, Card } from "@chakra-ui/react"
 import { PasswordInput } from "../components/ui/password-input"
 
 function LoginPage() {
-    const navigate = useNavigate()
-    const { setIsAuthenticated } = useContext(AuthContext)
     const { register, handleSubmit, formState: { errors }, setError } = useForm({
         mode: 'onSubmit'
     })
     const { userLogin } = useUser()
 
     const onSubmit = (formLoginData) => {
-        userLogin(formLoginData, setIsAuthenticated, navigate, setError)
+        userLogin(formLoginData, setError)
     }
 
     return (
