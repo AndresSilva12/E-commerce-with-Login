@@ -63,20 +63,12 @@ export const getOneUser = async (req, res) => {
 
 export const deleteUserSelected = async (req, res) => {
   try {
-    if (req.user.role !== 'ADMIN' && req.user.id !== req.params.id) return res.status(403).json({error: "No cuenta con los permisos para eliminar este usuario"})
+    if (req.user.role !== 'ADMIN') return res.status(403).json({error: "No cuenta con los permisos para eliminar este usuario"})
     const userDeleted = await prisma.users.delete({
       where: {
         id: req.params.id,
       },
     });
-    const isAccountDeleted = jwt.verify(accessToken, "123");
-    if (isAccountDeleted.username === userDeleted.username) {
-      res.clearCookie("accessToken");
-      return res.status(200).json({
-        logout: true,
-        message: "Cuenta eliminada y sesión cerrada",
-      });
-    }
     return res.json(convertToUserPublic(userDeleted));
   } catch (error) {
     console.log(error);
@@ -86,9 +78,8 @@ export const deleteUserSelected = async (req, res) => {
   }
 };
 
-export const updateUserSelected = async (req, res) => {
+export const updateMyUser = async (req, res) => {
   try {
-    if (req.user.role !== 'ADMIN' && req.user.id !== req.params.id) return res.status(403).json({error: "No cuenta con los permisos para eliminar este usuario"})
     const { username, password, email, phoneNumber, name, lastName, age } =
       req.body;
     const dataToUpdate = {};
@@ -102,7 +93,7 @@ export const updateUserSelected = async (req, res) => {
 
     const userUpdated = await prisma.users.update({
       where: {
-        id: req.params.id,
+        id: req.user.id,
       },
       data: dataToUpdate,
     });
@@ -114,6 +105,32 @@ export const updateUserSelected = async (req, res) => {
       .json({ error: "Error interno durante la actualizacion de usuario" });
   }
 };
+
+export const deleteMyUser = async (req, res) => {
+  try {
+    const userDeleted = await prisma.users.delete({
+      where: {
+        id: req.user.id
+      }
+    })
+    if (userDeleted) {
+      res.clearCookie("accessToken");
+      res.clearCookie("refreshToken");
+      return res.status(200).json({
+        logout: true,
+        message: "Cuenta eliminada y sesión cerrada",
+      });
+    }
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+export const getCurrentUser = (req, res) => {
+  const {id, username, role} = req.user
+  res.status(200).json({id, username, role})
+};
+
 
 export const loginUser = async (req, res) => {
   const { id, username, role } = req.body;
@@ -151,11 +168,6 @@ export const refreshSesion = async (req, res) => {
     return res.status(401).json({error: "Refresh token inválido o expirado"})
   }
 }
-
-export const getCurrentUser = (req, res) => {
-  const {id, username, role} = req.user
-  res.status(200).json({id, username, role})
-};
 
 export const logoutUser = (req, res) => {
   res.clearCookie("accessToken");
