@@ -71,7 +71,7 @@ export const validateUpdateUser = async (req, res, next) => {
         const {username, email, phoneNumber} = parsed.data
         const user = await prisma.users.findUnique({
             where: {
-                id: req.params.id
+                id: req.user.id
             }
         })
 

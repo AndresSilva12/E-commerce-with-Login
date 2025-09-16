@@ -19,8 +19,8 @@ router.delete('/users/:id', authenticate, authorizeRoles, validateUserExist, del
 
 router.get('/me', authenticate, getCurrentUser)
 
-router.put('/me',authenticate,  validateUserExist, validateUpdateUser, updateMyUser)
+router.put('/me',authenticate, validateUpdateUser, updateMyUser)
 
-router.delete('/me',authenticate,  validateUserExist, deleteMyUser)
+router.delete('/me',authenticate, deleteMyUser)
 
 export default router
