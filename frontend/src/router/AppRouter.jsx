@@ -12,6 +12,7 @@ import ProductsPage from '../pages/ProductsPage';
 import ProductsDisabledPage from '../pages/ProductsDisabledPage';
 import StockEntriesPage from '../pages/StockEntries';
 import Categories from '../pages/Categories';
+import ProfilePage from '../pages/ProfilePage';
 
 function AppRouter() {
     return (
@@ -57,6 +58,11 @@ function AppRouter() {
                 <Route path='/categories' element={
                     <ProtectedRoutes>
                         <Categories />
+                    </ProtectedRoutes>
+                } />
+                <Route path='/profile' element={
+                    <ProtectedRoutes>
+                        <ProfilePage />
                     </ProtectedRoutes>
                 } />
                 <Route path='/login' element={

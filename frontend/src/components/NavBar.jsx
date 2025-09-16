@@ -140,6 +140,17 @@ function NavBar() {
                                 <Button>Carrito</Button>
                             </Box>
                         } />
+                        <Box
+                            px={2}
+                            py={1}
+                            rounded={'md'}
+                            _hover={{
+                                textDecoration: 'none',
+                                bg: ('gray.200', 'gray.700'),
+                            }}
+                        >
+                            <Link className='text-white' to='/profile' >Profile</Link>
+                        </Box>
                         <Stack
                             flex={{ base: 1, md: 0 }}
                             justify={'flex-end'}

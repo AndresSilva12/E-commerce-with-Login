@@ -118,6 +118,7 @@ export function useUser() {
       }
   
       setUsers(prev => prev.map(u => u.id === id ? data : u))
+      setUser(data)
       toast("usuario actualizado con exito!")
     } catch (error) {
       console.log(error.message) 
