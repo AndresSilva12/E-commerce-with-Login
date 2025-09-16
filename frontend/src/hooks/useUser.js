@@ -203,6 +203,35 @@ export function useUser() {
     }
   };
 
+  const changeRol = async (id) => {
+    try {
+      const res = await fetch(`http://localhost:3000/api/users/${id}`, {
+        method: 'PATCH',
+        headers: {
+          "Content-type": "application/json"
+        },
+        credentials: "include"
+      })
+      const data = await res.json()
+
+      if (!res.ok){
+        handleAuth(res, data, setIsAuthenticated, navigate)
+        return
+      }
+
+      if (data.logout) {
+        setIsAuthenticated(false);
+        navigate("/");
+      }
+
+      toast("Rol de usuario cambiado con éxito!")
+    } catch (error) {
+      console.log(error.message)
+    }
+  }
+
+
+
   return {
     users,
     fetchUsers,
@@ -210,6 +239,7 @@ export function useUser() {
     deleteUser,
     updateMyUser,
     deleteMyUser,
+    changeRol,
     userLogin,
     userLogout,
   };

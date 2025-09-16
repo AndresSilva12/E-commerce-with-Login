@@ -1,11 +1,11 @@
 import { useEffect } from 'react'
 import { useUser } from '../hooks/useUser.js'
 import Modal from '../components/Modal.jsx'
-import { Button, Card, Stack, Text, HStack, Avatar, Strong, Box } from "@chakra-ui/react"
+import { Button, Card, Stack, Text, HStack, Strong, Box } from "@chakra-ui/react"
 import { Toaster } from "../components/ui/toaster";
 
 function UsersPage() {
-    const { users, fetchUsers, deleteUser } = useUser()
+    const { users, fetchUsers, deleteUser, changeRol } = useUser()
 
     useEffect(() => {
         fetchUsers()
@@ -36,6 +36,10 @@ function UsersPage() {
                         <Modal trigger={<Button variant="subtle" colorPalette="red" flex="1">Eliminar</Button>}>
                             <h2 >Está seguro que desea eliminar este usuario?</h2>
                             <Button onClick={() => { deleteUser(user.id) }}>Eliminar</Button>
+                        </Modal>
+                        <Modal trigger={<Button variant="subtle" colorPalette="blue" flex="1">{user.role}</Button>}>
+                            <h2 >Está seguro que desea cambiar el rol de este usuario?</h2>
+                            <Button onClick={() => { changeRol(user.id) }}>Cambiar</Button>
                         </Modal>
                     </Card.Footer>
                 </Card.Root>
