@@ -135,28 +135,28 @@ export const deleteMyUser = async (req, res) => {
 }
 
 export const getCurrentUser = async(req, res) => {
-  const {id, username, role} = req.user
+  const {id, role} = req.user
   const user = await prisma.users.findFirst({
     where: {
       id: id
     }
   })
-  if (username !== user.username || role !== user.role) return res.status(403).json({error: "Error. Los datos de sesión no coinciden"})
+  if (role !== user.role) return res.status(403).json({error: "Error. Los datos de sesión no coinciden"})
   const publicUser = convertToUserPublic(user)
   res.status(200).json(publicUser)
 };
 
 
 export const loginUser = async (req, res) => {
-  const { id, username, role } = req.body;
-  const accessToken = jwt.sign({ id : id, username: username, role: role}, process.env.JWT_ACCESS_SECRET, { expiresIn: "12m" });
+  const { id, role } = req.body;
+  const accessToken = jwt.sign({ id : id, role: role}, process.env.JWT_ACCESS_SECRET, { expiresIn: "12m" });
   res.cookie("accessToken", accessToken, {
     httpOnly: true,
     sameSite: "strict",
     maxAge: 1000 * 60 * 12,
   });
 
-  const refreshToken = jwt.sign({ id: id}, process.env.JWT_REFRESH_SECRET, { expiresIn: "7d"})
+  const refreshToken = jwt.sign({ id: id, role: role}, process.env.JWT_REFRESH_SECRET, { expiresIn: "7d"})
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
     sameSite: "strict",
@@ -172,7 +172,7 @@ export const refreshSesion = async (req, res) => {
   }
   try{
     const payload = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET)
-    const newAccessToken = jwt.sign({id : payload.id}, process.env.JWT_ACCESS_SECRET, { expiresIn: "12m"})
+    const newAccessToken = jwt.sign({id : payload.id, role: payload.role}, process.env.JWT_ACCESS_SECRET, { expiresIn: "12m"})
     res.cookie("accessToken", newAccessToken, {
       httpOnly: true,
       sameSite: "strict",
