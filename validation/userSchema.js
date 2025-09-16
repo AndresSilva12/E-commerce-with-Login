@@ -7,7 +7,9 @@ export const userSchema = z.object({
     .min(2, "Debe tener almenos 2 caracteres")
     .max(20,"Usuario muy largo"),
 
-    password: z.string().trim()
+    password: z.string({
+        required_error: "La contraseña es obligatoria"
+    }).trim()
     .min(1, "La contraseña es obligatoria")
     .min(8, "La contraseña debe tener almenos 8 caracteres")
     .regex(/[a-z]/, "Debe contener una letra minúscula")

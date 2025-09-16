@@ -14,7 +14,7 @@ function ProfilePage() {
     const { user, setUser } = useContext(AuthContext)
     const { updateMyUser, deleteMyUser } = useUser()
     const { register, handleSubmit, formState: { errors }, setError, reset } = useForm({
-        mode: 'onSubmit',
+        mode: 'onChange',
         resolver: zodResolver(userSchema)
     })
 

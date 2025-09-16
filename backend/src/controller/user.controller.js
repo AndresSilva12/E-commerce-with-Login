@@ -69,8 +69,7 @@ export const deleteUserSelected = async (req, res) => {
         id: req.params.id,
       },
     });
-    const isAccountDeleted = jwt.verify(accessToken, "123");
-    if (isAccountDeleted.username === userDeleted.username) {
+    if (req.user.id === userDeleted.id) {
       res.clearCookie("accessToken");
       return res.status(200).json({
         logout: true,
