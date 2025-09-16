@@ -161,7 +161,8 @@ export const loginUser = async (req, res) => {
     sameSite: "strict",
     maxAge: 1000 * 60 * 60 * 24 * 7
   })
-  return res.json(req.body);
+  const publicUser = convertToUserPublic(req.user)
+  return res.json(publicUser);
 };
 
 export const refreshSesion = async (req, res) => {

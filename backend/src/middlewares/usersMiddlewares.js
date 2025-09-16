@@ -149,11 +149,6 @@ export const validateUpdateUser = async (req, res, next) => {
             const userExist = await prisma.users.findFirst({
                 where: {
                     username: usernameClean
-                },
-                select: {
-                    id: true,
-                    password: true,
-                    role: true,
                 }
             })
         
@@ -171,6 +166,8 @@ export const validateUpdateUser = async (req, res, next) => {
             req.body.username = usernameClean
             req.body.password = passwordClean
             req.body.role = userExist.role
+
+            req.user = userExist
             next()
         }
         catch (error){

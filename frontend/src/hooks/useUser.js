@@ -172,6 +172,7 @@ export function useUser() {
       }
   
       setIsAuthenticated(true);
+      setUser(data)
       navigate("/");
     } catch (error) {
       console.log(error)
