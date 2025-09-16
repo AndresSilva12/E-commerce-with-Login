@@ -69,6 +69,14 @@ export const deleteUserSelected = async (req, res) => {
         id: req.params.id,
       },
     });
+    const isAccountDeleted = jwt.verify(accessToken, "123");
+    if (isAccountDeleted.username === userDeleted.username) {
+      res.clearCookie("accessToken");
+      return res.status(200).json({
+        logout: true,
+        message: "Cuenta eliminada y sesión cerrada",
+      });
+    }
     return res.json(convertToUserPublic(userDeleted));
   } catch (error) {
     console.log(error);

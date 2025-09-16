@@ -32,7 +32,7 @@ export function useUser() {
 
   };
 
-  const createUser = async (formUser, setError, navigate) => {
+  const createUser = async (formUser) => {
     try {
       const res = await fetch("http://localhost:3000/api/register", {
         method: "POST",
@@ -64,7 +64,7 @@ export function useUser() {
     }
   };
 
-  const deleteUser = async (id, setIsAuthenticated, navigate) => {
+  const deleteUser = async (id) => {
     try {
       const res = await fetch(`http://localhost:3000/api/users/${id}`, {
         method: "DELETE",
@@ -92,14 +92,15 @@ export function useUser() {
     }
   };
 
-  const updateUser = async(formUser, id, setError) => {
+  const updateMyUser = async(formUser, setError) => {
     try {
-      const res = await fetch(`http://localhost:3000/api/users/${id}`, {
+      const res = await fetch(`http://localhost:3000/api/me`, {
         method: "PUT",
         headers: {
           "Content-Type": "Application/json",
         },
         body: JSON.stringify(formUser),
+        credentials: "include"
       })
       const data = await res.json()
       
@@ -123,7 +124,33 @@ export function useUser() {
     }
   };
 
-  const userLogin = async (formLoginData,setIsAuthenticated,navigate,setError) => {
+  const deleteMyUser = async () => {
+    try {
+      const res = await fetch('http://localhost:3000/api/me',{
+        method: 'DELETE',
+        headers: {
+          "Content-Type": "application/json"
+        },
+        credentials: "include"
+      })
+      const data = await res.json()
+
+      if (!res.ok){
+        handleAuth(res, data, setIsAuthenticated, navigate)
+        return
+      }
+
+      if (data.logout) {
+        setIsAuthenticated(false);
+        navigate("/");
+      }
+
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const userLogin = async (formLoginData) => {
     try {
       const res = await fetch("http://localhost:3000/api/login", {
         method: "POST",
@@ -151,7 +178,7 @@ export function useUser() {
     }
   };
 
-  const userLogout = async({ setIsAuthenticated }) => {
+  const userLogout = async() => {
     try {
       const res = await fetch("http://localhost:3000/api/logout", {
         method: "POST",
@@ -177,7 +204,8 @@ export function useUser() {
     fetchUsers,
     createUser,
     deleteUser,
-    updateUser,
+    updateMyUser,
+    deleteMyUser,
     userLogin,
     userLogout,
   };

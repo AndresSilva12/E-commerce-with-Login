@@ -9,11 +9,11 @@ import Modal from './Modal'
 
 
 function NavBar() {
-    const { isAuthenticated, setIsAuthenticated, user } = useContext(AuthContext)
+    const { isAuthenticated, user } = useContext(AuthContext)
     const { userLogout } = useUser()
     const { cart } = useCart()
 
-    const handleLogout = () => { userLogout({ setIsAuthenticated }) }
+    const handleLogout = () => { userLogout() }
 
     return (
         <Box position="fixed" zIndex="99" width="full">
