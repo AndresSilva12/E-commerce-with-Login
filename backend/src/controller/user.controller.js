@@ -134,9 +134,16 @@ export const deleteMyUser = async (req, res) => {
   }
 }
 
-export const getCurrentUser = (req, res) => {
+export const getCurrentUser = async(req, res) => {
   const {id, username, role} = req.user
-  res.status(200).json({id, username, role})
+  const user = await prisma.users.findFirst({
+    where: {
+      id: id
+    }
+  })
+  if (username !== user.username || role !== user.role) return res.status(403).json({error: "Error. Los datos de sesión no coinciden"})
+  const publicUser = convertToUserPublic(user)
+  res.status(200).json(publicUser)
 };
 
 
