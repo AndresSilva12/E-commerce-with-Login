@@ -12,7 +12,7 @@ import { Toaster } from "../components/ui/toaster";
 
 function ProfilePage() {
     const { user, setUser } = useContext(AuthContext)
-    const { updateMyUser, deleteMyUser } = useUser()
+    const { updateMyUser } = useUser()
     const { register, handleSubmit, formState: { errors }, setError, reset } = useForm({
         mode: 'onChange',
         resolver: zodResolver(userSchema)
@@ -96,10 +96,6 @@ function ProfilePage() {
 
 
                                 <Button type="submit">Actualizar datos</Button>
-                                <Modal trigger={<Button type="button" backgroundColor={"red.700"}>Eliminar cuenta</Button>}>
-                                    <h2 >Está seguro que desea eliminar su cuenta?</h2>
-                                    <Button onClick={() => { deleteMyUser() }}>Eliminar</Button>
-                                </Modal>
                             </Stack>
                         </form>
                     </Card.Body>

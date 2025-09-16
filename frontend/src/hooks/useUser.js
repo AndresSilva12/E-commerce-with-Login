@@ -76,7 +76,10 @@ export function useUser() {
       const data = await res.json();
 
       if (!res.ok){
-        handleAuth(res, data, setIsAuthenticated, navigate)
+        const authError = handleAuth(res, data, setIsAuthenticated, navigate)
+        if (!authError){
+          toast("No puede eliminar una cuenta que ya tiene entradas o salidas registradas", "error")
+        }
         return
       }
 

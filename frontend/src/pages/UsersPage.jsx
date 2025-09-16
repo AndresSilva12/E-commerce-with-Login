@@ -17,10 +17,6 @@ function UsersPage() {
                 <Card.Root width="320px" key={user.id}>
                     <Card.Body>
                         <HStack mb="6" gap="3">
-                            <Avatar.Root>
-                                <Avatar.Image src="https://images.unsplash.com/photo-1511806754518-53bada35f930" />
-                                <Avatar.Fallback name="Nate Foss" />
-                            </Avatar.Root>
                             <Stack gap="0">
                                 <Text fontWeight="semibold" textStyle="sm">
                                     {user.name} {user.lastName}
