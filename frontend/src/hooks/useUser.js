@@ -107,7 +107,7 @@ export function useUser() {
       if (!res.ok){
         const authError = handleAuth(res, data, setIsAuthenticated, navigate)
         if (!authError && data.errors){
-          for (const [field, message] of Object.entries(errors)) {
+          for (const [field, message] of Object.entries(data.errors)) {
             setError(field, {
               type: "server",
               message: message,

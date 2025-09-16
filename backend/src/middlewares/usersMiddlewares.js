@@ -67,7 +67,12 @@ export const validateUpdateUser = async (req, res, next) => {
     try{
         const errors = {}
         const parsed = updateUserSchema.safeParse(req.body)
-        if (!parsed.success) return res.status(400).json({error: parsed.error.flatten().fieldErrors})
+        if (!parsed.success) {
+            for (const error of parsed.error.errors){
+                errors[error.path] = error.message
+            }
+            return res.status(400).json({errors})
+        }
         const {username, email, phoneNumber} = parsed.data
         const user = await prisma.users.findUnique({
             where: {

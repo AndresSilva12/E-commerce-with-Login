@@ -46,7 +46,7 @@ function ProfilePage() {
 
                                 <Box display="flex" width="full" gap="4">
                                     <Field.Root invalid={!!errors.password} >
-                                        <Field.Label>Contraseña</Field.Label>
+                                        <Field.Label>Contraseña Actual</Field.Label>
                                         <PasswordInput {...register("password")} size="sm" />
                                         <Field.ErrorText>{errors.password?.message}</Field.ErrorText>
                                     </Field.Root>
