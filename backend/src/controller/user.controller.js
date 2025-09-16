@@ -189,3 +189,28 @@ export const logoutUser = (req, res) => {
   res.clearCookie("refreshToken");
   return res.json("Logout realizado con exito!");
 };
+
+
+export const changeRol = async(req, res) => {
+  try {
+    const newRol = req.userExist.role === 'ADMIN' ? 'USER' : 'ADMIN'
+    const userWithRolChanged = await prisma.users.update({
+      where: {
+        id: req.userExist.id
+      },
+      data: {
+        role: newRol
+      }
+    })
+    if (req.user.id === req.userExist.id){
+      res.clearCookie("accessToken");
+      return res.status(200).json({
+        logout: true,
+        message: "Rol cambiado y sesión cerrada",
+      });
+    }
+    return res.json(userWithRolChanged)
+  } catch (error) {
+    return res.status(500).json({error: "Error interno durante el proceso"})
+  }
+}

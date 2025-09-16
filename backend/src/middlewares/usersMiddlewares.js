@@ -56,6 +56,7 @@ export const validateUserExist = async(req, res, next) =>{
         if (!userExist) return res.status(404).json({error: "El id de usuario no existe"})
     
         req.params.id = idParsed
+        req.userExist = userExist
         next()
     }
     catch (error) {
