@@ -53,7 +53,7 @@ function Categories() {
     const [categoryUpdate, setCategoryUpdate] = useState()
     useEffect(() => {
         getCategories()
-    }, [categories])
+    }, [])
 
     const handleUpdate = (category) => {
         setCategoryUpdate(category)
