@@ -3,11 +3,17 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { convertToUserPublic } from "../utils/userUtils.js";
 
-export const createUser = async (req, res, next) => {
+export const createUser = async (req, res) => {
   try {
-    const { username, password, email, phoneNumber, name, lastName, age } =
-      req.body;
+    const { username, password, email, phoneNumber, name, lastName, age } = req.body;
     const passwordHashed = await bcrypt.hash(password, 10);
+
+    const countAdmin = await prisma.users.count({
+      where: {
+        role: "ADMIN"
+      }
+    })
+    const newRole = countAdmin < process.env.MAX_ADMINS_AT_START ? "ADMIN" : "USER"
     const newUser = await prisma.users.create({
       data: {
         username: username,
@@ -17,16 +23,16 @@ export const createUser = async (req, res, next) => {
         name: name,
         lastName: lastName,
         age: age,
+        role: newRole
       },
     });
     return res.json(convertToUserPublic(newUser));
   } catch (error) {
-    console.log(error);
     return res.status(500).json({ error: "Error interno al crear el usuario" });
   }
 };
 
-export const getAllUsers = async (req, res, next) => {
+export const getAllUsers = async (req, res) => {
   try {
     const users = await prisma.users.findMany();
     const usersPublic = users.map((user) => convertToUserPublic(user));
@@ -39,7 +45,7 @@ export const getAllUsers = async (req, res, next) => {
   }
 };
 
-export const getOneUser = async (req, res, next) => {
+export const getOneUser = async (req, res) => {
   try {
     const user = await prisma.users.findUnique({
       where: {
@@ -55,21 +61,15 @@ export const getOneUser = async (req, res, next) => {
   }
 };
 
-export const deleteUserSelected = async (req, res, next) => {
+export const deleteUserSelected = async (req, res) => {
   try {
-    const accessToken = req.cookies.accessToken;
-    if (!accessToken) {
-      return res
-        .status(403)
-        .json({ error: "Acceso denegado. Debes iniciar sesion primero" });
-    }
+    if (req.user.role !== 'ADMIN') return res.status(403).json({error: "No cuenta con los permisos para eliminar este usuario"})
     const userDeleted = await prisma.users.delete({
       where: {
         id: req.params.id,
       },
     });
-    const isAccountDeleted = jwt.verify(accessToken, "123");
-    if (isAccountDeleted.username === userDeleted.username) {
+    if (req.user.id === userDeleted.id) {
       res.clearCookie("accessToken");
       return res.status(200).json({
         logout: true,
@@ -85,7 +85,7 @@ export const deleteUserSelected = async (req, res, next) => {
   }
 };
 
-export const updateUserSelected = async (req, res, next) => {
+export const updateMyUser = async (req, res) => {
   try {
     const { username, password, email, phoneNumber, name, lastName, age } =
       req.body;
@@ -100,7 +100,7 @@ export const updateUserSelected = async (req, res, next) => {
 
     const userUpdated = await prisma.users.update({
       where: {
-        id: req.params.id,
+        id: req.user.id,
       },
       data: dataToUpdate,
     });
@@ -113,32 +113,66 @@ export const updateUserSelected = async (req, res, next) => {
   }
 };
 
-export const loginUser = async (req, res, next) => {
-  const { id, username } = req.body;
-  const accessToken = jwt.sign({ id : id, username: username}, process.env.JWT_ACCESS_SECRET, { expiresIn: "12m" });
+export const deleteMyUser = async (req, res) => {
+  try {
+    const userDeleted = await prisma.users.delete({
+      where: {
+        id: req.user.id
+      }
+    })
+    if (userDeleted) {
+      res.clearCookie("accessToken");
+      res.clearCookie("refreshToken");
+      return res.status(200).json({
+        logout: true,
+        message: "Cuenta eliminada y sesión cerrada",
+      });
+    }
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+export const getCurrentUser = async(req, res) => {
+  const {id, role} = req.user
+  const user = await prisma.users.findFirst({
+    where: {
+      id: id
+    }
+  })
+  if (role !== user.role) return res.status(403).json({error: "Error. Los datos de sesión no coinciden"})
+  const publicUser = convertToUserPublic(user)
+  res.status(200).json(publicUser)
+};
+
+
+export const loginUser = async (req, res) => {
+  const { id, role } = req.body;
+  const accessToken = jwt.sign({ id : id, role: role}, process.env.JWT_ACCESS_SECRET, { expiresIn: "12m" });
   res.cookie("accessToken", accessToken, {
     httpOnly: true,
     sameSite: "strict",
     maxAge: 1000 * 60 * 12,
   });
 
-  const refreshToken = jwt.sign({ id: id}, process.env.JWT_REFRESH_SECRET, { expiresIn: "7d"})
+  const refreshToken = jwt.sign({ id: id, role: role}, process.env.JWT_REFRESH_SECRET, { expiresIn: "7d"})
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
     sameSite: "strict",
     maxAge: 1000 * 60 * 60 * 24 * 7
   })
-  return res.json("Sesion iniciada correctamente!");
+  const publicUser = convertToUserPublic(req.user)
+  return res.json(publicUser);
 };
 
-export const refreshSesion = async (req, res, next) => {
+export const refreshSesion = async (req, res) => {
   const refreshToken = req.cookies.refreshToken
   if (!refreshToken){
     return res.status(400).json({error: "Acceso denegado. Debe iniciar sesión primero"})
   }
   try{
     const payload = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET)
-    const newAccessToken = jwt.sign({id : payload.id}, process.env.JWT_ACCESS_SECRET, { expiresIn: "12m"})
+    const newAccessToken = jwt.sign({id : payload.id, role: payload.role}, process.env.JWT_ACCESS_SECRET, { expiresIn: "12m"})
     res.cookie("accessToken", newAccessToken, {
       httpOnly: true,
       sameSite: "strict",
@@ -150,25 +184,33 @@ export const refreshSesion = async (req, res, next) => {
   }
 }
 
-export const dashboardProtected = (req, res, next) => {
-  const accessToken = req.cookies.accessToken;
-  if (!accessToken)
-    return res
-      .status(403)
-      .json({ error: "Acceso denegado. Debes iniciar sesion primero" });
-  try {
-    const data = jwt.verify(accessToken, process.env.JWT_ACCESS_SECRET);
-    return res
-      .status(200)
-      .json(`Hola ${data.username}. Estamos accediendo a la dashboard...`);
-  } catch (error) {
-    return res
-      .status(403)
-      .json({ error: "Acceso denegado. Debes iniciar sesion primero" });
-  }
-};
-
-export const logoutUser = (req, res, next) => {
+export const logoutUser = (req, res) => {
   res.clearCookie("accessToken");
+  res.clearCookie("refreshToken");
   return res.json("Logout realizado con exito!");
 };
+
+
+export const changeRol = async(req, res) => {
+  try {
+    const newRol = req.userExist.role === 'ADMIN' ? 'USER' : 'ADMIN'
+    const userWithRolChanged = await prisma.users.update({
+      where: {
+        id: req.userExist.id
+      },
+      data: {
+        role: newRol
+      }
+    })
+    if (req.user.id === req.userExist.id){
+      res.clearCookie("accessToken");
+      return res.status(200).json({
+        logout: true,
+        message: "Rol cambiado y sesión cerrada",
+      });
+    }
+    return res.json(userWithRolChanged)
+  } catch (error) {
+    return res.status(500).json({error: "Error interno durante el proceso"})
+  }
+}

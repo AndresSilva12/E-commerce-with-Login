@@ -1,27 +1,20 @@
 import {Router} from 'express'
-import { createVariant, deleteAllVariantsByProduct, deleteVariant, getVariants, getAllVariantsByProduct, getOnlyOneVariant, updateVariant, disableVariant, enableVariant } from '../controller/productVariant.controller.js';
+import { createVariant, getVariants, updateVariant, disableVariant, enableVariant } from '../controller/productVariant.controller.js';
 import { validateCreateVariant, validateUpdateVariant, validateVariantExist, validateUniqueCode } from '../middlewares/productVariantMiddlewares.js';
+import { authenticate, authorizeRoles } from "../middlewares/authMiddlewares.js"
 
 const router = Router()
 
-router.post('/variants', validateCreateVariant, createVariant)
+router.post('/variants',authenticate, authorizeRoles, validateCreateVariant, createVariant)
 
-router.get('/variants', getVariants)
+router.get('/variants',authenticate, getVariants)
 
-router.post('/variants/:code/check', validateUniqueCode)
+router.post('/variants/:code/check',authenticate, authorizeRoles, validateUniqueCode)
 
-router.get('/variants/id/:id', validateVariantExist, getOnlyOneVariant)
+router.put('/variants/:id',authenticate, authorizeRoles, validateVariantExist, validateUpdateVariant, updateVariant)
 
-router.get('/variants/product/:productId', getAllVariantsByProduct)
+router.patch('/variants/:id/disable',authenticate, authorizeRoles, validateVariantExist, disableVariant)
 
-router.delete('/variants/id/:id', validateVariantExist, deleteVariant)
-
-router.delete('/variants/product/:productId', deleteAllVariantsByProduct)
-
-router.put('/variants/:id',validateVariantExist, validateUpdateVariant, updateVariant)
-
-router.patch('/variants/:id/disable',validateVariantExist, disableVariant)
-
-router.patch('/variants/:id/enable',validateVariantExist, enableVariant)
+router.patch('/variants/:id/enable',authenticate, authorizeRoles, validateVariantExist, enableVariant)
 
 export default router

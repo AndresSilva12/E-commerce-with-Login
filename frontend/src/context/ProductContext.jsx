@@ -1,10 +1,13 @@
 import { createContext, useEffect, useState, useContext } from "react";
 import { toast } from "../utils/notifyToast.js";
 import isEqual from 'lodash.isequal'
+import { handleAuth } from "../utils/auth.js";
+import { AuthContext } from "./AuthContext.jsx";
 
 const ProductContext = createContext()
 
 export function ProductProvider({ children }) {
+    const { isAuthenticated } = useContext(AuthContext)
     const [products, setProducts] = useState([])
     const [variants, setVariants] = useState([])
     const [totalPages, setTotalPages] = useState(1)
@@ -17,8 +20,14 @@ export function ProductProvider({ children }) {
 
     const fetchProducts = async () => {
         try {
-            const res = await fetch('http://localhost:3000/api/products')
+            const res = await fetch('http://localhost:3000/api/products', {
+                credentials: "include"
+            })
             const data = await res.json()
+
+            if (!res.ok) {
+                throw new Error(data.error)
+            }
             setProducts([...data])
         } catch (error) {
             console.log("Error interno del servidor durante el proceso")
@@ -27,8 +36,15 @@ export function ProductProvider({ children }) {
 
     const fetchUniqueProduct = async (id) => {
         try {
-            const res = await fetch(`http://localhost:3000/api/products/${id}`)
+            const res = await fetch(`http://localhost:3000/api/products/${id}`, {
+                credentials: "include"
+            })
             const data = await res.json()
+
+            if (!res.ok) {
+                handleAuth(res, data)
+                return { error: data.error }
+            }
             return data
         } catch (error) {
             console.log("Error interno del servidor durante el proceso")
@@ -38,8 +54,14 @@ export function ProductProvider({ children }) {
     const fetchVariants = async () => {
         try {
             const query = new URLSearchParams(filters).toString()
-            const res = await fetch(`http://localhost:3000/api/variants?${query}`)
+            const res = await fetch(`http://localhost:3000/api/variants?${query}`, {
+                credentials: "include"
+            })
             const data = await res.json()
+
+            if (!res.ok) {
+                throw new Error(data.error)
+            }
 
             setVariants(data.variants)
             setAvailableFilters({
@@ -73,23 +95,27 @@ export function ProductProvider({ children }) {
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify(formProduct)
+                body: JSON.stringify(formProduct),
+                credentials: "include"
             })
             const data = await res.json()
             if (!res.ok) {
-                for (const [field, message] of Object.entries(data.errors)) {
-                    if (field === 'variants') {
-                        for (const [code, messageVariant] of Object.entries(data.errors.variants)) {
-                            setError(`variants.${code}`, {
+                const authError = handleAuth(res, data)
+                if (!authError && data.errors) {
+                    for (const [field, message] of Object.entries(data.errors)) {
+                        if (field === 'variants') {
+                            for (const [code, messageVariant] of Object.entries(data.errors.variants)) {
+                                setError(`variants.${code}`, {
+                                    type: "server",
+                                    message: messageVariant
+                                })
+                            }
+                        } else {
+                            setError(field, {
                                 type: "server",
-                                message: messageVariant
+                                message: message
                             })
                         }
-                    } else {
-                        setError(field, {
-                            type: "server",
-                            message: message
-                        })
                     }
                 }
                 return { success: false, errors: data.errors || 'Error Desconocido' }
@@ -102,18 +128,6 @@ export function ProductProvider({ children }) {
         } catch (error) {
             notify('error', 'No se pudo crear el producto')
             return { success: false, errors: { general: 'Error interno del servidor' } };
-        }
-    }
-
-    const deleteProduct = async (id) => {
-        try {
-            const res = await fetch(`http://localhost:3000/api/products/${id}`, {
-                method: 'DELETE'
-            })
-            const data = await res.json()
-            setProducts(prev => prev.filter(p => p.id != id))
-        } catch (error) {
-            console.log("Error interno del servidor durante el proceso")
         }
     }
 
@@ -136,23 +150,28 @@ export function ProductProvider({ children }) {
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify(formUpdateProduct)
+                body: JSON.stringify(formUpdateProduct),
+                credentials: "include"
             })
             const data = await res.json()
+
             if (!res.ok) {
-                for (const [field, message] of Object.entries(data.errors)) {
-                    if (field === 'variants') {
-                        for (const [code, messageVariant] of Object.entries(data.errors.variants)) {
-                            setError(`variants.${code}`, {
+                const authError = handleAuth(res, data)
+                if (!authError && data.errors) {
+                    for (const [field, message] of Object.entries(data.errors)) {
+                        if (field === 'variants') {
+                            for (const [code, messageVariant] of Object.entries(data.errors.variants)) {
+                                setError(`variants.${code}`, {
+                                    type: "server",
+                                    message: messageVariant
+                                })
+                            }
+                        } else {
+                            setError(field, {
                                 type: "server",
-                                message: messageVariant
+                                message: message
                             })
                         }
-                    } else {
-                        setError(field, {
-                            type: "server",
-                            message: message
-                        })
                     }
                 }
                 return { success: false, errors: data.errors || 'Error Desconocido' }
@@ -180,8 +199,10 @@ export function ProductProvider({ children }) {
     }
 
     useEffect(() => {
-        fetchVariants()
-    }, [filters])
+        if (isAuthenticated) {
+            fetchVariants()
+        }
+    }, [filters, isAuthenticated])
 
     return (
         <ProductContext.Provider value={{
@@ -190,7 +211,6 @@ export function ProductProvider({ children }) {
             fetchUniqueProduct,
             createProduct,
             updateProduct,
-            deleteProduct,
             variants,
             fetchVariants,
             filters,

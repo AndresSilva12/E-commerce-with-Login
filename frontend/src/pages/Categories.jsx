@@ -5,10 +5,11 @@ import { useForm } from "react-hook-form";
 import { categorySchema } from "../../../validation/categorySchema.js"
 import { useCategories } from "../hooks/useCategories.js";
 import Modal from "../components/Modal.jsx"
+import { Toaster } from "../components/ui/toaster";
 
 export function CategoryForm({ categoryUpdate, closeModal }) {
     const { createCategory, updateCategory } = useCategories()
-    const { register, handleSubmit, reset, formState: { errors } } = useForm({
+    const { register, handleSubmit, reset, formState: { errors }, setError } = useForm({
         resolver: zodResolver(categorySchema)
     })
 
@@ -21,19 +22,14 @@ export function CategoryForm({ categoryUpdate, closeModal }) {
     }, [categoryUpdate, reset])
 
     const onValid = async (data) => {
-        categoryUpdate ? updateCategory(categoryUpdate.id, data) : createCategory(data)
+        categoryUpdate ? updateCategory(categoryUpdate.id, data, setError, closeModal) : createCategory(data, setError, closeModal)
     }
     const onInvalid = async (data) => {
         console.log("error", data)
     }
 
     return (
-        <form onSubmit={handleSubmit(
-            async (data) => {
-                await onValid(data)
-                if (closeModal) closeModal()
-            }, onInvalid
-        )}>
+        <form onSubmit={handleSubmit(onValid, onInvalid)}>
             <Box display="flex" flexDirection="column" justifyContent="center" gap="4">
                 <Fieldset.Root>
                     <Fieldset.Content>
@@ -57,7 +53,7 @@ function Categories() {
     const [categoryUpdate, setCategoryUpdate] = useState()
     useEffect(() => {
         getCategories()
-    }, [categories])
+    }, [])
 
     const handleUpdate = (category) => {
         setCategoryUpdate(category)
@@ -91,6 +87,7 @@ function Categories() {
                     <CategoryForm closeModal={closeModal} categoryUpdate={categoryUpdate} />
                 )}
             </Modal>
+            <Toaster />
         </Box>
     )
 }

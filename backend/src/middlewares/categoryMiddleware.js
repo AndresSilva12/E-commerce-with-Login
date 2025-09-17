@@ -1,4 +1,3 @@
-import { error } from "zod/v4/locales/ar.js"
 import {categorySchema} from "../../../validation/categorySchema.js"
 import prisma from "../db.js"
 
@@ -18,12 +17,12 @@ export const validateCreateCategory = async (req, res, next) => {
                 name: name
             }
         })
-        if (categoryExist) return res.status(400).json({error: `La categoría ${name} ya existe`})
+        if (categoryExist) return res.status(400).json({errors: {name: `La categoría ya existe`}})
 
         req.body = parsed.data
         next()
     } catch (error) {
-        console.log(error)
+        return res.status(500).json({error: "Error interno del servidor"})
     }
 }
 
@@ -62,7 +61,7 @@ export const validateUpdateCategory = async(req, res, next) => {
                 name: name
             }
         })
-        if (categoryExist && categoryExist.id !== req.category.id) return res.status(400).json({error: `La categoría ${name} ya existe`})
+        if (categoryExist && categoryExist.id !== req.category.id) return res.status(400).json({errors: {name: `La categoría ya existe`}})
 
         req.body = parsed.data
         next()

@@ -1,14 +1,14 @@
 import { Router } from "express";
 import { createNewSale, deleteSale, getAllSales } from "../controller/sales.controller.js";
 import { validateNewSale, validateSaleExist } from "../middlewares/salesMiddlewares.js";
-import { authenticate } from "../middlewares/authMiddlewares.js";
+import { authenticate, authorizeRoles } from "../middlewares/authMiddlewares.js";
 
 const router = Router()
 
 router.post('/sales', authenticate, validateNewSale, createNewSale)
 
-router.get('/sales', getAllSales)
+router.get('/sales', authenticate, getAllSales)
 
-router.delete('/sales/:id',validateSaleExist, deleteSale)
+router.delete('/sales/:id',authenticate, authorizeRoles, validateSaleExist, deleteSale)
 
 export default router

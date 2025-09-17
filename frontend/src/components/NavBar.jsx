@@ -9,11 +9,11 @@ import Modal from './Modal'
 
 
 function NavBar() {
-    const { isAuthenticated, setIsAuthenticated } = useContext(AuthContext)
+    const { isAuthenticated, user } = useContext(AuthContext)
     const { userLogout } = useUser()
     const { cart } = useCart()
 
-    const handleLogout = () => { userLogout({ setIsAuthenticated }) }
+    const handleLogout = () => { userLogout() }
 
     return (
         <Box position="fixed" zIndex="99" width="full">
@@ -41,28 +41,43 @@ function NavBar() {
                     <Flex display={{ base: 'none', md: 'flex' }} ml={10}>
                         {isAuthenticated &&
                             <>
-                                <Box
-                                    px={2}
-                                    py={1}
-                                    rounded={'md'}
-                                    _hover={{
-                                        textDecoration: 'none',
-                                        bg: ('gray.200', 'gray.700'),
-                                    }}
-                                >
-                                    <Link className='text-white' to='/dashboard' >Dashboard</Link>
-                                </Box>
-                                <Box
-                                    px={2}
-                                    py={1}
-                                    rounded={'md'}
-                                    _hover={{
-                                        textDecoration: 'none',
-                                        bg: ('gray.200', 'gray.700'),
-                                    }}
-                                >
-                                    <Link className='text-white' to='/users' >Users</Link>
-                                </Box>
+                                {isAuthenticated && user && user.role === 'ADMIN' &&
+                                    <>
+                                        <Box
+                                            px={2}
+                                            py={1}
+                                            rounded={'md'}
+                                            _hover={{
+                                                textDecoration: 'none',
+                                                bg: ('gray.200', 'gray.700'),
+                                            }}
+                                        >
+                                            <Link className='text-white' to='/dashboard' >Dashboard</Link>
+                                        </Box>
+                                        <Box
+                                            px={2}
+                                            py={1}
+                                            rounded={'md'}
+                                            _hover={{
+                                                textDecoration: 'none',
+                                                bg: ('gray.200', 'gray.700'),
+                                            }}
+                                        >
+                                            <Link className='text-white' to='/productsDisabled' >Products Disabled</Link>
+                                        </Box>
+                                        <Box
+                                            px={2}
+                                            py={1}
+                                            rounded={'md'}
+                                            _hover={{
+                                                textDecoration: 'none',
+                                                bg: ('gray.200', 'gray.700'),
+                                            }}
+                                        >
+                                            <Link className='text-white' to='/users' >Users</Link>
+                                        </Box>
+                                    </>
+                                }
                                 <Box
                                     px={2}
                                     py={1}
@@ -73,17 +88,6 @@ function NavBar() {
                                     }}
                                 >
                                     <Link className='text-white' to='/products' >Products</Link>
-                                </Box>
-                                <Box
-                                    px={2}
-                                    py={1}
-                                    rounded={'md'}
-                                    _hover={{
-                                        textDecoration: 'none',
-                                        bg: ('gray.200', 'gray.700'),
-                                    }}
-                                >
-                                    <Link className='text-white' to='/productsDisabled' >Products Disabled</Link>
                                 </Box>
                                 <Box
                                     px={2}
@@ -136,6 +140,17 @@ function NavBar() {
                                 <Button>Carrito</Button>
                             </Box>
                         } />
+                        <Box
+                            px={2}
+                            py={1}
+                            rounded={'md'}
+                            _hover={{
+                                textDecoration: 'none',
+                                bg: ('gray.200', 'gray.700'),
+                            }}
+                        >
+                            <Link className='text-white' to='/profile' >Profile</Link>
+                        </Box>
                         <Stack
                             flex={{ base: 1, md: 0 }}
                             justify={'flex-end'}

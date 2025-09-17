@@ -107,6 +107,10 @@ function ProductsPage() {
     const [page, setPage] = useState(1)
     const { addToCart } = useCart()
 
+    useEffect(() => {
+        setFilters({})
+    }, [])
+
     const sorts = createListCollection({
         items: [
             { label: "Precio (Menor a mayor)", value: "price-asc" },

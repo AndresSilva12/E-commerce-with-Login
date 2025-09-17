@@ -12,6 +12,7 @@ import ProductsPage from '../pages/ProductsPage';
 import ProductsDisabledPage from '../pages/ProductsDisabledPage';
 import StockEntriesPage from '../pages/StockEntries';
 import Categories from '../pages/Categories';
+import ProfilePage from '../pages/ProfilePage';
 
 function AppRouter() {
     return (
@@ -25,7 +26,7 @@ function AppRouter() {
                     </GuestOnlyRoute>
                 } />
                 <Route path='/dashboard' element={
-                    <ProtectedRoutes>
+                    <ProtectedRoutes roles={['ADMIN']}>
                         <Dashboard />
                     </ProtectedRoutes>
                 } />
@@ -35,12 +36,12 @@ function AppRouter() {
                     </ProtectedRoutes>
                 } />
                 <Route path='/productsDisabled' element={
-                    <ProtectedRoutes>
+                    <ProtectedRoutes roles={['ADMIN']}>
                         <ProductsDisabledPage />
                     </ProtectedRoutes>
                 } />
                 <Route path='/users' element={
-                    <ProtectedRoutes>
+                    <ProtectedRoutes roles={['ADMIN']}>
                         <UsersPage />
                     </ProtectedRoutes>
                 } />
@@ -57,6 +58,11 @@ function AppRouter() {
                 <Route path='/categories' element={
                     <ProtectedRoutes>
                         <Categories />
+                    </ProtectedRoutes>
+                } />
+                <Route path='/profile' element={
+                    <ProtectedRoutes>
+                        <ProfilePage />
                     </ProtectedRoutes>
                 } />
                 <Route path='/login' element={

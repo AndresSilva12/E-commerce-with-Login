@@ -8,6 +8,9 @@ import Calendar from "react-calendar"
 import { useExpenses } from "../hooks/useExpenses.js"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { expensesSchema, updateExpensesSchema } from "../../../validation/expensesSchema.js"
+import { Toaster } from "../components/ui/toaster";
+import { useMetrics } from "../hooks/useMetrics.js"
+import { generatePdfReport } from "../utils/pdfReport.js"
 
 export function ChartProducts({ topProductosVentas, topCategorias, topProductosCantidad }) {
     const chartData = topProductosVentas
@@ -133,8 +136,8 @@ export function ExpensesModal({ expenseUpdate, onSubmitExpense }) {
         }
     }, [expenseUpdate, reset])
 
-    const onValid = (value) => {
-        expenseUpdate === null ? createExpense(value) : updateExpense(value, expenseUpdate.id)
+    const onValid = async (data) => {
+        expenseUpdate ? await updateExpense(data, expenseUpdate.id) : await createExpense(data)
         onSubmitExpense()
     }
 
@@ -173,36 +176,11 @@ export function ExpensesModal({ expenseUpdate, onSubmitExpense }) {
 }
 
 function Dashboard() {
-    const [ingresosBrutos, setIngresosBrutos] = useState()
-    const [ventasTotales, setVentasTotales] = useState()
-    const [gananciaNeta, setGananciaNeta] = useState()
-    const [totalGastos, setTotalGastos] = useState()
-    const [expenses, setExpenses] = useState([])
-    const [costos, setCostos] = useState()
-    const [topProductosVentas, setTopProductosVentas] = useState([])
-    const [topProductosCantidad, setTopProductosCantidad] = useState([])
-    const [topCategorias, setTopCategorias] = useState([])
-    const [filters, setFilters] = useState()
-    const [expenseUpdate, setExpenseUpdate] = useState(null)
     const { deleteExpense } = useExpenses()
-    const [metrics, setMetrics] = useState()
+    const { metrics, fetchMetrics, filters, setFilters, topProductosCantidad, topProductosVentas, ingresosBrutos, topCategorias, ventasTotales, gananciaNeta, totalGastos, expenses, costos } = useMetrics()
+    const [expenseUpdate, setExpenseUpdate] = useState(null)
 
     useEffect(() => {
-        const fetchMetrics = async () => {
-            const query = new URLSearchParams(filters).toString()
-            const res = await fetch(`http://localhost:3000/api/dashboard/metrics?${query}`)
-            const data = await res.json()
-            setMetrics({ metrics: data })
-            setIngresosBrutos(data.ingresos)
-            setGananciaNeta(data.gananciaNeta)
-            setVentasTotales(data.ventasTotales)
-            setTotalGastos(data.totalExpenses)
-            setExpenses(data.expenses)
-            setCostos(data.costos)
-            setTopProductosCantidad(data.topProductosCantidad)
-            setTopProductosVentas(data.topProductosVentas)
-            setTopCategorias(data.topCategorias)
-        }
         fetchMetrics()
     }, [filters])
 
@@ -231,35 +209,10 @@ function Dashboard() {
                 ? setFilters({ year: year, month: month, minDay: minDay })
                 : setFilters({ year: year })
     }
-
-    const handleUpdate = (expense) => {
-        setExpenseUpdate(expense)
+    const handleDeleteExpense = async (id) => {
+        const idDeleted = await deleteExpense(id)
+        if (idDeleted) setFilters({})
     }
-
-    const handleDelete = (id) => {
-        deleteExpense(id)
-        setFilters(null)
-    }
-
-    const handleReport = async () => {
-        const res = await fetch('http://localhost:3000/api/report', {
-            method: 'POST',
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(metrics)
-        })
-        const blob = await res.blob()
-
-        const url = window.URL.createObjectURL(blob)
-        const a = document.createElement("a")
-
-        a.href = url
-        a.download = "reporte.pdf"
-        document.body.appendChild(a)
-        a.click()
-        a.remove()
-        window.URL.revokeObjectURL(url)
-    }
-
 
     return (
         <Grid templateColumns="repeat(8, 1fr)" templateRows="repeat(10, 1fr)">
@@ -296,17 +249,19 @@ function Dashboard() {
                         <ChartPie value={chartGastos} />
                         <Box width="full" height="50px" display="flex" justifyContent="center">
                             <Modal size={"sm"} trigger={<Button onClick={() => { setExpenseUpdate(null) }}>Agregar nuevo gasto</Button>}>
-                                <ExpensesModal expenseUpdate={expenseUpdate} onSubmitExpense={() => {
-                                    setExpenseUpdate(null)
-                                    setFilters(null)
-                                }} />
+                                {({ closeModal }) => (
+                                    <ExpensesModal expenseUpdate={expenseUpdate} onSubmitExpense={() => {
+                                        closeModal()
+                                        setFilters({})
+                                    }} />
+                                )}
                             </Modal>
                         </Box>
                     </Box>
 
                     <Box display="flex" flexDirection="column">
                         <ChartCard value={gananciaNeta + costos - totalGastos} title={"Caja Final"} subtitle={"Total de utilidad"} />
-                        <Button onClick={() => { handleReport() }}>Generar Reporte</Button>
+                        <Button onClick={() => { generatePdfReport(metrics) }}>Generar Reporte</Button>
                     </Box>
 
                 </Box>
@@ -336,18 +291,19 @@ function Dashboard() {
                             <Table.Row key={expense.id}>
                                 <Table.Cell>{expense.name}</Table.Cell>
                                 <Table.Cell>{expense.date}</Table.Cell>
-                                <Table.Cell>$ {new Intl.NumberFormat("es-AR").format(expense.amount)}
-                                </Table.Cell>
+                                <Table.Cell>$ {new Intl.NumberFormat("es-AR").format(expense.amount)}</Table.Cell>
                                 <Table.Cell>
-                                    <Modal size={"sm"} trigger={<Button onClick={() => { handleUpdate(expense) }}>Editar</Button>}>
-                                        <ExpensesModal expenseUpdate={expenseUpdate} onSubmitExpense={() => {
-                                            setExpenseUpdate(null)
-                                            setFilters(null)
-                                        }} />
+                                    <Modal size={"sm"} trigger={<Button onClick={() => { setExpenseUpdate(expense) }}>Editar</Button>}>
+                                        {({ closeModal }) => (
+                                            <ExpensesModal expenseUpdate={expenseUpdate} onSubmitExpense={() => {
+                                                closeModal()
+                                                setFilters({})
+                                            }} />
+                                        )}
                                     </Modal>
                                     <Modal size={"sm"} trigger={<Button backgroundColor={"red.700"}>Delete</Button>}>
                                         <h2 >Está seguro que desea eliminar este gasto?</h2>
-                                        <Button onClick={() => { handleDelete(expense.id) }}>Eliminar</Button>
+                                        <Button onClick={() => { handleDeleteExpense(expense.id) }}>Eliminar</Button>
                                     </Modal>
                                 </Table.Cell>
                             </Table.Row>
@@ -356,6 +312,7 @@ function Dashboard() {
                 </Table.Root>
 
             </GridItem>
+            <Toaster />
         </Grid >
     )
 }
