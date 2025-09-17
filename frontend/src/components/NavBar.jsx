@@ -6,6 +6,9 @@ import { Box, Flex, IconButton, Button, Stack, Float, Circle } from '@chakra-ui/
 import CartDrawer from "./CartDrawer";
 import { useCart } from '../context/CartContext'
 import Modal from './Modal'
+import { LuCircleUserRound, LuLogOut, LuLogIn, LuShoppingCart, LuStore, LuUsersRound, LuShirt, LuPackagePlus, LuChartNoAxesCombined, LuShoppingBag, LuUserRoundPlus } from "react-icons/lu";
+import { TbShirtOff } from "react-icons/tb";
+import { GiClothes } from "react-icons/gi";
 
 
 function NavBar() {
@@ -37,90 +40,58 @@ function NavBar() {
                     />
                 </Flex>
                 <Flex flex={{ base: 1 }} justify={{ base: 'center', md: 'start' }}>
-                    <Link className='text-white' to='/' >Home</Link>
+                    <Link className='text-white' to='/' >
+                        <LuStore />
+                        Inicio
+                    </Link>
                     <Flex display={{ base: 'none', md: 'flex' }} ml={10}>
                         {isAuthenticated &&
                             <>
                                 {isAuthenticated && user && user.role === 'ADMIN' &&
                                     <>
-                                        <Box
-                                            px={2}
-                                            py={1}
-                                            rounded={'md'}
-                                            _hover={{
-                                                textDecoration: 'none',
-                                                bg: ('gray.200', 'gray.700'),
-                                            }}
-                                        >
-                                            <Link className='text-white' to='/dashboard' >Dashboard</Link>
+                                        <Box px={2} py={1} rounded={'md'} _hover={{ textDecoration: 'none', bg: ('gray.200', 'gray.700'), }} >
+                                            <Link className='text-white' to='/dashboard' >
+                                                <LuChartNoAxesCombined />
+                                                Panel
+                                            </Link>
                                         </Box>
-                                        <Box
-                                            px={2}
-                                            py={1}
-                                            rounded={'md'}
-                                            _hover={{
-                                                textDecoration: 'none',
-                                                bg: ('gray.200', 'gray.700'),
-                                            }}
-                                        >
-                                            <Link className='text-white' to='/productsDisabled' >Products Disabled</Link>
+                                        <Box px={2} py={1} rounded={'md'} _hover={{ textDecoration: 'none', bg: ('gray.200', 'gray.700'), }} >
+                                            <Link className='text-white' to='/productsDisabled' >
+                                                <TbShirtOff />
+                                                Deshabilitados
+                                            </Link>
                                         </Box>
-                                        <Box
-                                            px={2}
-                                            py={1}
-                                            rounded={'md'}
-                                            _hover={{
-                                                textDecoration: 'none',
-                                                bg: ('gray.200', 'gray.700'),
-                                            }}
-                                        >
-                                            <Link className='text-white' to='/users' >Users</Link>
+                                        <Box px={2} py={1} rounded={'md'} _hover={{ textDecoration: 'none', bg: ('gray.200', 'gray.700'), }} >
+                                            <Link className='text-white' to='/users' >
+                                                <LuUsersRound />
+                                                Usuarios
+                                            </Link>
                                         </Box>
                                     </>
                                 }
-                                <Box
-                                    px={2}
-                                    py={1}
-                                    rounded={'md'}
-                                    _hover={{
-                                        textDecoration: 'none',
-                                        bg: ('gray.200', 'gray.700'),
-                                    }}
-                                >
-                                    <Link className='text-white' to='/products' >Products</Link>
+                                <Box px={2} py={1} rounded={'md'} _hover={{ textDecoration: 'none', bg: ('gray.200', 'gray.700'), }} >
+                                    <Link className='text-white' to='/products' >
+                                        <LuShirt />
+                                        Productos
+                                    </Link>
                                 </Box>
-                                <Box
-                                    px={2}
-                                    py={1}
-                                    rounded={'md'}
-                                    _hover={{
-                                        textDecoration: 'none',
-                                        bg: ('gray.200', 'gray.700'),
-                                    }}
-                                >
-                                    <Link className='text-white' to='/sales' >Sales</Link>
+                                <Box px={2} py={1} rounded={'md'} _hover={{ textDecoration: 'none', bg: ('gray.200', 'gray.700'), }} >
+                                    <Link className='text-white' to='/sales' >
+                                        <LuShoppingBag />
+                                        Ventas
+                                    </Link>
                                 </Box>
-                                <Box
-                                    px={2}
-                                    py={1}
-                                    rounded={'md'}
-                                    _hover={{
-                                        textDecoration: 'none',
-                                        bg: ('gray.200', 'gray.700'),
-                                    }}
-                                >
-                                    <Link className='text-white' to='/entries' >Entries</Link>
+                                <Box px={2} py={1} rounded={'md'} _hover={{ textDecoration: 'none', bg: ('gray.200', 'gray.700'), }} >
+                                    <Link className='text-white' to='/entries' >
+                                        <LuPackagePlus />
+                                        Entradas
+                                    </Link>
                                 </Box>
-                                <Box
-                                    px={2}
-                                    py={1}
-                                    rounded={'md'}
-                                    _hover={{
-                                        textDecoration: 'none',
-                                        bg: ('gray.200', 'gray.700'),
-                                    }}
-                                >
-                                    <Link className='text-white' to='/categories' >Categories</Link>
+                                <Box px={2} py={1} rounded={'md'} _hover={{ textDecoration: 'none', bg: ('gray.200', 'gray.700'), }} >
+                                    <Link className='text-white' to='/categories' >
+                                        <GiClothes />
+                                        Categorias
+                                    </Link>
                                 </Box>
 
                             </>
@@ -137,26 +108,28 @@ function NavBar() {
                                         {cart.length}
                                     </Circle>
                                 </Float>
-                                <Button>Carrito</Button>
+                                <Button>
+                                    <LuShoppingCart />
+                                </Button>
                             </Box>
                         } />
-                        <Box
-                            px={2}
-                            py={1}
-                            rounded={'md'}
-                            _hover={{
-                                textDecoration: 'none',
-                                bg: ('gray.200', 'gray.700'),
-                            }}
-                        >
-                            <Link className='text-white' to='/profile' >Profile</Link>
+                        <Box px={2} py={1} rounded={'md'} _hover={{ textDecoration: 'none', bg: ('gray.200', 'gray.700'), }}>
+                            <Link className='text-white' to='/profile'>
+                                <LuCircleUserRound />
+                                {user.username}
+                            </Link>
                         </Box>
                         <Stack
                             flex={{ base: 1, md: 0 }}
                             justify={'flex-end'}
                             direction={'row'}
                             spacing={6}>
-                            <Modal trigger={<Button as={'a'} fontSize={'sm'} color={'white'} colorPalette="teal" fontWeight={400}>Logout</Button>}>
+                            <Modal trigger={
+                                <Button as={'a'} fontSize={'sm'} color={'white'} colorPalette="teal" fontWeight={400}>
+                                    <LuLogOut />
+                                    Salir
+                                </Button>
+                            }>
                                 <h2 >Está seguro que desea cerrar sesión</h2>
                                 <Button onClick={() => { handleLogout() }}>Cerrar sesión</Button>
                             </Modal>
@@ -171,6 +144,7 @@ function NavBar() {
                         direction={'row'}
                         spacing={6}>
                         <Button as={'a'} fontSize={'sm'} fontWeight={400} variant={'link'} href={'/register'}>
+                            <LuUserRoundPlus />
                             Register
                         </Button>
                         <Button
@@ -184,6 +158,7 @@ function NavBar() {
                             _hover={{
                                 bg: 'pink.300',
                             }}>
+                            <LuLogIn />
                             Login
                         </Button>
                     </Stack>

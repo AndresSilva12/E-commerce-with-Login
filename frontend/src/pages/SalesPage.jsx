@@ -4,6 +4,9 @@ import { Button, Table, Box, DataList, Image, Grid, GridItem, Stack, Text, Stron
 import Calendar from "react-calendar";
 import { Toaster } from "../components/ui/toaster";
 import Modal from "../components/Modal.jsx";
+import { BsInfoCircle } from "react-icons/bs";
+import { LuTrash2, LuChevronLeft, LuChevronRight } from "react-icons/lu";
+
 
 export function SaleSelectedModal({ saleSelected }) {
     return (
@@ -105,10 +108,12 @@ function SalesPage() {
                     <Table.Body>
                         {sales && sales.map((sale) => (
                             <Table.Row key={sale.id}>
-                                <Table.Cell>{sale.user.name} {sale.user.lastName}</Table.Cell>
+                                <Table.Cell>{sale.user.username}</Table.Cell>
                                 <Table.Cell>{sale.date.slice(0, 10)}</Table.Cell>
                                 <Table.Cell>
-                                    <Modal trigger={<Button size="sm" variant="surface" onClick={() => { handleSaleSelected(sale) }}>+Info</Button>}>
+                                    <Modal trigger={<Button size="sm" variant="surface" onClick={() => { handleSaleSelected(sale) }}>
+                                        <BsInfoCircle />
+                                    </Button>}>
                                         <SaleSelectedModal saleSelected={saleSelected} />
                                     </Modal>
                                 </Table.Cell>
@@ -133,7 +138,11 @@ function SalesPage() {
                                 <Table.Cell>$ {new Intl.NumberFormat("es-AR").format(sale.totalPrice)}</Table.Cell>
                                 <Table.Cell>{sale.motive}</Table.Cell>
                                 <Table.Cell>
-                                    <Modal size={"sm"} trigger={<Button backgroundColor={"red.700"}>Delete</Button>}>
+                                    <Modal size={"sm"} trigger={
+                                        <Button colorPalette="red">
+                                            <LuTrash2 />
+                                        </Button>
+                                    }>
                                         <h2 >Está seguro que desea eliminar esta venta?</h2>
                                         <Button onClick={() => { deleteSale(sale.id) }}>Eliminar</Button>
                                     </Modal>
@@ -147,11 +156,13 @@ function SalesPage() {
                         <ButtonGroup gap="4" size="sm" variant="ghost">
                             <Pagination.PrevTrigger asChild>
                                 <IconButton>
+                                    <LuChevronLeft />
                                 </IconButton>
                             </Pagination.PrevTrigger>
                             <Pagination.PageText />
                             <Pagination.NextTrigger asChild>
                                 <IconButton>
+                                    <LuChevronRight />
                                 </IconButton>
                             </Pagination.NextTrigger>
                         </ButtonGroup>

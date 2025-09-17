@@ -10,6 +10,11 @@ import SearchBar from "../components/SearchBar";
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import Modal from "../components/Modal";
+import { LuShirt, LuShoppingCart, LuSquarePen, LuPackagePlus } from "react-icons/lu";
+import { LuChevronLeft, LuChevronRight } from "react-icons/lu"
+import { RiProhibitedLine } from "react-icons/ri";
+import { FaFilter, FaFilterCircleXmark } from "react-icons/fa6";
+
 
 export function ModalStockUpdate({ variantUpdate }) {
     const { handleSubmit } = useForm()
@@ -287,80 +292,88 @@ function ProductsPage() {
     return (
         <>
             <Grid templateColumns="repeat(8, 1fr)" templateRows="repeat(10, 1fr)">
-                <GridItem rowSpan={10} colSpan={1} padding="4" bg="black" display="flex" flexDirection="column" gap="4" position="fixed" top="50px" zIndex="50" bottom="0">
-                    <Box overflowY="auto" height="100%">
-                        <Stack textAlign="initial">
-                            <Text textStyle="lg" fontWeight="medium">Categorias</Text>
-                            <Box display="flex" flexDirection="column" justifyContent="center">
-                                {availableFilters.categories?.map((category, index) => (
-                                    <Checkbox.Root key={index} onCheckedChange={(checked) => handleCheckCategory(category, checked)} checked={filtersChecked.categories.includes(category)}>
-                                        <Checkbox.HiddenInput />
-                                        <Checkbox.Control />
-                                        <Checkbox.Label>{category}</Checkbox.Label>
-                                    </Checkbox.Root>
-                                ))}
-                            </Box>
-                        </Stack>
-
-                        <Stack textAlign="initial">
-                            <Text textStyle="lg" fontWeight="medium">Marca</Text>
-                            <Box display="flex" flexDirection="column" justifyContent="center">
-                                {availableFilters.brands.map((brand, index) => (
-                                    <Checkbox.Root key={index} onCheckedChange={(checked) => handleCheckBrand(brand, checked)} checked={filtersChecked.brands.includes(brand)}>
-                                        <Checkbox.HiddenInput />
-                                        <Checkbox.Control />
-                                        <Checkbox.Label>{brand}</Checkbox.Label>
-                                    </Checkbox.Root>
-                                ))}
-                            </Box>
-                        </Stack>
-                        <Stack textAlign="initial">
-                            <Text textStyle="lg" fontWeight="medium">Talle</Text>
-                            <Box display="flex" flexDirection="column" justifyContent="center">
-                                {availableFilters.sizes.map((size, index) => (
-                                    <Checkbox.Root key={index} onCheckedChange={(checked) => handleCheckSize(size, checked)} checked={filtersChecked.sizes.includes(size)}>
-                                        <Checkbox.HiddenInput />
-                                        <Checkbox.Control />
-                                        <Checkbox.Label>{size}</Checkbox.Label>
-                                    </Checkbox.Root>
-                                ))}
-                            </Box>
-                        </Stack>
-
-                        <Stack textAlign="initial">
-                            <Text textStyle="lg" fontWeight="medium">Color</Text>
-                            <Box display="flex" flexDirection="column" justifyContent="center">
-                                {availableFilters.colors.map((color, index) => (
-                                    <Checkbox.Root key={index} onCheckedChange={(checked) => handleCheckColor(color, checked)} checked={filtersChecked.colors.includes(color)}>
-                                        <Checkbox.HiddenInput />
-                                        <Checkbox.Control />
-                                        <Checkbox.Label>{color}</Checkbox.Label>
-                                    </Checkbox.Root>
-                                ))}
-                            </Box>
-                        </Stack>
-
-                        <Stack display="flex" flexDirection="row" justifyContent="space-around" alignItems="center">
-                            <Field.Root width="80px">
-                                <Text>Price Min</Text>
-                                <NumberInput.Root size="xs" value={priceMin} onValueChange={(e) => { handleSetPrice("priceMin", e.value) }}>
-                                    <InputGroup startElement="$">
-                                        <NumberInput.Input />
-                                    </InputGroup>
-                                </NumberInput.Root>
-                            </Field.Root>
-
-                            <Field.Root width="80px">
-                                <Text>Price Max</Text>
-                                <NumberInput.Root size="xs" value={priceMax} onValueChange={(e) => { handleSetPrice("priceMax", e.value) }}>
-                                    <InputGroup startElement="$">
-                                        <NumberInput.Input />
-                                    </InputGroup>
-                                </NumberInput.Root>
-                            </Field.Root>
-                            <Button disabled={priceMin == 0 && priceMax == 0} onClick={() => { handleChangePrice() }}> &gt; </Button>
-                        </Stack>
+                <GridItem rowSpan={10} colSpan={1} padding="4" bg="black" display="flex" flexDirection="column" gap="4" position="fixed" top="50px" zIndex="50" bottom="0" overflowY="auto" height="100%">
+                    <Button>
+                        Limpiar Filtros
+                        <FaFilterCircleXmark />
+                    </Button>
+                    <Box display="flex">
+                        <FaFilter />
+                        <Text>Filtrar Por</Text>
                     </Box>
+                    <Stack textAlign="initial">
+                        <Text textStyle="lg" fontWeight="medium">Categorias</Text>
+                        <Box display="flex" flexDirection="column" justifyContent="center">
+                            {availableFilters.categories?.map((category, index) => (
+                                <Checkbox.Root key={index} onCheckedChange={(checked) => handleCheckCategory(category, checked)} checked={filtersChecked.categories.includes(category)}>
+                                    <Checkbox.HiddenInput />
+                                    <Checkbox.Control />
+                                    <Checkbox.Label>{category}</Checkbox.Label>
+                                </Checkbox.Root>
+                            ))}
+                        </Box>
+                    </Stack>
+
+                    <Stack textAlign="initial">
+                        <Text textStyle="lg" fontWeight="medium">Marca</Text>
+                        <Box display="flex" flexDirection="column" justifyContent="center">
+                            {availableFilters.brands.map((brand, index) => (
+                                <Checkbox.Root key={index} onCheckedChange={(checked) => handleCheckBrand(brand, checked)} checked={filtersChecked.brands.includes(brand)}>
+                                    <Checkbox.HiddenInput />
+                                    <Checkbox.Control />
+                                    <Checkbox.Label>{brand}</Checkbox.Label>
+                                </Checkbox.Root>
+                            ))}
+                        </Box>
+                    </Stack>
+                    <Stack textAlign="initial">
+                        <Text textStyle="lg" fontWeight="medium">Talle</Text>
+                        <Box display="flex" flexDirection="column" justifyContent="center">
+                            {availableFilters.sizes.map((size, index) => (
+                                <Checkbox.Root key={index} onCheckedChange={(checked) => handleCheckSize(size, checked)} checked={filtersChecked.sizes.includes(size)}>
+                                    <Checkbox.HiddenInput />
+                                    <Checkbox.Control />
+                                    <Checkbox.Label>{size}</Checkbox.Label>
+                                </Checkbox.Root>
+                            ))}
+                        </Box>
+                    </Stack>
+
+                    <Stack textAlign="initial">
+                        <Text textStyle="lg" fontWeight="medium">Color</Text>
+                        <Box display="flex" flexDirection="column" justifyContent="center">
+                            {availableFilters.colors.map((color, index) => (
+                                <Checkbox.Root key={index} onCheckedChange={(checked) => handleCheckColor(color, checked)} checked={filtersChecked.colors.includes(color)}>
+                                    <Checkbox.HiddenInput />
+                                    <Checkbox.Control />
+                                    <Checkbox.Label>{color}</Checkbox.Label>
+                                </Checkbox.Root>
+                            ))}
+                        </Box>
+                    </Stack>
+
+                    <Stack display="flex" flexDirection="row" justifyContent="space-around" alignItems="center">
+                        <Field.Root width="80px">
+                            <Text>Minimo</Text>
+                            <NumberInput.Root size="xs" value={priceMin} onValueChange={(e) => { handleSetPrice("priceMin", e.value) }}>
+                                <InputGroup startElement="$">
+                                    <NumberInput.Input />
+                                </InputGroup>
+                            </NumberInput.Root>
+                        </Field.Root>
+
+                        <Field.Root width="80px">
+                            <Text>Maximo</Text>
+                            <NumberInput.Root size="xs" value={priceMax} onValueChange={(e) => { handleSetPrice("priceMax", e.value) }}>
+                                <InputGroup startElement="$">
+                                    <NumberInput.Input />
+                                </InputGroup>
+                            </NumberInput.Root>
+                        </Field.Root>
+                        <Button disabled={priceMin == 0 && priceMax == 0} onClick={() => { handleChangePrice() }}>
+                            <LuChevronRight />
+                        </Button>
+                    </Stack>
                 </GridItem>
 
                 <GridItem rowSpan={9} colSpan={7} display="flex" flexDirection="column" marginLeft="260px" width="calc(100% - 250px)">
@@ -406,13 +419,19 @@ function ProductsPage() {
                                 <Card.Footer display="flex" flexDirection="column" justifyContent="center">
 
                                     <Box display="flex" justifyContent="center" gap="4">
-                                        <Modal size={"xl"} trigger={<Button type="button" width="50px" flex="1" onClick={() => handleVariantUpdate(variant, variant.product)}>Editar</Button>}>
+                                        <Modal size={"xl"} trigger={
+                                            <Button type="button" width="50px" flex="1" onClick={() => handleVariantUpdate(variant, variant.product)}>
+                                                <LuSquarePen />
+                                            </Button>}>
                                             {({ closeModal }) => (
                                                 <ProductModal productUpdate={productUpdate} onSubmit={onSubmit} closeModal={closeModal} />
                                             )}
                                         </Modal>
 
-                                        <Modal trigger={<Button colorPalette="red" flex="1" >Deshabilitar</Button>}>
+                                        <Modal trigger={
+                                            <Button colorPalette="red" flex="1" >
+                                                <RiProhibitedLine />
+                                            </Button>}>
                                             {({ closeModal }) => (
                                                 <>
                                                     <h2 >Está seguro que desea deshabilitar esta variante?</h2>
@@ -425,11 +444,16 @@ function ProductsPage() {
                                     <Box gap="2" display="flex" justifyContent="center">
                                         <NumberInput.Root value={variant.stock} unstyled spinOnPress={false} >
                                             <HStack>
-                                                <Button colorPalette="green" onClick={() => { handleCart(variant) }}>Cart</Button>
+                                                <Button colorPalette="green" onClick={() => { handleCart(variant) }}>
+                                                    <LuShoppingCart />
+                                                </Button>
                                                 <NumberInput.ValueText textAlign="center" fontSize="lg" minW="3ch" />
                                                 <Modal size={"sm"} trigger={
                                                     <NumberInput.Control onClick={() => setVariantUpdate(variant)}>
-                                                        <IconButton variant="outline" size="sm">+ Stock</IconButton>
+                                                        <IconButton variant="outline" size="sm">
+                                                            <LuPackagePlus />
+                                                            Stock
+                                                        </IconButton>
                                                     </NumberInput.Control>
                                                 }
                                                 >
@@ -440,6 +464,7 @@ function ProductsPage() {
                                     </Box>
 
                                 </Card.Footer>
+
                             </Card.Root>
                         ))}
                     </Grid>
@@ -448,11 +473,13 @@ function ProductsPage() {
                             <ButtonGroup gap="4" size="sm" variant="ghost">
                                 <Pagination.PrevTrigger asChild>
                                     <IconButton>
+                                        <LuChevronLeft />
                                     </IconButton>
                                 </Pagination.PrevTrigger>
                                 <Pagination.PageText />
                                 <Pagination.NextTrigger asChild>
                                     <IconButton>
+                                        <LuChevronRight />
                                     </IconButton>
                                 </Pagination.NextTrigger>
                             </ButtonGroup>
@@ -461,7 +488,10 @@ function ProductsPage() {
                 </GridItem >
 
             </Grid >
-            <Modal size={"xl"} trigger={<Button position="fixed" right="0" bottom="0" size="lg" margin="1rem" colorPalette="teal" onClick={handleCreate}>+</Button>}>
+            <Modal size={"xl"} trigger={<Button position="fixed" right="0" bottom="0" size="lg" margin="1rem" colorPalette="teal" onClick={handleCreate}>
+                <LuShirt />
+                +
+            </Button>}>
                 {({ closeModal }) => (
                     <ProductModal productUpdate={productUpdate} onSubmit={onSubmit} closeModal={closeModal} />
                 )}

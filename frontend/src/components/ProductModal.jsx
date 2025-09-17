@@ -174,7 +174,7 @@ function ProductModal({ productUpdate, onSubmit, closeModal }) {
                         <Box display="flex">
                             <Field.Root invalid={!!errors.name}>
                                 <Box display="flex" justifyContent="space-between" width="full">
-                                    <Field.Label>Name</Field.Label>
+                                    <Field.Label>Nombre</Field.Label>
                                     <Field.ErrorText>{errors.name?.message}</Field.ErrorText>
                                 </Box>
                                 <Input {...register("name")} width="200px" />
@@ -182,7 +182,7 @@ function ProductModal({ productUpdate, onSubmit, closeModal }) {
 
                             <Field.Root invalid={!!errors.brand}>
                                 <Box display="flex" justifyContent="space-between" width="full">
-                                    <Field.Label>Brand</Field.Label>
+                                    <Field.Label>Marca</Field.Label>
                                     <Field.ErrorText>{errors.brand?.message}</Field.ErrorText>
                                 </Box>
                                 <Input {...register("brand")} width="200px" />
@@ -192,7 +192,7 @@ function ProductModal({ productUpdate, onSubmit, closeModal }) {
                         <Box display="flex" justifyContent="space-between">
                             <Field.Root invalid={!!errors.salePrice}>
                                 <Box display="flex" justifyContent="space-between" width="full">
-                                    <Field.Label>Sale Price</Field.Label>
+                                    <Field.Label>Precio de venta</Field.Label>
                                     <Field.ErrorText>{errors.salePrice?.message}</Field.ErrorText>
                                 </Box>
                                 <NumberInput.Root defaultValue="10" width="200px" {...register("salePrice")}>
@@ -206,7 +206,7 @@ function ProductModal({ productUpdate, onSubmit, closeModal }) {
                             {!productUpdate && (
                                 <Field.Root>
                                     <Box display="flex" justifyContent="space-between" width="full">
-                                        <Field.Label>Purchase Price</Field.Label>
+                                        <Field.Label>Precio de compra</Field.Label>
                                     </Box>
                                     <NumberInput.Root value={purchasePrice} onValueChange={(e) => { setPurchasePrice(e.value) }} width="200px">
                                         <NumberInput.Control />
@@ -254,7 +254,7 @@ function ProductModal({ productUpdate, onSubmit, closeModal }) {
                         )}
 
                         <Field.Root>
-                            <Field.Label>Description</Field.Label>
+                            <Field.Label>Descripción</Field.Label>
                             <Input {...register("description")} />
                         </Field.Root>
 
@@ -272,7 +272,7 @@ function ProductModal({ productUpdate, onSubmit, closeModal }) {
                                             </Avatar.Root>
                                             <Stack gap="1">
                                                 {productUpdate && <Span flex="1">{productUpdate.name} {productUpdate.brand}</Span>}
-                                                <Text fontSize="sm" color="fg.muted">Codigo: {variant.code} Size: {variant.size}</Text>
+                                                <Text fontSize="sm" color="fg.muted">Codigo: {variant.code} Talle: {variant.size}</Text>
                                                 <Text fontSize="sm" color="fg.muted">Color: {variant.color} Stock: {variant.stock}</Text>
                                             </Stack>
                                         </Accordion.ItemTrigger>

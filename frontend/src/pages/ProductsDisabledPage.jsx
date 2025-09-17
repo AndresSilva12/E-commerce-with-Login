@@ -2,6 +2,8 @@ import { Button, Card, Image, Text, Grid, HStack, Badge, Box } from "@chakra-ui/
 import { useVariants } from "../hooks/useVariants";
 import Modal from "../components/Modal";
 import { useEffect } from "react";
+import { FaCheckCircle } from "react-icons/fa";
+
 
 function ProductsDisabledPage() {
     const { enableVariant, variantsDisabled, fetchVariantsDisabled } = useVariants()
@@ -33,7 +35,12 @@ function ProductsDisabledPage() {
 
                         <Box display="flex" justifyContent="center" gap="4">
 
-                            <Modal trigger={<Button colorPalette="red" flex="1" >Habilitar</Button>}>
+                            <Modal trigger={
+                                <Button colorPalette="green" flex="1" >
+                                    Habilitar
+                                    <FaCheckCircle />
+                                </Button>
+                            }>
                                 {({ closeModal }) => (
                                     <>
                                         <h2 >Está seguro que desea habilitar esta variante?</h2>

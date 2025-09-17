@@ -5,6 +5,7 @@ import { Button, Table, Box, DataList, Image, Grid, GridItem, Stack, Text, Stron
 import Modal from "../components/Modal.jsx";
 import Calendar from "react-calendar"
 import { Toaster } from "../components/ui/toaster";
+import { LuTrash2, LuChevronLeft, LuChevronRight } from "react-icons/lu";
 
 export function EntrySelectedModal({ entrySelected }) {
     return (
@@ -109,7 +110,7 @@ function StockEntriesPage() {
                     <Table.Body>
                         {stockEntries && stockEntries.map((entry) => (
                             <Table.Row key={entry.id}>
-                                <Table.Cell>{entry.user.name} {entry.user.lastName}</Table.Cell>
+                                <Table.Cell>{entry.user.username}</Table.Cell>
                                 <Table.Cell>{entry.date.slice(0, 10)}</Table.Cell>
                                 <Table.Cell>
                                     <Modal trigger={<Button size="sm" variant="surface" onClick={() => { handleEntrySelected(entry) }}>+Info</Button>}>
@@ -130,7 +131,11 @@ function StockEntriesPage() {
                                 <Table.Cell>$ {new Intl.NumberFormat("es-AR").format(entry.total)}</Table.Cell>
                                 <Table.Cell>{entry.motive}</Table.Cell>
                                 <Table.Cell>
-                                    <Modal size={"sm"} trigger={<Button backgroundColor={"red.700"}>Delete</Button>}>
+                                    <Modal size={"sm"} trigger={
+                                        <Button colorPalette="red">
+                                            <LuTrash2 />
+                                        </Button>
+                                    }>
                                         <h2 >Está seguro que desea eliminar esta entrada?</h2>
                                         <Button onClick={() => { deleteEntry(entry.id) }}>Eliminar</Button>
                                     </Modal>
@@ -144,11 +149,13 @@ function StockEntriesPage() {
                         <ButtonGroup gap="4" size="sm" variant="ghost">
                             <Pagination.PrevTrigger asChild>
                                 <IconButton>
+                                    <LuChevronLeft />
                                 </IconButton>
                             </Pagination.PrevTrigger>
                             <Pagination.PageText />
                             <Pagination.NextTrigger asChild>
                                 <IconButton>
+                                    <LuChevronRight />
                                 </IconButton>
                             </Pagination.NextTrigger>
                         </ButtonGroup>

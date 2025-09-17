@@ -11,6 +11,8 @@ import { expensesSchema, updateExpensesSchema } from "../../../validation/expens
 import { Toaster } from "../components/ui/toaster";
 import { useMetrics } from "../hooks/useMetrics.js"
 import { generatePdfReport } from "../utils/pdfReport.js"
+import { MdOutlineSimCardDownload } from "react-icons/md";
+
 
 export function ChartProducts({ topProductosVentas, topCategorias, topProductosCantidad }) {
     const chartData = topProductosVentas
@@ -261,7 +263,10 @@ function Dashboard() {
 
                     <Box display="flex" flexDirection="column">
                         <ChartCard value={gananciaNeta + costos - totalGastos} title={"Caja Final"} subtitle={"Total de utilidad"} />
-                        <Button onClick={() => { generatePdfReport(metrics) }}>Generar Reporte</Button>
+                        <Button onClick={() => { generatePdfReport(metrics) }}>
+                            Generar Reporte
+                            <MdOutlineSimCardDownload />
+                        </Button>
                     </Box>
 
                 </Box>

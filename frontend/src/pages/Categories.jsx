@@ -6,6 +6,9 @@ import { categorySchema } from "../../../validation/categorySchema.js"
 import { useCategories } from "../hooks/useCategories.js";
 import Modal from "../components/Modal.jsx"
 import { Toaster } from "../components/ui/toaster";
+import { TbCategoryPlus } from "react-icons/tb";
+import { LuSquarePen } from "react-icons/lu";
+
 
 export function CategoryForm({ categoryUpdate, closeModal }) {
     const { createCategory, updateCategory } = useCategories()
@@ -72,7 +75,9 @@ function Categories() {
                         <Table.Row key={category.id}>
                             <Table.Cell>{category.name}</Table.Cell>
                             <Table.Cell>
-                                <Modal size={"md"} trigger={<Button onClick={() => { handleUpdate(category) }}>Editar</Button>}>
+                                <Modal size={"md"} trigger={<Button onClick={() => { handleUpdate(category) }}>
+                                    <LuSquarePen />
+                                </Button>}>
                                     {({ closeModal }) => (
                                         <CategoryForm closeModal={closeModal} categoryUpdate={categoryUpdate} />
                                     )}
@@ -82,7 +87,9 @@ function Categories() {
                     ))}
                 </Table.Body>
             </Table.Root>
-            <Modal size={"sm"} trigger={<Button onClick={() => { setCategoryUpdate(null) }} position="fixed" right="0" bottom="0" size="lg" margin="1rem" colorPalette="teal">+</Button>}>
+            <Modal size={"sm"} trigger={<Button onClick={() => { setCategoryUpdate(null) }} position="fixed" right="0" bottom="0" size="lg" margin="1rem" colorPalette="teal">
+                <TbCategoryPlus />
+            </Button>}>
                 {({ closeModal }) => (
                     <CategoryForm closeModal={closeModal} categoryUpdate={categoryUpdate} />
                 )}

@@ -5,6 +5,8 @@ import { variantSchemaWithOutProductId } from '../../../validation/productVarian
 import { useState, useRef, useEffect } from 'react'
 import { useVariants } from '../hooks/useVariants.js'
 import { Button, Field, Fieldset, Input, FileUpload, NumberInput, Box } from "@chakra-ui/react"
+import { LuImageUp } from "react-icons/lu";
+
 
 function VariantModal({ onSubmitVariant, variants, variantUpdate, productUpdate }) {
     const [image, setImage] = useState(null)
@@ -83,7 +85,7 @@ function VariantModal({ onSubmitVariant, variants, variantUpdate, productUpdate 
                 <Fieldset.Content>
                     <Field.Root invalid={!!errors.code}>
                         <Box display="flex" justifyContent="space-between" width="full">
-                            <Field.Label>Code</Field.Label>
+                            <Field.Label>Código</Field.Label>
                             <Field.ErrorText>{errors.code?.message}</Field.ErrorText>
                         </Box>
                         <Input {...register("code")} />
@@ -91,7 +93,7 @@ function VariantModal({ onSubmitVariant, variants, variantUpdate, productUpdate 
 
                     <Field.Root invalid={!!errors.size}>
                         <Box display="flex" justifyContent="space-between" width="full">
-                            <Field.Label>Size</Field.Label>
+                            <Field.Label>Talle</Field.Label>
                             <Field.ErrorText>{errors.size?.message}</Field.ErrorText>
                         </Box>
                         <Input {...register("size")} />
@@ -136,6 +138,7 @@ function VariantModal({ onSubmitVariant, variants, variantUpdate, productUpdate 
                         <FileUpload.HiddenInput />
                         <FileUpload.Trigger asChild>
                             <Button variant="outline" size="sm">
+                                <LuImageUp />
                                 Subir Imagen
                             </Button>
                         </FileUpload.Trigger>

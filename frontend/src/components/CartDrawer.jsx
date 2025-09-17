@@ -1,6 +1,7 @@
-import { Button, Image, Text, Box, CloseButton, Drawer, Portal, NumberInput, Field, Select, createListCollection } from "@chakra-ui/react"
+import { Button, Card, Image, Text, Box, CloseButton, Drawer, Portal, NumberInput, Field, Select, createListCollection, HStack, Badge } from "@chakra-ui/react"
 import { useCart } from "../context/CartContext";
 import { useState } from "react";
+import { LuTrash2 } from "react-icons/lu";
 
 function CartDrawer({ trigger }) {
     const [openCart, setOpenCart] = useState(false)
@@ -18,7 +19,6 @@ function CartDrawer({ trigger }) {
         items: [
             { label: "Venta", value: "Venta" },
             { label: "Dañado", value: "Dañado" },
-            { label: "Se lo quedó la pipi", value: "Se lo quedo la pipi" },
         ],
     })
 
@@ -35,15 +35,21 @@ function CartDrawer({ trigger }) {
                             <Drawer.Title>Carrito</Drawer.Title>
                             <Button variant="outline" onClick={() => { clearCart() }}>Limpiar Carrito</Button>
                         </Drawer.Header>
-                        <Drawer.Body paddingX="0">
+                        <Drawer.Body paddingX="4">
                             <Box display="flex" flexDirection="column" gap="4" height="full">
                                 {cart && cart.map((cartItem) => (
-                                    <Box size="sm" height="2/12" key={cartItem.variants.id} flexDirection="row" justifyContent="space-between" alignItems="center" display="flex">
-                                        <Image src={cartItem.variants.image} h="full" w="120px" fit="contain" />
-                                        <Box display="flex" alignItems="center" justifyContent="center" flexDirection="column">
-                                            <Text size="md">{cartItem.name} {cartItem.brand}</Text>
-                                            <Box>
-                                                <Text>{cartItem.variants.code}</Text>
+                                    <Card.Root flexDirection="row" overflow="hidden" maxW="xs" justifyContent="space-between">
+                                        <Image src={cartItem.variants.image} h="full" w="2/6" fit="contain" />
+                                        <Box display="flex" justifyContent="space-between" w="4/6" marginLeft="8px">
+                                            <Card.Body padding="0px">
+                                                <Card.Title>{cartItem.name}</Card.Title>
+                                                <Card.Description>{cartItem.brand}</Card.Description>
+                                                <HStack>
+                                                    <Badge>{cartItem.variants.size}</Badge>
+                                                    <Badge>{cartItem.variants.color}</Badge>
+                                                </HStack>
+                                            </Card.Body>
+                                            <Card.Footer display="flex" flexDirection="column" padding="0px">
                                                 <Field.Root invalid={cartItem.variants.stock < cartItem.variants.quantity || cartItem.variants.quantity <= 0}>
                                                     <NumberInput.Root
                                                         maxW="70px"
@@ -55,12 +61,18 @@ function CartDrawer({ trigger }) {
                                                     </NumberInput.Root>
                                                     <Field.ErrorText>{cartItem.variants.quantity <= 0 ? 'Debe llevar almenos 1' : 'Cantidad por encima del stock disponible'}</Field.ErrorText>
                                                 </Field.Root>
-                                            </Box>
+                                                <Button onClick={() => removeFromCart(cartItem.variants.id)}>
+                                                    <LuTrash2 />
+                                                </Button>
+                                            </Card.Footer>
                                         </Box>
-                                        <Button onClick={() => removeFromCart(cartItem.variants.id)}>Quitar</Button>
-                                    </Box>
+                                    </Card.Root>
                                 ))}
+                                {/* <Box size="sm" height="2/12" key={cartItem.variants.id} flexDirection="row" justifyContent="space-between" alignItems="center" display="flex">
+                                </Box> */}
                             </Box>
+                        </Drawer.Body>
+                        <Drawer.Footer display="flex" flexDirection="column">
                             <Select.Root collection={motives} value={motive} defaultValue={["Venta"]} onValueChange={(e) => { setMotive(e.value) }} size="sm" width="320px">
                                 <Select.HiddenSelect />
                                 <Select.Label>Motivo</Select.Label>
@@ -85,10 +97,10 @@ function CartDrawer({ trigger }) {
                                     </Select.Positioner>
                                 </Portal>
                             </Select.Root>
-                        </Drawer.Body>
-                        <Drawer.Footer>
-                            <Text textStyle="lg" color="green" fontWeight="medium">Total $ {new Intl.NumberFormat("es-AR").format(totalPrice)}</Text>
-                            <Button onClick={() => { buyCart(motive) }}>Comprar Carrito</Button>
+                            <Box display="flex" width="full" justifyContent="space-between" alignItems="center">
+                                <Text textStyle="lg" color="green" fontWeight="medium">Total $ {new Intl.NumberFormat("es-AR").format(totalPrice)}</Text>
+                                <Button onClick={() => { buyCart(motive) }}>Comprar Carrito</Button>
+                            </Box>
                         </Drawer.Footer>
                         <Drawer.CloseTrigger asChild>
                             <CloseButton size="sm" />
