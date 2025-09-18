@@ -1,4 +1,4 @@
-import { Button, Card, Image, Text, Grid, GridItem, Checkbox, Select, Portal, InputGroup, ButtonGroup, Stack, createListCollection, Pagination, HStack, Field, Badge, Box, NumberInput, IconButton } from "@chakra-ui/react"
+import { Button, Card, Image, Text, Grid, GridItem, Checkbox, Select, Float, Portal, InputGroup, ButtonGroup, Stack, createListCollection, Pagination, HStack, Field, Badge, Box, NumberInput, IconButton } from "@chakra-ui/react"
 import { useStockEntries } from "../hooks/useStockEntries";
 import { useProducts } from "../context/ProductContext";
 import ProductModal from "../components/ProductModal";
@@ -376,10 +376,10 @@ function ProductsPage() {
                     </Stack>
                 </GridItem>
 
-                <GridItem rowSpan={9} colSpan={7} display="flex" flexDirection="column" marginLeft="260px" width="calc(100% - 250px)">
-                    <Box display="flex" width="calc(100% - 250px)" justifyContent="space-between" gap="10" position="fixed" top="60px" zIndex="50" bg="black">
+                <GridItem rowSpan={9} colSpan={7} display="flex" flexDirection="column" marginLeft="270px" width="calc(100% - 250px)">
+                    <Box display="flex" width="calc(100% - 250px)" justifyContent="space-between" gap="2" position="fixed" top="70px" zIndex="50" bg="black">
                         <SearchBar onChangeSearch={handleChange} />
-                        <Select.Root collection={sorts} value={sortBy} defaultValue={"Ordenar por"} onValueChange={(e) => { handleChangeSort(e.value) }} size="sm" width="320px">
+                        <Select.Root collection={sorts} value={sortBy} defaultValue={"Ordenar por"} onValueChange={(e) => { handleChangeSort(e.value) }} size="sm" width="250px" paddingRight="35px">
                             <Select.HiddenSelect />
                             <Select.Control>
                                 <Select.Trigger>
@@ -405,67 +405,71 @@ function ProductsPage() {
                     </Box>
                     <Grid templateColumns="repeat(5, 1fr)" gap="4" marginTop="120px">
                         {Array.isArray(variants) && variants.map((variant) => (
-                            <Card.Root width="200px" size="sm" overflow="hidden" key={variant.id}>
-                                <Image src={variant.image} h="100px" w="400px" fit="contain" />
-                                <Card.Body>
-                                    <Card.Title>{variant.product.name} {variant.product.brand}</Card.Title>
-                                    <Card.Description>{variant.product.description}</Card.Description>
-                                    <HStack mt="1">
-                                        <Badge>Talle {variant.size}</Badge>
-                                        <Badge>{variant.color}</Badge>
-                                    </HStack>
-                                    <Text textStyle="2xl" fontWeight="medium" letterSpacing="tight" mt="2">${new Intl.NumberFormat("es-AR").format(variant.product.salePrice)}</Text>
-                                </Card.Body>
-                                <Card.Footer display="flex" flexDirection="column" justifyContent="center">
+                            <Box display="inline-block" pos="relative" key={variant.id}>
+                                <Card.Root width="170px" size="sm" overflow="hidden">
+                                    <Image src={variant.image} maxHeight="170px" w="full" fit="cover" />
+                                    <Card.Body>
+                                        <Card.Title>{variant.product.name} {variant.product.brand}</Card.Title>
+                                        <HStack mt="1">
+                                            <Badge>Talle {variant.size}</Badge>
+                                            <Badge>{variant.color}</Badge>
+                                        </HStack>
+                                        <Text textStyle="2xl" fontWeight="medium" letterSpacing="tight" mt="2">${new Intl.NumberFormat("es-AR").format(variant.product.salePrice)}</Text>
+                                    </Card.Body>
+                                    <Card.Footer display="flex" flexDirection="column" justifyContent="center">
 
-                                    <Box display="flex" justifyContent="center" gap="4">
-                                        <Modal size={"xl"} trigger={
-                                            <Button type="button" width="50px" flex="1" onClick={() => handleVariantUpdate(variant, variant.product)}>
-                                                <LuSquarePen />
-                                            </Button>}>
-                                            {({ closeModal }) => (
-                                                <ProductModal productUpdate={productUpdate} onSubmit={onSubmit} closeModal={closeModal} />
-                                            )}
-                                        </Modal>
+                                        <Box display="flex" justifyContent="center" gap="4">
+                                            <Modal size={"xl"} trigger={
+                                                <Button type="button" width="50px" flex="1" onClick={() => handleVariantUpdate(variant, variant.product)}>
+                                                    <LuSquarePen />
+                                                </Button>}>
+                                                {({ closeModal }) => (
+                                                    <ProductModal productUpdate={productUpdate} onSubmit={onSubmit} closeModal={closeModal} />
+                                                )}
+                                            </Modal>
 
-                                        <Modal trigger={
-                                            <Button colorPalette="red" flex="1" >
-                                                <RiProhibitedLine />
-                                            </Button>}>
-                                            {({ closeModal }) => (
-                                                <>
-                                                    <h2 >Está seguro que desea deshabilitar esta variante?</h2>
-                                                    <Button onClick={() => { handleDisable(variant.id, closeModal) }}>Deshabilitar</Button>
-                                                </>
-                                            )}
-                                        </Modal>
-                                    </Box>
+                                            <Modal trigger={
+                                                <Button colorPalette="red" flex="1" >
+                                                    <RiProhibitedLine />
+                                                </Button>}>
+                                                {({ closeModal }) => (
+                                                    <>
+                                                        <h2 >Está seguro que desea deshabilitar esta variante?</h2>
+                                                        <Button onClick={() => { handleDisable(variant.id, closeModal) }}>Deshabilitar</Button>
+                                                    </>
+                                                )}
+                                            </Modal>
+                                        </Box>
 
-                                    <Box gap="2" display="flex" justifyContent="center">
-                                        <NumberInput.Root value={variant.stock} unstyled spinOnPress={false} >
-                                            <HStack>
-                                                <Button colorPalette="green" onClick={() => { handleCart(variant) }}>
-                                                    <LuShoppingCart />
-                                                </Button>
-                                                <NumberInput.ValueText textAlign="center" fontSize="lg" minW="3ch" />
-                                                <Modal size={"sm"} trigger={
-                                                    <NumberInput.Control onClick={() => setVariantUpdate(variant)}>
-                                                        <IconButton variant="outline" size="sm">
-                                                            <LuPackagePlus />
-                                                            Stock
-                                                        </IconButton>
-                                                    </NumberInput.Control>
-                                                }
-                                                >
-                                                    <ModalStockUpdate variantUpdate={variantUpdate} />
-                                                </Modal>
-                                            </HStack>
-                                        </NumberInput.Root>
-                                    </Box>
+                                        <Box gap="2" display="flex" justifyContent="center">
+                                            <NumberInput.Root value={variant.stock} unstyled spinOnPress={false} >
+                                                <HStack>
+                                                    <Button colorPalette="green" onClick={() => { handleCart(variant) }}>
+                                                        <LuShoppingCart />
+                                                    </Button>
+                                                    <Modal size={"sm"} trigger={
+                                                        <NumberInput.Control onClick={() => setVariantUpdate(variant)}>
+                                                            <IconButton variant="outline" size="sm">
+                                                                <LuPackagePlus />
+                                                                Stock
+                                                            </IconButton>
+                                                        </NumberInput.Control>
+                                                    }
+                                                    >
+                                                        <ModalStockUpdate variantUpdate={variantUpdate} />
+                                                    </Modal>
+                                                </HStack>
+                                            </NumberInput.Root>
+                                        </Box>
 
-                                </Card.Footer>
-
-                            </Card.Root>
+                                    </Card.Footer>
+                                </Card.Root>
+                                <Float placement="top-end" zIndex="banner">
+                                    <Badge size="sm" variant="solid" colorPalette={variant.stock > 5 ? "teal" : "red"}>
+                                        Stock: {variant.stock}
+                                    </Badge>
+                                </Float>
+                            </Box>
                         ))}
                     </Grid>
                     <Box display="flex" justifyContent="center">
