@@ -208,6 +208,7 @@ export function ProductProvider({ children }) {
             createProduct,
             updateProduct,
             variants,
+            setVariants,
             fetchVariants,
             filters,
             setFilters,
