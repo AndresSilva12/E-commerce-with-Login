@@ -63,7 +63,6 @@ export function ProductProvider({ children }) {
                 throw new Error(data.error)
             }
 
-            console.log(data.variants)
             setVariants(data.variants)
             setAvailableFilters({
                 colors: data.filters.colors,
@@ -195,8 +194,8 @@ export function ProductProvider({ children }) {
         setProducts(prev => prev.map(product => product.id === productId ? { ...product, variants: product.variants.filter(v => v.id !== variantId) } : product))
     }
 
-    const updateStockVariant = (variantId, variantUpdated) => {
-        setVariants(prev => prev.map(v => v.id === variantId ? { ...v, stock: variantUpdated.stock } : v))
+    const updateVariantContext = (variantId, variantUpdated) => {
+        setVariants(prev => prev.map(v => v.id === variantId ? variantUpdated : v))
     }
 
     useEffect(() => {
@@ -220,7 +219,7 @@ export function ProductProvider({ children }) {
             totalPages,
             addVariantToProduct,
             deleteVariantToProduct,
-            updateStockVariant
+            updateVariantContext
         }}>
             {children}
         </ProductContext.Provider>

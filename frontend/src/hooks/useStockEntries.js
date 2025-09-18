@@ -10,7 +10,7 @@ export function useStockEntries () {
     const [stockEntries, setStockEntries] = useState([])
     const [totalPages, setTotalPages] = useState()
     const navigate = useNavigate()
-    const {updateStockVariant} = useProducts()
+    const {updateVariantContext} = useProducts()
     const {setIsAuthenticated} = useContext(AuthContext)
 
     const getAllStockEntries = async(query) => {
@@ -55,7 +55,7 @@ export function useStockEntries () {
 
             setStockEntries((prev) => ([...prev, data]))
             for (const variant of data.updatedVariants){
-                updateStockVariant(variant.id, variant)
+                updateVariantContext(variant.id, variant)
             }
         }
         catch (error) {

@@ -33,6 +33,13 @@ export const createStockEntry = async(req, res) => {
                         stock: {
                             increment: item.quantity
                         }
+                    },
+                    include: {
+                        product:{
+                            include: {
+                                category: true
+                            }
+                        }
                     }
                 })
                 variantsUpdates.push(variantWithStockUpdated)
