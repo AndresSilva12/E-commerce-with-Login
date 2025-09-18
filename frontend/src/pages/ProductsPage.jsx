@@ -16,7 +16,7 @@ import { RiProhibitedLine } from "react-icons/ri";
 import { FaFilter, FaFilterCircleXmark } from "react-icons/fa6";
 
 
-export function ModalStockUpdate({ variantUpdate }) {
+export function ModalStockUpdate({ variantUpdate, closeModal }) {
     const { handleSubmit } = useForm()
     const [purchasePrice, setPurchasePrice] = useState(1)
     const [motive, setMotive] = useState("")
@@ -26,7 +26,6 @@ export function ModalStockUpdate({ variantUpdate }) {
     const motives = createListCollection({
         items: [
             { label: "Stock Inicial", value: "Stock Inicial" },
-            { label: "Devolución", value: "Devolucion" },
             { label: "Reingreso", value: "Reingreso" },
         ],
     })
@@ -42,6 +41,7 @@ export function ModalStockUpdate({ variantUpdate }) {
             total: Number(stockEntry) * Number(purchasePrice)
         }
         await createEntry(entryData)
+        closeModal()
     }
 
     return (
@@ -454,9 +454,10 @@ function ProductsPage() {
                                                                 Stock
                                                             </IconButton>
                                                         </NumberInput.Control>
-                                                    }
-                                                    >
-                                                        <ModalStockUpdate variantUpdate={variantUpdate} />
+                                                    }>
+                                                        {({ closeModal }) => (
+                                                            <ModalStockUpdate variantUpdate={variantUpdate} closeModal={closeModal} />
+                                                        )}
                                                     </Modal>
                                                 </HStack>
                                             </NumberInput.Root>
