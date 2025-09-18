@@ -190,10 +190,6 @@ export function ProductProvider({ children }) {
         setProducts(prev => prev.map(product => product.id === productId ? { ...product, variants: [...product.variants, newVariant] } : product))
     }
 
-    const deleteVariantToProduct = (productId, variantId) => {
-        setProducts(prev => prev.map(product => product.id === productId ? { ...product, variants: product.variants.filter(v => v.id !== variantId) } : product))
-    }
-
     const updateVariantContext = (variantId, variantUpdated) => {
         setVariants(prev => prev.map(v => v.id === variantId ? variantUpdated : v))
     }
@@ -218,7 +214,6 @@ export function ProductProvider({ children }) {
             availableFilters,
             totalPages,
             addVariantToProduct,
-            deleteVariantToProduct,
             updateVariantContext
         }}>
             {children}
