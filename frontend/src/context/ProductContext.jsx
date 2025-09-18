@@ -65,10 +65,10 @@ export function ProductProvider({ children }) {
 
             setVariants(data.variants)
             setAvailableFilters({
-                colors: data.filters.colors,
-                sizes: data.filters.sizes,
-                brands: data.filters.brands,
-                categories: data.filters.categories
+                colors: data.filters.colors.sort(),
+                sizes: data.filters.sizes.sort(),
+                brands: data.filters.brands.sort(),
+                categories: data.filters.categories.sort()
             })
 
             setTotalPages(data.pagination.totalPages)

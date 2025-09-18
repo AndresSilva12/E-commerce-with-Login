@@ -1,4 +1,4 @@
-import { Button, Card, Image, Text, Grid, GridItem, Checkbox, Select, Float, Portal, InputGroup, ButtonGroup, Stack, createListCollection, Pagination, HStack, Field, Badge, Box, NumberInput, IconButton } from "@chakra-ui/react"
+import { Button, Card, Image, Text, Grid, GridItem, Checkbox, Select, Float, Portal, InputGroup, Accordion, Span, ButtonGroup, Stack, createListCollection, Pagination, HStack, Field, Badge, Box, NumberInput, IconButton } from "@chakra-ui/react"
 import { useStockEntries } from "../hooks/useStockEntries";
 import { useProducts } from "../context/ProductContext";
 import ProductModal from "../components/ProductModal";
@@ -289,90 +289,153 @@ function ProductsPage() {
         closeModal()
     }
 
+    const handleClearFilters = () => {
+        setFilters({})
+        setFiltersChecked({
+            colors: [],
+            sizes: [],
+            brands: [],
+            categories: []
+        })
+    }
+
     return (
         <>
             <Grid templateColumns="repeat(8, 1fr)" templateRows="repeat(10, 1fr)">
                 <GridItem rowSpan={10} colSpan={1} padding="4" bg="black" display="flex" flexDirection="column" gap="4" position="fixed" top="50px" zIndex="50" bottom="0" overflowY="auto" height="100%">
-                    <Button>
-                        Limpiar Filtros
-                        <FaFilterCircleXmark />
-                    </Button>
-                    <Box display="flex">
-                        <FaFilter />
-                        <Text>Filtrar Por</Text>
+                    <Box display="flex" justifyContent="space-between" alignItems="center" width="full">
+                        <Box display="flex" justifyContent="center" alignItems="center">
+                            <FaFilter />
+                            <Text>Filtros</Text>
+                        </Box>
+                        <Button onClick={() => handleClearFilters()} size="xs">
+                            <FaFilterCircleXmark />
+                            Limpiar Filtros
+                        </Button>
                     </Box>
                     <Stack textAlign="initial">
-                        <Text textStyle="lg" fontWeight="medium">Categorias</Text>
-                        <Box display="flex" flexDirection="column" justifyContent="center">
-                            {availableFilters.categories?.map((category, index) => (
-                                <Checkbox.Root key={index} onCheckedChange={(checked) => handleCheckCategory(category, checked)} checked={filtersChecked.categories.includes(category)}>
-                                    <Checkbox.HiddenInput />
-                                    <Checkbox.Control />
-                                    <Checkbox.Label>{category}</Checkbox.Label>
-                                </Checkbox.Root>
-                            ))}
-                        </Box>
+                        <Accordion.Root collapsible>
+                            <Accordion.Item>
+                                <Accordion.ItemTrigger>
+                                    <Span flex="1">Categorias</Span>
+                                    <Accordion.ItemIndicator />
+                                </Accordion.ItemTrigger>
+                                <Accordion.ItemContent>
+                                    <Accordion.ItemBody>
+                                        <Box display="flex" flexDirection="column" justifyContent="center" gap="2">
+                                            {availableFilters.categories?.map((category, index) => (
+                                                <Checkbox.Root key={index} onCheckedChange={(checked) => handleCheckCategory(category, checked)} checked={filtersChecked.categories.includes(category)}>
+                                                    <Checkbox.HiddenInput />
+                                                    <Checkbox.Control />
+                                                    <Checkbox.Label>{category}</Checkbox.Label>
+                                                </Checkbox.Root>
+                                            ))}
+                                        </Box>
+                                    </Accordion.ItemBody>
+                                </Accordion.ItemContent>
+                            </Accordion.Item>
+                        </Accordion.Root>
                     </Stack>
 
                     <Stack textAlign="initial">
-                        <Text textStyle="lg" fontWeight="medium">Marca</Text>
-                        <Box display="flex" flexDirection="column" justifyContent="center">
-                            {availableFilters.brands.map((brand, index) => (
-                                <Checkbox.Root key={index} onCheckedChange={(checked) => handleCheckBrand(brand, checked)} checked={filtersChecked.brands.includes(brand)}>
-                                    <Checkbox.HiddenInput />
-                                    <Checkbox.Control />
-                                    <Checkbox.Label>{brand}</Checkbox.Label>
-                                </Checkbox.Root>
-                            ))}
-                        </Box>
+                        <Accordion.Root collapsible>
+                            <Accordion.Item>
+                                <Accordion.ItemTrigger>
+                                    <Span flex="1">Marca</Span>
+                                    <Accordion.ItemIndicator />
+                                </Accordion.ItemTrigger>
+                                <Accordion.ItemContent>
+                                    <Accordion.ItemBody>
+                                        <Box display="flex" flexDirection="column" justifyContent="center" gap="2">
+                                            {availableFilters.brands.map((brand, index) => (
+                                                <Checkbox.Root key={index} onCheckedChange={(checked) => handleCheckBrand(brand, checked)} checked={filtersChecked.brands.includes(brand)}>
+                                                    <Checkbox.HiddenInput />
+                                                    <Checkbox.Control />
+                                                    <Checkbox.Label>{brand}</Checkbox.Label>
+                                                </Checkbox.Root>
+                                            ))}
+                                        </Box>
+                                    </Accordion.ItemBody>
+                                </Accordion.ItemContent>
+                            </Accordion.Item>
+                        </Accordion.Root>
                     </Stack>
                     <Stack textAlign="initial">
-                        <Text textStyle="lg" fontWeight="medium">Talle</Text>
-                        <Box display="flex" flexDirection="column" justifyContent="center">
-                            {availableFilters.sizes.map((size, index) => (
-                                <Checkbox.Root key={index} onCheckedChange={(checked) => handleCheckSize(size, checked)} checked={filtersChecked.sizes.includes(size)}>
-                                    <Checkbox.HiddenInput />
-                                    <Checkbox.Control />
-                                    <Checkbox.Label>{size}</Checkbox.Label>
-                                </Checkbox.Root>
-                            ))}
-                        </Box>
+                        <Accordion.Root collapsible>
+                            <Accordion.Item>
+                                <Accordion.ItemTrigger>
+                                    <Span flex="1">Talle</Span>
+                                    <Accordion.ItemIndicator />
+                                </Accordion.ItemTrigger>
+                                <Accordion.ItemContent>
+                                    <Accordion.ItemBody>
+                                        <Box display="flex" flexDirection="column" justifyContent="center" gap="2">
+                                            {availableFilters.sizes.map((size, index) => (
+                                                <Checkbox.Root key={index} onCheckedChange={(checked) => handleCheckSize(size, checked)} checked={filtersChecked.sizes.includes(size)}>
+                                                    <Checkbox.HiddenInput />
+                                                    <Checkbox.Control />
+                                                    <Checkbox.Label>{size}</Checkbox.Label>
+                                                </Checkbox.Root>
+                                            ))}
+                                        </Box>
+                                    </Accordion.ItemBody>
+                                </Accordion.ItemContent>
+                            </Accordion.Item>
+                        </Accordion.Root>
                     </Stack>
 
                     <Stack textAlign="initial">
-                        <Text textStyle="lg" fontWeight="medium">Color</Text>
-                        <Box display="flex" flexDirection="column" justifyContent="center">
-                            {availableFilters.colors.map((color, index) => (
-                                <Checkbox.Root key={index} onCheckedChange={(checked) => handleCheckColor(color, checked)} checked={filtersChecked.colors.includes(color)}>
-                                    <Checkbox.HiddenInput />
-                                    <Checkbox.Control />
-                                    <Checkbox.Label>{color}</Checkbox.Label>
-                                </Checkbox.Root>
-                            ))}
-                        </Box>
+                        <Accordion.Root collapsible>
+                            <Accordion.Item>
+                                <Accordion.ItemTrigger>
+                                    <Span flex="1">Color</Span>
+                                    <Accordion.ItemIndicator />
+                                </Accordion.ItemTrigger>
+                                <Accordion.ItemContent>
+                                    <Accordion.ItemBody>
+                                        <Box display="flex" flexDirection="column" justifyContent="center" gap="2">
+                                            {availableFilters.colors.map((color, index) => (
+                                                <Checkbox.Root key={index} onCheckedChange={(checked) => handleCheckColor(color, checked)} checked={filtersChecked.colors.includes(color)}>
+                                                    <Checkbox.HiddenInput />
+                                                    <Checkbox.Control />
+                                                    <Checkbox.Label>{color}</Checkbox.Label>
+                                                </Checkbox.Root>
+                                            ))}
+                                        </Box>
+                                    </Accordion.ItemBody>
+                                </Accordion.ItemContent>
+                            </Accordion.Item>
+                        </Accordion.Root>
                     </Stack>
 
                     <Stack display="flex" flexDirection="row" justifyContent="space-around" alignItems="center">
-                        <Field.Root width="80px">
+                        <Box>
                             <Text>Minimo</Text>
-                            <NumberInput.Root size="xs" value={priceMin} onValueChange={(e) => { handleSetPrice("priceMin", e.value) }}>
-                                <InputGroup startElement="$">
-                                    <NumberInput.Input />
-                                </InputGroup>
-                            </NumberInput.Root>
-                        </Field.Root>
+                            <Field.Root width="80px">
+                                <NumberInput.Root size="xs" value={priceMin} onValueChange={(e) => { handleSetPrice("priceMin", e.value) }}>
+                                    <InputGroup startElement="$">
+                                        <NumberInput.Input />
+                                    </InputGroup>
+                                </NumberInput.Root>
+                            </Field.Root>
+                        </Box>
 
-                        <Field.Root width="80px">
+                        <Box>
                             <Text>Maximo</Text>
-                            <NumberInput.Root size="xs" value={priceMax} onValueChange={(e) => { handleSetPrice("priceMax", e.value) }}>
-                                <InputGroup startElement="$">
-                                    <NumberInput.Input />
-                                </InputGroup>
-                            </NumberInput.Root>
-                        </Field.Root>
-                        <Button disabled={priceMin == 0 && priceMax == 0} onClick={() => { handleChangePrice() }}>
-                            <LuChevronRight />
-                        </Button>
+                            <Field.Root width="80px">
+                                <NumberInput.Root size="xs" value={priceMax} onValueChange={(e) => { handleSetPrice("priceMax", e.value) }}>
+                                    <InputGroup startElement="$">
+                                        <NumberInput.Input />
+                                    </InputGroup>
+                                </NumberInput.Root>
+                            </Field.Root>
+                        </Box>
+                        <Box>
+                            <Text>Filtrar</Text>
+                            <IconButton disabled={priceMin == 0 && priceMax == 0} onClick={() => { handleChangePrice() }} size="xs">
+                                <LuChevronRight />
+                            </IconButton>
+                        </Box>
                     </Stack>
                 </GridItem>
 
@@ -493,10 +556,12 @@ function ProductsPage() {
                 </GridItem >
 
             </Grid >
-            <Modal size={"xl"} trigger={<Button position="fixed" right="0" bottom="0" size="lg" margin="1rem" colorPalette="teal" onClick={handleCreate}>
-                <LuShirt />
-                +
-            </Button>}>
+            <Modal size={"xl"} trigger={
+                <Button position="fixed" right="0" bottom="0" size="lg" margin="1rem" colorPalette="teal" onClick={handleCreate} display="flex" justifyContent="center" gap="0">
+                    <LuShirt />
+                    <Text margin="0px" paddingLeft="0px">+</Text>
+                </Button>
+            }>
                 {({ closeModal }) => (
                     <ProductModal productUpdate={productUpdate} onSubmit={onSubmit} closeModal={closeModal} />
                 )}
