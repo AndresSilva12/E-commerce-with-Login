@@ -1,6 +1,6 @@
 import Modal from "../components/Modal"
 import { BarList, Chart, useChart } from "@chakra-ui/charts"
-import { Badge, Box, Card, Table, FormatNumber, Fieldset, Field, Input, NumberInput, Span, Stack, Stat, Grid, GridItem, Button } from "@chakra-ui/react"
+import { Badge, Box, Card, Table, FormatNumber, Fieldset, Field, Input, Strong, NumberInput, Portal, Span, Stack, Stat, Grid, GridItem, Button, Select, createListCollection } from "@chakra-ui/react"
 import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { Cell, Label, Pie, PieChart, Tooltip } from "recharts"
@@ -12,7 +12,7 @@ import { Toaster } from "../components/ui/toaster";
 import { useMetrics } from "../hooks/useMetrics.js"
 import { generatePdfReport } from "../utils/pdfReport.js"
 import { MdOutlineSimCardDownload } from "react-icons/md";
-
+import { LuCalendarDays, LuCalendarX2 } from "react-icons/lu";
 
 export function ChartProducts({ topProductosVentas, topCategorias, topProductosCantidad }) {
     const chartData = topProductosVentas
@@ -181,10 +181,19 @@ function Dashboard() {
     const { deleteExpense } = useExpenses()
     const { metrics, fetchMetrics, filters, setFilters, topProductosCantidad, topProductosVentas, ingresosBrutos, topCategorias, ventasTotales, gananciaNeta, totalGastos, expenses, costos } = useMetrics()
     const [expenseUpdate, setExpenseUpdate] = useState(null)
+    const [dateBy, setDateBy] = useState()
 
     useEffect(() => {
         fetchMetrics()
     }, [filters])
+
+    const dateFilters = createListCollection({
+        items: [
+            { label: "Este día", value: "day" },
+            { label: "Este mes", value: "month" },
+            { label: "Este año", value: "year" },
+        ],
+    })
 
     const chartPorcentajes = [
         { name: "Costo Recuperado", value: costos },
@@ -211,6 +220,7 @@ function Dashboard() {
                 ? setFilters({ year: year, month: month, minDay: minDay })
                 : setFilters({ year: year })
     }
+
     const handleDeleteExpense = async (id) => {
         const idDeleted = await deleteExpense(id)
         if (idDeleted) setFilters({})
@@ -218,15 +228,50 @@ function Dashboard() {
 
     return (
         <Grid templateColumns="repeat(8, 1fr)" templateRows="repeat(10, 1fr)">
-            <GridItem rowSpan={10} colSpan={1} padding="4" bg="black" display="flex" flexDirection="column" justifyContent="center" gap="4" position="fixed" top="50px" zIndex="50" bottom="0">
-                <Box width="240px">
+            <GridItem rowSpan={10} colSpan={1} padding="4" bg="black" width="290px" display="flex" flexDirection="column" gap="4" position="fixed" top="70px" zIndex="50" bottom="0" borderRightColor={'gray.500'} borderRightWidth="2px">
+                <Box display="flex" justifyContent="space-between" alignItems="center" width="full">
+                    <Box display="flex" justifyContent="initial" alignItems="center">
+                        <Strong>Filtrar por fecha</Strong>
+                        <LuCalendarDays />
+                    </Box>
+                    <Button onClick={() => setFilters({})} width="120px">
+                        Borrar Filtros
+                        <LuCalendarX2 />
+                    </Button>
+                </Box>
+                <Box display="flex" gap="2">
+                    <Select.Root collection={dateFilters} value={dateBy} defaultValue={"Hoy"} onValueChange={(e) => { handleChangeDate(new Date(), e.value) }} size="sm" width="full">
+                        <Select.HiddenSelect />
+                        <Select.Control>
+                            <Select.Trigger>
+                                <Select.ValueText placeholder="Este día" />
+                            </Select.Trigger>
+                            <Select.IndicatorGroup>
+                                <Select.Indicator />
+                            </Select.IndicatorGroup>
+                        </Select.Control>
+                        <Portal color="red">
+                            <Select.Positioner>
+                                <Select.Content zIndex="9999">
+                                    {dateFilters.items.map((dateFilter) => (
+                                        <Select.Item item={dateFilter} key={dateFilter.value}>
+                                            {dateFilter.label}
+                                            <Select.ItemIndicator />
+                                        </Select.Item>
+                                    ))}
+                                </Select.Content>
+                            </Select.Positioner>
+                        </Portal>
+                    </Select.Root>
+                </Box >
+                <Box width="full">
                     <Calendar
                         onClickMonth={(value, e) => { handleChangeDate(value, "month") }}
                         onClickYear={(value, e) => { handleChangeDate(value, "year") }}
                         onClickDay={(value, e) => { handleChangeDate(value, "day") }}
                     />
                 </Box>
-            </GridItem>
+            </GridItem >
 
             <GridItem rowSpan={9} colSpan={7} display="flex" flexDirection="column" marginLeft="260px" marginTop="60px" width="92%">
                 {/* Cards de datos principales */}
