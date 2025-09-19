@@ -302,7 +302,7 @@ function ProductsPage() {
     return (
         <>
             <Grid templateColumns="repeat(8, 1fr)" templateRows="repeat(10, 1fr)">
-                <GridItem rowSpan={10} colSpan={1} padding="4" bg="black" display="flex" flexDirection="column" gap="4" position="fixed" top="50px" zIndex="50" bottom="0" overflowY="auto" height="100%">
+                <GridItem rowSpan={10} colSpan={1} padding="4" bg="black" display="flex" flexDirection="column" gap="4" position="fixed" top="70px" zIndex="50" bottom="0" overflowY="auto" height="100%" borderRightColor={'gray.500'} borderRightWidth={'2px'}>
                     <Box display="flex" justifyContent="space-between" alignItems="center" width="full">
                         <Box display="flex" justifyContent="center" alignItems="center">
                             <FaFilter />
@@ -440,7 +440,7 @@ function ProductsPage() {
                 </GridItem>
 
                 <GridItem rowSpan={9} colSpan={7} display="flex" flexDirection="column" marginLeft="270px" width="calc(100% - 250px)">
-                    <Box display="flex" width="calc(100% - 250px)" justifyContent="space-between" gap="2" position="fixed" top="70px" zIndex="50" bg="black">
+                    <Box display="flex" width="calc(100% - 250px)" justifyContent="space-between" gap="2" position="fixed" top="80px" zIndex="50" bg="black">
                         <SearchBar onChangeSearch={handleChange} />
                         <Select.Root collection={sorts} value={sortBy} defaultValue={"Ordenar por"} onValueChange={(e) => { handleChangeSort(e.value) }} size="sm" width="250px" paddingRight="35px">
                             <Select.HiddenSelect />
@@ -466,7 +466,7 @@ function ProductsPage() {
                             </Portal>
                         </Select.Root>
                     </Box>
-                    <Grid templateColumns="repeat(5, 1fr)" gap="4" marginTop="120px">
+                    <Grid templateColumns="repeat(5, 1fr)" gap="4" marginTop="130px">
                         {Array.isArray(variants) && variants.map((variant) => (
                             <Box display="inline-block" pos="relative" key={variant.id}>
                                 <Card.Root width="170px" size="sm" overflow="hidden">
@@ -528,7 +528,7 @@ function ProductsPage() {
 
                                     </Card.Footer>
                                 </Card.Root>
-                                <Float placement="top-end" zIndex="banner">
+                                <Float placement="top-end" zIndex="6">
                                     <Badge size="sm" variant="solid" colorPalette={variant.stock > 5 ? "teal" : "red"}>
                                         Stock: {variant.stock}
                                     </Badge>
