@@ -2,13 +2,28 @@ import { Link } from 'react-router-dom'
 import { AuthContext } from '../context/AuthContext'
 import { useContext } from 'react'
 import { useUser } from '../hooks/useUser.js'
-import { Box, Flex, IconButton, Button, Stack, Float, Circle } from '@chakra-ui/react'
+import { Box, Button, Stack, Float, Circle, Strong, Icon } from '@chakra-ui/react'
 import CartDrawer from "./CartDrawer";
 import { useCart } from '../context/CartContext'
 import Modal from './Modal'
 import { LuCircleUserRound, LuLogOut, LuLogIn, LuShoppingCart, LuStore, LuUsersRound, LuShirt, LuPackagePlus, LuChartNoAxesCombined, LuShoppingBag, LuUserRoundPlus } from "react-icons/lu";
 import { TbShirtOff } from "react-icons/tb";
 import { GiClothes } from "react-icons/gi";
+
+export function NavItem({ icon, text, path }) {
+    return (
+        <Link className='text-white' to={path} >
+            <Box display="flex" flexDirection="column" alignItems="initial" gap="1" _hover={{ color: "teal" }}>
+                <Icon size="xl">
+                    {icon}
+                </Icon>
+                <Strong>
+                    {text}
+                </Strong>
+            </Box>
+        </Link>
+    )
+}
 
 
 function NavBar() {
@@ -19,153 +34,87 @@ function NavBar() {
     const handleLogout = () => { userLogout() }
 
     return (
-        <Box position="fixed" zIndex="99" width="full">
-            <Flex
-                bg={('white', 'gray.800')}
-                color={('gray.600', 'white')}
-                minH={'60px'}
-                py={{ base: 2 }}
-                px={{ base: 4 }}
-                borderBottom={1}
-                borderStyle={'solid'}
-                borderColor={('gray.200', 'gray.900')}
-                align={'center'}>
-                <Flex
-                    flex={{ base: 1, md: 'auto' }}
-                    ml={{ base: -2 }}
-                    display={{ base: 'flex', md: 'none' }}>
-                    <IconButton
-                        variant={'ghost'}
-                        aria-label={'Toggle Navigation'}
-                    />
-                </Flex>
-                <Flex flex={{ base: 1 }} justify={{ base: 'center', md: 'start' }}>
-                    <Link className='text-white' to='/' >
-                        <LuStore />
-                        Inicio
-                    </Link>
-                    <Flex display={{ base: 'none', md: 'flex' }} ml={10}>
-                        {isAuthenticated &&
-                            <>
-                                {isAuthenticated && user && user.role === 'ADMIN' &&
-                                    <>
-                                        <Box px={2} py={1} rounded={'md'} _hover={{ textDecoration: 'none', bg: ('gray.200', 'gray.700'), }} >
-                                            <Link className='text-white' to='/dashboard' >
-                                                <LuChartNoAxesCombined />
-                                                Panel
-                                            </Link>
-                                        </Box>
-                                        <Box px={2} py={1} rounded={'md'} _hover={{ textDecoration: 'none', bg: ('gray.200', 'gray.700'), }} >
-                                            <Link className='text-white' to='/productsDisabled' >
-                                                <TbShirtOff />
-                                                Deshabilitados
-                                            </Link>
-                                        </Box>
-                                        <Box px={2} py={1} rounded={'md'} _hover={{ textDecoration: 'none', bg: ('gray.200', 'gray.700'), }} >
-                                            <Link className='text-white' to='/users' >
-                                                <LuUsersRound />
-                                                Usuarios
-                                            </Link>
-                                        </Box>
-                                    </>
-                                }
-                                <Box px={2} py={1} rounded={'md'} _hover={{ textDecoration: 'none', bg: ('gray.200', 'gray.700'), }} >
-                                    <Link className='text-white' to='/products' >
-                                        <LuShirt />
-                                        Productos
-                                    </Link>
-                                </Box>
-                                <Box px={2} py={1} rounded={'md'} _hover={{ textDecoration: 'none', bg: ('gray.200', 'gray.700'), }} >
-                                    <Link className='text-white' to='/sales' >
-                                        <LuShoppingBag />
-                                        Ventas
-                                    </Link>
-                                </Box>
-                                <Box px={2} py={1} rounded={'md'} _hover={{ textDecoration: 'none', bg: ('gray.200', 'gray.700'), }} >
-                                    <Link className='text-white' to='/entries' >
-                                        <LuPackagePlus />
-                                        Entradas
-                                    </Link>
-                                </Box>
-                                <Box px={2} py={1} rounded={'md'} _hover={{ textDecoration: 'none', bg: ('gray.200', 'gray.700'), }} >
-                                    <Link className='text-white' to='/categories' >
-                                        <GiClothes />
-                                        Categorias
-                                    </Link>
-                                </Box>
-
-                            </>
-                        }
-                    </Flex>
-                </Flex>
-
+        <Box display="flex" justifyContent="space-between" position="fixed" zIndex="99" width="full" padding='10px' borderColor="gray.500" borderBottomWidth={'2px'} backgroundColor="black">
+            <Box display="flex" gap="4" >
+                <NavItem icon={<LuStore />} text='Inicio' path='/' />
                 {isAuthenticated &&
                     <Box display="flex" gap="4">
-                        <CartDrawer trigger={
-                            <Box display="inline-block" pos="relative">
-                                <Float zIndex="banner">
-                                    <Circle size="5" bg="red" color="white">
-                                        {cart.length}
-                                    </Circle>
-                                </Float>
-                                <Button>
-                                    <LuShoppingCart />
-                                </Button>
-                            </Box>
-                        } />
-                        <Box px={2} py={1} rounded={'md'} _hover={{ textDecoration: 'none', bg: ('gray.200', 'gray.700'), }}>
-                            <Link className='text-white' to='/profile'>
-                                <LuCircleUserRound />
-                                {user.username}
-                            </Link>
-                        </Box>
-                        <Stack
-                            flex={{ base: 1, md: 0 }}
-                            justify={'flex-end'}
-                            direction={'row'}
-                            spacing={6}>
-                            <Modal trigger={
-                                <Button as={'a'} fontSize={'sm'} color={'white'} colorPalette="teal" fontWeight={400}>
-                                    <LuLogOut />
-                                    Salir
-                                </Button>
-                            }>
-                                <h2 >Está seguro que desea cerrar sesión</h2>
-                                <Button onClick={() => { handleLogout() }}>Cerrar sesión</Button>
-                            </Modal>
-                        </Stack>
+                        {isAuthenticated && user && user.role === 'ADMIN' &&
+                            <>
+                                <NavItem icon={<LuChartNoAxesCombined />} text='Panel' path='/dashboard' />
+                                <NavItem icon={<TbShirtOff />} text='Deshabilitados' path='/productsDisabled' />
+                                <NavItem icon={<LuUsersRound />} text='Usuarios' path='/users' />
+                            </>
+                        }
+
+                        <NavItem icon={<LuShirt />} text='Productos' path='/products' />
+                        <NavItem icon={<LuShoppingBag />} text='Ventas' path='/sales' />
+                        <NavItem icon={<LuPackagePlus />} text='Entradas' path='/entries' />
+                        <NavItem icon={<GiClothes />} text='Categorias' path='/categories' />
                     </Box>
                 }
+            </Box>
 
-                {!isAuthenticated &&
+            {
+                isAuthenticated &&
+                <Box display="flex" gap="4">
+                    <CartDrawer trigger={
+                        <Box display="inline-block" pos="relative">
+                            <Float zIndex="banner">
+                                <Circle size="5" bg="red" color="white">
+                                    {cart.length}
+                                </Circle>
+                            </Float>
+                            <Button>
+                                <LuShoppingCart />
+                            </Button>
+                        </Box>
+                    } />
+                    <NavItem icon={<LuCircleUserRound />} text={user.username} path='/profile' />
                     <Stack
                         flex={{ base: 1, md: 0 }}
                         justify={'flex-end'}
                         direction={'row'}
                         spacing={6}>
-                        <Button as={'a'} fontSize={'sm'} fontWeight={400} variant={'link'} href={'/register'}>
-                            <LuUserRoundPlus />
-                            Register
-                        </Button>
-                        <Button
-                            colorPalette="teal"
-                            as={'a'}
-                            display={{ base: 'none', md: 'inline-flex' }}
-                            fontSize={'sm'}
-                            fontWeight={600}
-                            color={'white'}
-                            href={'/login'}
-                            _hover={{
-                                bg: 'pink.300',
-                            }}>
-                            <LuLogIn />
-                            Login
-                        </Button>
+                        <Modal trigger={
+                            <Button as={'a'} fontSize={'sm'} color={'white'} colorPalette="teal" fontWeight={400}>
+                                <LuLogOut />
+                                Salir
+                            </Button>
+                        }>
+                            <h2 >Está seguro que desea cerrar sesión</h2>
+                            <Button onClick={() => { handleLogout() }}>Cerrar sesión</Button>
+                        </Modal>
                     </Stack>
-                }
-            </Flex>
+                </Box>
+            }
 
-        </Box>
+            {
+                !isAuthenticated &&
+                <Stack
+                    flex={{ base: 1, md: 0 }}
+                    justify={'flex-end'}
+                    direction={'row'}
+                    spacing={6}>
+                    <NavItem icon={<LuUserRoundPlus />} text='Registro' path='/register' />
+                    <Button
+                        colorPalette="teal"
+                        as={'a'}
+                        display={{ base: 'none', md: 'inline-flex' }}
+                        fontSize={'sm'}
+                        fontWeight={600}
+                        color={'white'}
+                        href={'/login'}
+                        _hover={{
+                            bg: 'pink.300',
+                        }}>
+                        <LuLogIn />
+                        Login
+                    </Button>
+                </Stack>
+            }
+
+        </Box >
 
     )
 }
