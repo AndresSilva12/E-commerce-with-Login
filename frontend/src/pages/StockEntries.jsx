@@ -92,7 +92,7 @@ function StockEntriesPage() {
                 </Box>
             </GridItem>
 
-            <GridItem rowSpan={9} colSpan={7} display="flex" flexDirection="column" marginLeft="260px" marginTop="60px" width="92%">
+            <GridItem rowSpan={9} colSpan={7} display="flex" flexDirection="column" marginLeft="260px" marginTop="70px" width="92%">
                 <Table.Root marginLeft="10px" size="sm" striped width="99%">
                     <Table.Header>
                         <Table.Row>

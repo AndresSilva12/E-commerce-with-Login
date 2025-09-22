@@ -12,7 +12,7 @@ import { Toaster } from "../components/ui/toaster";
 import { useMetrics } from "../hooks/useMetrics.js"
 import { generatePdfReport } from "../utils/pdfReport.js"
 import { MdOutlineSimCardDownload } from "react-icons/md";
-import { LuCalendarDays, LuCalendarX2 } from "react-icons/lu";
+import { LuCalendarDays, LuCalendarX2, LuSquarePen, LuTrash2 } from "react-icons/lu";
 
 export function ChartProducts({ topProductosVentas, topCategorias, topProductosCantidad }) {
     const chartData = topProductosVentas
@@ -273,7 +273,7 @@ function Dashboard() {
                 </Box>
             </GridItem >
 
-            <GridItem rowSpan={9} colSpan={7} display="flex" flexDirection="column" marginLeft="260px" marginTop="60px" width="92%">
+            <GridItem rowSpan={9} colSpan={7} display="flex" flexDirection="column" marginLeft="260px" marginTop="80px" width="92%">
                 {/* Cards de datos principales */}
                 <Box display="flex" width="full" justifyContent="center" gap="10">
                     <ChartCard value={ingresosBrutos} title={"Ingresos Brutos"} subtitle={"Ventas"} />
@@ -340,21 +340,31 @@ function Dashboard() {
                         {expenses && expenses.map((expense) => (
                             <Table.Row key={expense.id}>
                                 <Table.Cell>{expense.name}</Table.Cell>
-                                <Table.Cell>{expense.date}</Table.Cell>
+                                <Table.Cell>{expense.date.slice(0, 10)}</Table.Cell>
                                 <Table.Cell>$ {new Intl.NumberFormat("es-AR").format(expense.amount)}</Table.Cell>
                                 <Table.Cell>
-                                    <Modal size={"sm"} trigger={<Button onClick={() => { setExpenseUpdate(expense) }}>Editar</Button>}>
-                                        {({ closeModal }) => (
-                                            <ExpensesModal expenseUpdate={expenseUpdate} onSubmitExpense={() => {
-                                                closeModal()
-                                                setFilters({})
-                                            }} />
-                                        )}
-                                    </Modal>
-                                    <Modal size={"sm"} trigger={<Button backgroundColor={"red.700"}>Delete</Button>}>
-                                        <h2 >Está seguro que desea eliminar este gasto?</h2>
-                                        <Button onClick={() => { handleDeleteExpense(expense.id) }}>Eliminar</Button>
-                                    </Modal>
+                                    <Box display="flex" gap="2">
+                                        <Modal size={"sm"} trigger={
+                                            <Button onClick={() => { setExpenseUpdate(expense) }}>
+                                                <LuSquarePen />
+                                            </Button>
+                                        }>
+                                            {({ closeModal }) => (
+                                                <ExpensesModal expenseUpdate={expenseUpdate} onSubmitExpense={() => {
+                                                    closeModal()
+                                                    setFilters({})
+                                                }} />
+                                            )}
+                                        </Modal>
+                                        <Modal size={"sm"} trigger={
+                                            <Button colorPalette="red">
+                                                <LuTrash2 />
+                                            </Button>
+                                        }>
+                                            <h2 >Está seguro que desea eliminar este gasto?</h2>
+                                            <Button onClick={() => { handleDeleteExpense(expense.id) }}>Eliminar</Button>
+                                        </Modal>
+                                    </Box>
                                 </Table.Cell>
                             </Table.Row>
                         ))}

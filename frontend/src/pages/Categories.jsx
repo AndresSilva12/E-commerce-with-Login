@@ -62,8 +62,8 @@ function Categories() {
         setCategoryUpdate(category)
     }
     return (
-        <Box paddingTop="60px">
-            <Table.Root marginLeft="60px" size="sm" striped width="90%">
+        <Box paddingTop="70px">
+            <Table.Root size="sm" striped width="full">
                 <Table.Header>
                     <Table.Row>
                         <Table.ColumnHeader>Categoria</Table.ColumnHeader>
@@ -95,7 +95,7 @@ function Categories() {
                 )}
             </Modal>
             <Toaster />
-        </Box>
+        </Box >
     )
 }
 

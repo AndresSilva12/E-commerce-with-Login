@@ -472,8 +472,9 @@ function ProductsPage() {
                                 <Card.Root width="170px" size="sm" overflow="hidden">
                                     <Image src={variant.image} maxHeight="170px" w="full" fit="cover" />
                                     <Card.Body>
-                                        <Card.Title>{variant.product.name} {variant.product.brand}</Card.Title>
+                                        <Card.Title>{variant.product.name}</Card.Title>
                                         <HStack mt="1">
+                                            <Badge>{variant.product.brand}</Badge>
                                             <Badge>Talle {variant.size}</Badge>
                                             <Badge>{variant.color}</Badge>
                                         </HStack>
