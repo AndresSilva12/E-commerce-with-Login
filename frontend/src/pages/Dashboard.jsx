@@ -240,7 +240,7 @@ function Dashboard() {
                     </Button>
                 </Box>
                 <Box display="flex" gap="2">
-                    <Select.Root collection={dateFilters} value={dateBy} defaultValue={"Hoy"} onValueChange={(e) => { handleChangeDate(new Date(), e.value) }} size="sm" width="full">
+                    <Select.Root collection={dateFilters} value={dateBy} defaultValue={"Hoy"} onValueChange={(e) => { handleChangeDate(new Date(), String(e.value)) }} size="sm" width="full">
                         <Select.HiddenSelect />
                         <Select.Control>
                             <Select.Trigger>
@@ -327,7 +327,6 @@ function Dashboard() {
 
                 {/* Tabla de gastos */}
                 <Table.Root marginLeft="60px" size="sm" striped width="90%">
-                    <Table.Caption>Expenses inventory and pricing information</Table.Caption>
                     <Table.Header>
                         <Table.Row>
                             <Table.ColumnHeader>Gasto</Table.ColumnHeader>
