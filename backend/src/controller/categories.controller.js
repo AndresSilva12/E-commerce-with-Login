@@ -2,7 +2,13 @@ import prisma from '../db.js'
 
 export const getAllCategories = async(req, res) => {
     try{
-        const categories = await prisma.category.findMany()
+        const categories = await prisma.category.findMany({
+            orderBy: [
+                {
+                    name: 'asc'
+                }
+            ]
+        })
         return res.json(categories)
     }catch (error) {
         console.log(error)

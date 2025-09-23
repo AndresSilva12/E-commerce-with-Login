@@ -52,7 +52,6 @@ export function useCategories () {
                 }
                 return
             }
-
             setCategories((prev) => ([...prev, data]))
             toast("Categoría registrada con exito!")
             closeModal()
