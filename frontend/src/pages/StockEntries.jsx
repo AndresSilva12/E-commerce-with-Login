@@ -3,7 +3,7 @@ import { Fragment } from "react"
 import { useStockEntries } from "../hooks/useStockEntries.js";
 import { Button, Table, Box, DataList, Image, Grid, GridItem, Stack, Text, Strong, Pagination, ButtonGroup, IconButton } from "@chakra-ui/react";
 import Modal from "../components/Modal.jsx";
-import Calendar from "react-calendar"
+import DateFilters from "../components/DateFilters";
 import { Toaster } from "../components/ui/toaster";
 import { LuTrash2, LuChevronLeft, LuChevronRight } from "react-icons/lu";
 
@@ -64,17 +64,6 @@ function StockEntriesPage() {
         setEntrySelected(entry)
     }
 
-    const handleChangeDate = (value, selected) => {
-        const year = value.getFullYear()
-        const month = value.getMonth() + 1
-        const minDay = value.getDate()
-        selected === "month"
-            ? setFilters({ year: year, month: month })
-            : selected === "day"
-                ? setFilters({ year: year, month: month, minDay: minDay })
-                : setFilters({ year: year })
-    }
-
     const handleChangePage = (page) => {
         setPage(page)
         setFilters((prev) => ({ ...prev, page: page }))
@@ -82,18 +71,12 @@ function StockEntriesPage() {
 
     return (
         <Grid templateColumns="repeat(8, 1fr)" templateRows="repeat(10, 1fr)">
-            <GridItem rowSpan={10} colSpan={1} padding="4" bg="black" display="flex" flexDirection="column" justifyContent="center" gap="4" position="fixed" top="50px" zIndex="50" bottom="0">
-                <Box width="240px">
-                    <Calendar
-                        onClickMonth={(value, e) => { handleChangeDate(value, "month") }}
-                        onClickYear={(value, e) => { handleChangeDate(value, "year") }}
-                        onClickDay={(value, e) => { handleChangeDate(value, "day") }}
-                    />
-                </Box>
+            <GridItem rowSpan={10} colSpan={1} padding="4" bg="black" width="290px" display="flex" flexDirection="column" gap="4" position="fixed" top="70px" zIndex="50" bottom="0" borderRightColor={'gray.500'} borderRightWidth="2px">
+                <DateFilters setFilters={setFilters} />
             </GridItem>
 
             <GridItem rowSpan={9} colSpan={7} display="flex" flexDirection="column" marginLeft="260px" marginTop="70px" width="92%">
-                <Table.Root marginLeft="10px" size="sm" striped width="99%">
+                <Table.Root marginLeft="60px" size="sm" striped width="90%">
                     <Table.Header>
                         <Table.Row>
                             <Table.ColumnHeader>Vendedor</Table.ColumnHeader>
