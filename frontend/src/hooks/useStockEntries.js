@@ -75,13 +75,18 @@ export function useStockEntries () {
             const data = await res.json()
             
             if (!res.ok){
-                handleAuth(res, data, setIsAuthenticated, navigate)
-                return
+                const authError = handleAuth(res, data, setIsAuthenticated, navigate)
+                if (!authError){
+                    toast(data.error, "error")
+                }
+                return {success: false}
             }
     
             setStockEntries((prev) => (prev.filter(e => e.id !== id)))
             toast("Entrada eliminada con exito!")
+            return {success: true}
         } catch (error) {
+            console.log("hubo un error")
             console.log(error.message)
         }
     }
