@@ -7,7 +7,7 @@ import { handleAuth } from "../utils/auth.js"
 export function useSales () {
     const [sales, setSales] = useState([])
     const [totalPages, setTotalPages] = useState()
-    const { fetchProducts} = useProducts()
+    const { updateVariantContext} = useProducts()
     const {setIsAuthenticated} = useContext(AuthContext)
 
     const getAllSales = async(query) => {
@@ -48,8 +48,10 @@ export function useSales () {
             }
 
             setSales((prev) => ([...prev, data]))
+            for(const variant of data.updatedVariants){
+                updateVariantContext(variant.id, variant)
+            }
             toast("Venta registrada con exito!")
-            fetchProducts()
             return data
         } catch (error) {
             console.log(error.message)

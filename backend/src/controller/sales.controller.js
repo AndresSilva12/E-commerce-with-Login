@@ -22,7 +22,7 @@ export const createNewSale = async(req, res) => {
                     items: true
                 }
             })
-            const variantsUpdates = {}
+            const variantsUpdates = []
             for (const item of newSale.items){
                 const variantWithStockUpdated = await tx.productVariant.update({
                     where: {
@@ -32,9 +32,16 @@ export const createNewSale = async(req, res) => {
                         stock: {
                             decrement: item.quantity
                         }
+                    },
+                    include: {
+                        product: {
+                            include: {
+                                category: true
+                            }
+                        }
                     }
                 })
-                variantsUpdates[variantWithStockUpdated.code] = variantWithStockUpdated
+                variantsUpdates.push(variantWithStockUpdated)
             }
             return {newSale,variantsUpdates}
         })
