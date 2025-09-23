@@ -1,181 +1,15 @@
 import Modal from "../components/Modal"
 import DateFilters from "../components/DateFilters"
-import { BarList, Chart, useChart } from "@chakra-ui/charts"
-import { Badge, Box, Card, Table, FormatNumber, Fieldset, Field, Input, Strong, NumberInput, Portal, Span, Stack, Stat, Grid, GridItem, Button } from "@chakra-ui/react"
+import { Box, Table, Grid, GridItem, Button } from "@chakra-ui/react"
 import { useEffect, useState } from "react"
-import { useForm } from "react-hook-form"
-import { Cell, Label, Pie, PieChart, Tooltip } from "recharts"
 import { useExpenses } from "../hooks/useExpenses.js"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { expensesSchema, updateExpensesSchema } from "../../../validation/expensesSchema.js"
 import { Toaster } from "../components/ui/toaster";
 import { useMetrics } from "../hooks/useMetrics.js"
 import { generatePdfReport } from "../utils/pdfReport.js"
 import { MdOutlineSimCardDownload } from "react-icons/md";
 import { LuSquarePen, LuTrash2 } from "react-icons/lu";
-
-export function ChartProducts({ topProductosVentas, topCategorias, topProductosCantidad }) {
-    const chartData = topProductosVentas
-        ? topProductosVentas.map((item) => ({
-            name: `${item.productName} ${item.color} ${item.size}`,
-            value: item.totalVendido
-        }))
-        : topProductosCantidad
-            ? topProductosCantidad.map((item) => ({
-                name: `${item.productName} ${item.color} ${item.size}`,
-                value: item.cantidadVendido
-            }))
-            : topCategorias.map((item) => ({
-                name: item.name,
-                value: item.quantity
-            }))
-
-    const chart = useChart({
-        sort: { by: "value", direction: "desc" },
-        data: chartData,
-        series: [{ name: "name", color: "teal.subtle" }]
-    })
-
-    return (
-        <BarList.Root chart={chart}>
-            <BarList.Content>
-                <BarList.Label title={topProductosVentas || topProductosCantidad ? 'Productos mas vendidos' : 'Categorias mas vendidas'} flex="1">
-                    <BarList.Bar />
-                </BarList.Label>
-                <BarList.Value />
-            </BarList.Content>
-        </BarList.Root>
-    )
-}
-
-export function ChartPie({ value }) {
-    const colors = [
-        { color: "green.solid" },
-        { color: "orange.solid" },
-        { color: "cyan.solid" },
-        { color: "pink.solid" },
-        { color: "yellow.solid" },
-        { color: "purple.solid" },
-        { color: "teal.solid" },
-        { color: "blue.solid" },
-    ]
-    const total = value.map(item => item.value).reduce((acc, curr) => acc + curr, 0)
-    const chartData = value.map(item => ({
-        name: item.name,
-        value: item.value
-    }))
-    const chart = useChart({
-        data: chartData
-    })
-    return (
-        <Chart.Root boxSize="200px" chart={chart} mx="auto" marginBottom="60px">
-            <PieChart>
-                <Tooltip
-                    cursor={false}
-                    animationDuration={100}
-                    content={<Chart.Tooltip hideLabel />}
-                />
-                <Pie
-                    innerRadius={80}
-                    outerRadius={100}
-                    isAnimationActive={false}
-                    data={chart.data}
-                    dataKey={chart.key("value")}
-                    nameKey="name"
-                >
-                    <Label
-                        content={({ viewBox }) => (
-                            <Chart.RadialText
-                                viewBox={viewBox}
-                                title={`$ ${new Intl.NumberFormat("es-AR").format(total)}`}
-                                description="Caja"
-                            />
-                        )}
-                    />
-                    {colors.map((color) => (
-                        <Cell key={color.color} fill={chart.color(color.color)} />
-                    ))}
-                </Pie>
-            </PieChart>
-        </Chart.Root>
-    )
-}
-
-export function ChartCard({ value, title, subtitle }) {
-    return (
-        <Card.Root maxW="xs" size="sm">
-            <Card.Body flexDirection="row" alignItems="center">
-                <Stack gap="0" flex="1">
-                    <Box fontWeight="semibold" textStyle="sm">{title}</Box>
-                    <Box textStyle="xs" color="fg.muted">{subtitle}</Box>
-                </Stack>
-                <Stat.Root size="sm" alignItems="flex-end">
-                    <Span fontWeight="medium">
-                        <FormatNumber value={value} style="currency" currency="USD" />
-                    </Span>
-                    <Badge colorPalette={"green"} gap="0">
-                        <Stat.UpIndicator />
-                        <FormatNumber value={1000} style="percent" maximumFractionDigits={2} />
-                    </Badge>
-                </Stat.Root>
-            </Card.Body>
-        </Card.Root>
-    )
-}
-
-export function ExpensesModal({ expenseUpdate, onSubmitExpense }) {
-    const { createExpense, updateExpense } = useExpenses()
-    const { register, handleSubmit, reset, formState: { errors } } = useForm({
-        mode: 'onChange',
-        resolver: zodResolver(expenseUpdate ? updateExpensesSchema : expensesSchema)
-    })
-
-    useEffect(() => {
-        if (expenseUpdate === null) {
-            reset({ name: "", amount: 0 })
-        } else {
-            reset(expenseUpdate)
-        }
-    }, [expenseUpdate, reset])
-
-    const onValid = async (data) => {
-        expenseUpdate ? await updateExpense(data, expenseUpdate.id) : await createExpense(data)
-        onSubmitExpense()
-    }
-
-    return (
-        <form onSubmit={handleSubmit(onValid)}>
-            <Box display="flex" flexDirection="column" justifyContent="center" gap="4">
-                <Fieldset.Root>
-                    <Fieldset.Content>
-                        <Field.Root invalid={!!errors.name}>
-                            <Box display="flex" gap="4" width="100%" justifyContent="space-between">
-                                <Field.Label width="50%">Nombre del gasto</Field.Label>
-                                <Field.ErrorText>{errors.name?.message}</Field.ErrorText>
-                                <Box width="50%">
-                                    <Input {...register("name")} />
-                                </Box>
-                            </Box>
-                        </Field.Root>
-                        <Field.Root invalid={!!errors.amount}>
-                            <Box display="flex" gap="4" width="100%" justifyContent="space-between">
-                                <Field.Label width="50%">Total</Field.Label>
-                                <Field.ErrorText>{errors.amount?.message}</Field.ErrorText>
-                                <Box width="50%">
-                                    <NumberInput.Root defaultValue="1">
-                                        <NumberInput.Control />
-                                        <NumberInput.Input  {...register("amount")} />
-                                    </NumberInput.Root>
-                                </Box>
-                            </Box>
-                        </Field.Root>
-                    </Fieldset.Content>
-                </Fieldset.Root>
-                <Button type="submit">{expenseUpdate ? "Actualizar" : "Crear"} Gasto</Button>
-            </Box>
-        </form>
-    )
-}
+import { ChartCard, ChartPie, ChartProducts } from "../components/Charts"
+import ExpenseModal from "../components/ExpenseModal"
 
 function Dashboard() {
     const { deleteExpense } = useExpenses()
@@ -236,7 +70,7 @@ function Dashboard() {
                         <Box width="full" height="50px" display="flex" justifyContent="center">
                             <Modal size={"sm"} trigger={<Button onClick={() => { setExpenseUpdate(null) }}>Agregar nuevo gasto</Button>}>
                                 {({ closeModal }) => (
-                                    <ExpensesModal expenseUpdate={expenseUpdate} onSubmitExpense={() => {
+                                    <ExpenseModal expenseUpdate={expenseUpdate} onSubmitExpense={() => {
                                         closeModal()
                                         setFilters({})
                                     }} />
@@ -288,7 +122,7 @@ function Dashboard() {
                                             </Button>
                                         }>
                                             {({ closeModal }) => (
-                                                <ExpensesModal expenseUpdate={expenseUpdate} onSubmitExpense={() => {
+                                                <ExpenseModal expenseUpdate={expenseUpdate} onSubmitExpense={() => {
                                                     closeModal()
                                                     setFilters({})
                                                 }} />
