@@ -13,7 +13,7 @@ import { useForm } from 'react-hook-form'
 import isEqual from 'lodash.isequal'
 
 function ProductModal({ productUpdate, onSubmit, closeModal }) {
-    const { register, handleSubmit, reset, formState: { errors }, setError } = useForm({
+    const { register, handleSubmit, reset, formState: { errors }, setError, watch } = useForm({
         mode: 'onChange',
         resolver: zodResolver(productUpdate ? updateProductSchema : productSchema),
         defaultValues: productUpdate
@@ -27,11 +27,18 @@ function ProductModal({ productUpdate, onSubmit, closeModal }) {
     const [categoriesCollection, setCategoriesCollection] = useState()
     const [categorySelected, setCategorySelected] = useState()
     const [categorySelectedName, setCategorySelectedName] = useState()
+    const [ganancia, setGanancia] = useState(0)
     const { createEntry } = useStockEntries()
 
     useEffect(() => {
         fetchCategories()
     }, [])
+
+    useEffect(() => {
+        if (!productUpdate) {
+            setGanancia(((Number(watch("salePrice")) - purchasePrice) / Number(watch("salePrice")) * 100).toFixed(2))
+        }
+    }, productUpdate, [watch("salePrice"), purchasePrice])
 
     const fetchCategories = async () => {
         const categoriesFetch = await getCategories()
@@ -189,14 +196,13 @@ function ProductModal({ productUpdate, onSubmit, closeModal }) {
                             </Field.Root>
                         </Box>
 
-                        <Box display="flex" justifyContent="space-between">
+                        <Box display="flex" justifyContent="initial">
                             <Field.Root invalid={!!errors.salePrice}>
-                                <Box display="flex" justifyContent="space-between" width="full">
+                                <Box display="flex" justifyContent="space-between">
                                     <Field.Label>Precio de venta</Field.Label>
                                     <Field.ErrorText>{errors.salePrice?.message}</Field.ErrorText>
                                 </Box>
-                                <NumberInput.Root defaultValue="10" width="200px" {...register("salePrice")}>
-                                    <NumberInput.Control />
+                                <NumberInput.Root defaultValue={productUpdate ? productUpdate.salePrice : 0} width="140px" {...register("salePrice")}>
                                     <InputGroup startElement="$">
                                         <NumberInput.Input />
                                     </InputGroup>
@@ -204,17 +210,22 @@ function ProductModal({ productUpdate, onSubmit, closeModal }) {
                             </Field.Root>
 
                             {!productUpdate && (
-                                <Field.Root>
-                                    <Box display="flex" justifyContent="space-between" width="full">
-                                        <Field.Label>Precio de compra</Field.Label>
+                                <Box display="flex" justifyContent="initial">
+                                    <Field.Root>
+                                        <Box>
+                                            <Field.Label>Precio de compra</Field.Label>
+                                        </Box>
+                                        <NumberInput.Root value={purchasePrice} onValueChange={(e) => { setPurchasePrice(e.value) }} width="140px">
+                                            <InputGroup startElement="$">
+                                                <NumberInput.Input />
+                                            </InputGroup>
+                                        </NumberInput.Root>
+                                    </Field.Root>
+                                    <Box padding="5">
+                                        <Text>Ganancia:</Text>
+                                        <Text color="green">{isNaN(ganancia) ? 0 : ganancia} %</Text>
                                     </Box>
-                                    <NumberInput.Root value={purchasePrice} onValueChange={(e) => { setPurchasePrice(e.value) }} width="200px">
-                                        <NumberInput.Control />
-                                        <InputGroup startElement="$">
-                                            <NumberInput.Input />
-                                        </InputGroup>
-                                    </NumberInput.Root>
-                                </Field.Root>
+                                </Box>
                             )}
                         </Box>
 
@@ -293,7 +304,7 @@ function ProductModal({ productUpdate, onSubmit, closeModal }) {
                 </Box>
             </form>
             <VariantModal onSubmitVariant={(data) => { onSubmitVariant(data) }} variants={variants} variantUpdate={variantUpdate} productUpdate={productUpdate} />
-        </Box>
+        </Box >
     )
 }
 
