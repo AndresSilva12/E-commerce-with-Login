@@ -3,6 +3,7 @@ import { useVariants } from "../hooks/useVariants";
 import Modal from "../components/Modal";
 import { useEffect } from "react";
 import { FaCheckCircle } from "react-icons/fa";
+import { Toaster } from "../components/ui/toaster";
 
 
 function ProductsDisabledPage() {
@@ -53,6 +54,7 @@ function ProductsDisabledPage() {
                     </Card.Footer>
                 </Card.Root>
             ))}
+            <Toaster />
         </Grid>
     )
 }
