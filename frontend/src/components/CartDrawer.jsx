@@ -38,7 +38,7 @@ function CartDrawer({ trigger }) {
                         <Drawer.Body paddingX="4">
                             <Box display="flex" flexDirection="column" gap="4" height="full">
                                 {cart && cart.map((cartItem) => (
-                                    <Card.Root flexDirection="row" overflow="hidden" maxW="xs" justifyContent="space-between">
+                                    <Card.Root flexDirection="row" overflow="hidden" maxW="xs" justifyContent="space-between" key={cartItem.id}>
                                         <Image src={cartItem.variants.image} h="full" w="2/6" fit="contain" />
                                         <Box display="flex" justifyContent="space-between" w="4/6" marginLeft="8px">
                                             <Card.Body padding="0px">
@@ -68,8 +68,6 @@ function CartDrawer({ trigger }) {
                                         </Box>
                                     </Card.Root>
                                 ))}
-                                {/* <Box size="sm" height="2/12" key={cartItem.variants.id} flexDirection="row" justifyContent="space-between" alignItems="center" display="flex">
-                                </Box> */}
                             </Box>
                         </Drawer.Body>
                         <Drawer.Footer display="flex" flexDirection="column">

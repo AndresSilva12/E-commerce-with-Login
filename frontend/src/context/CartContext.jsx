@@ -1,5 +1,6 @@
 import { useSales } from "../hooks/useSales.js";
 import { createContext, useContext, useEffect, useState } from "react";
+import { toast } from "../utils/notifyToast.js";
 
 const CartContext = createContext()
 
@@ -26,13 +27,30 @@ export function CartProvider({ children }) {
     }
 
     const buyCart = async (motive) => {
-        const cartItems = cart.map((cartItem) => (
+        const cartItems = []
+        for (const item of cart) {
+            if (item.variants.quantity > item.variants.stock) {
+                toast("Compra cancelada. Cantidad por encima del stock disponible", "error")
+                return
+            }
+            if (item.variants.quantity <= 0) {
+                toast("Compra cancelada. Debe llevar almenos 1 unidad", "error")
+                return
+            }
+            const newItem = {
+                variantId: item.variants.id,
+                quantity: item.variants.quantity,
+                unitPrice: item.variants.unitPrice
+            }
+            cartItems.push(newItem)
+        }
+        /* const cartItems = cart.map((cartItem) => (
             {
                 variantId: cartItem.variants.id,
                 quantity: cartItem.variants.quantity,
                 unitPrice: cartItem.variants.unitPrice
             }
-        ))
+        )) */
         const cartForSale = {
             totalPrice: totalPrice,
             items: cartItems,
