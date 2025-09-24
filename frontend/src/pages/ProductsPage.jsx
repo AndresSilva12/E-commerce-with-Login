@@ -97,7 +97,7 @@ export function ModalStockUpdate({ variantUpdate, closeModal }) {
 
 function ProductsPage() {
     const [productUpdate, setProductUpdate] = useState(null)
-    const { products, fetchUniqueProduct, variants, availableFilters, totalPages, setFilters } = useProducts()
+    const { products, fetchUniqueProduct, variants, availableFilters, totalPages, setFilters, filters } = useProducts()
     const { disableVariant } = useVariants()
     const [variantUpdate, setVariantUpdate] = useState()
     const [priceMin, setPriceMin] = useState(0)
@@ -265,6 +265,7 @@ function ProductsPage() {
     const handleChangeSort = (value) => {
         const valueClear = value.toString()
         const valueSplit = valueClear.split("-")
+        console.log(value)
         if (filters.sortBy != null) {
             setFilters((prev) => {
                 const newFilter = { ...prev }
