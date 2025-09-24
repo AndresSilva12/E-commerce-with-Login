@@ -49,7 +49,14 @@ export const variantSchema = z.object({
   ,
 });
 
-export const updateVariantSchema = variantSchema.partial();
+export const updateVariantSchema = z.object({
+  id: z.string().cuid().optional(),
+  code: z.string().trim().optional(),
+  size: z.string().trim().optional(),
+  color: z.string().trim().optional(),
+  image: z.union([z.string(), z.any()]).optional(),
+  stock: z.number().optional(),
+});
 
 export const variantSchemaWithOutProductId = variantSchema.omit({
   productId: true,

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { variantSchema } from "./productVariantsSchema.js";
+import { updateVariantSchema, variantSchema } from "./productVariantsSchema.js";
 
 export const productSchema = z.object({
   name: z
@@ -34,6 +34,10 @@ export const productSchema = z.object({
   variants: z.array(variantSchema.omit({ productId: true })).default([]),
 });
 
-export const updateProductSchema = productSchema.partial();
+export const updateProductSchema = productSchema
+  .partial()
+  .extend({
+    variants: z.array(updateVariantSchema).optional(),
+  });
 
 export const idCuidSchema = z.string().cuid("El id no es válido");

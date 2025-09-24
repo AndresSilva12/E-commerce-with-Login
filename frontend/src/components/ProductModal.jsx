@@ -97,43 +97,48 @@ function ProductModal({ productUpdate, onSubmit, closeModal }) {
     const onValid = async (data) => {
         const fullProduct = {
             ...data,
-            categoryId: Array.isArray(categorySelected) ? categorySelected[0] : categorySelected,
-            variants: variants.length > 0 ? variants.map(({ localId, ...rest }) => rest) : []
+            categoryId: Array.isArray(categorySelected) ? categorySelected[0] : categorySelected
         }
-        for (const variant of fullProduct.variants) {
-            if (variant.image instanceof File) {
-                const imageUrl = await uploadImage(variant.image)
-                variant.image = imageUrl
+
+        if (!productUpdate) {
+            fullProduct.variants = variants.length > 0 ? variants.map(({ localId, ...rest }) => rest) : []
+
+            for (const variant of fullProduct.variants) {
+                if (variant.image instanceof File) {
+                    const imageUrl = await uploadImage(variant.image)
+                    variant.image = imageUrl
+                }
             }
         }
+
         const result = productUpdate
             ? await updateProduct(fullProduct, productUpdate, setError)
             : await createProduct(fullProduct, setError)
 
-        if (!result.success) {
-            return { error: "Error interno del servidor" }
-        }
 
-        const variantes = productUpdate ? result.product.variants : result.variants
-        for (const variant of variantes) {
-            const variantFound = fullProduct.variants.find(v => v.code === variant.code)
-            const entryData = {
-                items: [{
-                    variantId: variant.id,
-                    quantity: variantFound.stock,
-                    purchasePrice: purchasePrice
-                }],
-                motive: "Stock Inicial",
-                total: variantFound.stock * purchasePrice
+        if (!productUpdate) {
+            const variantes = productUpdate ? result.product.variants : result.variants
+            for (const variant of variantes) {
+                const variantFound = fullProduct.variants.find(v => v.code === variant.code)
+                const entryData = {
+                    items: [{
+                        variantId: variant.id,
+                        quantity: variantFound.stock,
+                        purchasePrice: purchasePrice
+                    }],
+                    motive: "Stock Inicial",
+                    total: variantFound.stock * purchasePrice
+                }
+                createEntry(entryData)
             }
-            createEntry(entryData)
         }
         onSubmit()
         closeModal()
     }
 
-    const onInvalid = () => {
-        toast("por favor ingrese todos los datos", "error")
+    const onInvalid = (error) => {
+        console.log(error)
+        toast("error", "error")
     }
 
 

@@ -155,25 +155,7 @@ export const updateProduct = async (req, res) => {
       salePrice,
       brand,
       categoryId,
-      variants,
     } = req.body;
-    const updateVariants = variants.filter((variant) => variant.id);
-    const newVariants = variants.filter((variant) => !variant.id);
-
-    for (const variant of updateVariants) {
-      await prisma.productVariant.update({
-        where: {
-          id: variant.id,
-        },
-        data: {
-          code: variant.code,
-          size: variant.size,
-          color: variant.color,
-          stock: variant.stock,
-          image: variant.image,
-        },
-      });
-    }
 
     const productUpdated = await prisma.products.update({
       where: {
@@ -186,15 +168,6 @@ export const updateProduct = async (req, res) => {
         salePrice: salePrice,
         brand: brand,
         categoryId: categoryId,
-        ...(newVariants &&
-          newVariants.length > 0 && {
-            variants: {
-              create: newVariants,
-            },
-          }),
-      },
-      include: {
-        variants: true,
       },
     });
     return res.json(productUpdated);
