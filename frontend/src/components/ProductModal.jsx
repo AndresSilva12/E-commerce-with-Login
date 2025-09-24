@@ -35,10 +35,23 @@ function ProductModal({ productUpdate, onSubmit, closeModal }) {
     }, [])
 
     useEffect(() => {
-        if (!productUpdate) {
-            setGanancia(((Number(watch("salePrice")) - purchasePrice) / Number(watch("salePrice")) * 100).toFixed(2))
+        if (productUpdate) {
+            const salePrice = Number(watch("salePrice"))
+            if (!salePrice || salePrice <= 0) {
+                setGanancia(0)
+                return
+            }
+            const cost = productUpdate.cost
+            setGanancia(((salePrice - cost) / salePrice * 100).toFixed(2))
+        } else {
+            const salePrice = Number(watch("salePrice"))
+            if (!salePrice || salePrice <= 0) {
+                setGanancia(0)
+                return
+            }
+            setGanancia(((salePrice - purchasePrice) / salePrice * 100).toFixed(2))
         }
-    }, productUpdate, [watch("salePrice"), purchasePrice])
+    }, [productUpdate, watch("salePrice"), purchasePrice])
 
     const fetchCategories = async () => {
         const categoriesFetch = await getCategories()
@@ -209,6 +222,13 @@ function ProductModal({ productUpdate, onSubmit, closeModal }) {
                                 </NumberInput.Root>
                             </Field.Root>
 
+                            {productUpdate && (
+                                <Box padding="5" width="190px">
+                                    <Text>Ganancia:</Text>
+                                    <Text color="green">{(!isFinite(ganancia) || isNaN(ganancia)) ? 0 : ganancia.toString().slice(0, 4)} %</Text>
+                                </Box>
+                            )}
+
                             {!productUpdate && (
                                 <Box display="flex" justifyContent="initial">
                                     <Field.Root>
@@ -223,7 +243,7 @@ function ProductModal({ productUpdate, onSubmit, closeModal }) {
                                     </Field.Root>
                                     <Box padding="5">
                                         <Text>Ganancia:</Text>
-                                        <Text color="green">{isNaN(ganancia) ? 0 : ganancia} %</Text>
+                                        <Text color="green">{(!isFinite(ganancia) || isNaN(ganancia)) ? 0 : ganancia.toString().slice(0, 4)} %</Text>
                                     </Box>
                                 </Box>
                             )}

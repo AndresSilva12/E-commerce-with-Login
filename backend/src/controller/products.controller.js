@@ -82,6 +82,7 @@ export const getProducts = async (req, res) => {
 export const getOneProduct = async (req, res) => {
   try {
     const id = req.params.id;
+
     const product = await prisma.products.findUnique({
       where: {
         id: id,
@@ -90,7 +91,35 @@ export const getOneProduct = async (req, res) => {
         variants: true
       }
     });
-    return res.json(product);
+    
+
+    const stockEntries = await prisma.stockEntryItem.findMany({
+      where: {
+        variant: {
+          productId: id
+        }
+      },
+      select: {
+        quantity: true,
+        purchasePrice: true
+      }
+    })
+
+    let totalCost = 0
+    let totalQuantity = 0
+
+    for (const entry of stockEntries){
+      totalCost += entry.purchasePrice * entry.quantity
+      totalQuantity += entry.quantity
+    }
+
+    const averageCost = totalCost/ totalQuantity
+
+    return res.json({
+      ...product,
+      cost: averageCost,
+      quantity: totalQuantity
+    });
   } catch (error) {
     console.log(error);
     return res
