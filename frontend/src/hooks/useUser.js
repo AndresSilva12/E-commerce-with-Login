@@ -32,7 +32,7 @@ export function useUser() {
 
   };
 
-  const createUser = async (formUser) => {
+  const createUser = async (formUser, setError) => {
     try {
       const res = await fetch("http://localhost:3000/api/register", {
         method: "POST",

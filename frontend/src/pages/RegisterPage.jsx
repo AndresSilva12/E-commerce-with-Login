@@ -1,5 +1,4 @@
 import { useForm } from 'react-hook-form'
-import { useNavigate } from 'react-router-dom'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { userSchema } from '../../../validation/userSchema'
 import { useUser } from '../hooks/useUser.js'
@@ -10,14 +9,13 @@ import { PasswordInput } from "../components/ui/password-input"
 
 function RegisterPage() {
   const { createUser } = useUser()
-  const navigate = useNavigate()
   const { register, handleSubmit, formState: { errors }, setError } = useForm({
     mode: 'onSubmit',
     resolver: zodResolver(userSchema)
   })
 
   const onValid = (data) => {
-    createUser(data, setError, navigate)
+    createUser(data, setError)
   }
 
   const onInvalid = () => {
