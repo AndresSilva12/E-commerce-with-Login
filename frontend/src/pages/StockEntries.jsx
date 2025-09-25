@@ -1,52 +1,14 @@
 import { useEffect, useState } from "react";
 import { Fragment } from "react"
 import { useStockEntries } from "../hooks/useStockEntries.js";
-import { Button, Table, Box, DataList, Image, Grid, GridItem, Stack, Text, Strong, Pagination, ButtonGroup, IconButton } from "@chakra-ui/react";
+import { Button, Table, Box, Grid, GridItem, Pagination, ButtonGroup, IconButton } from "@chakra-ui/react";
 import Modal from "../components/Modal.jsx";
+import EntryModal from "../components/EntryModal.jsx";
 import DateFilters from "../components/DateFilters";
 import { Toaster } from "../components/ui/toaster";
+import { BsInfoCircle } from "react-icons/bs";
 import { LuTrash2, LuChevronLeft, LuChevronRight } from "react-icons/lu";
 
-export function EntrySelectedModal({ entrySelected }) {
-    return (
-        <Box>
-            <DataList.Root orientation="horizontal" divideY="1px" maxW="md">
-                <DataList.Item pt="4">
-                    <DataList.ItemLabel>Fecha</DataList.ItemLabel>
-                    <DataList.ItemValue>{entrySelected.date}</DataList.ItemValue>
-                </DataList.Item>
-                <DataList.Item pt="4">
-                    <DataList.ItemLabel>Vendedor ID</DataList.ItemLabel>
-                    <DataList.ItemValue>{entrySelected.user.name} {entrySelected.user.lastName}</DataList.ItemValue>
-                </DataList.Item>
-                <DataList.Item pt="4">
-                    <DataList.ItemLabel>Motivo</DataList.ItemLabel>
-                    <DataList.ItemValue>{entrySelected.motive}</DataList.ItemValue>
-                </DataList.Item>
-                <DataList.Item pt="4">
-                    <DataList.ItemLabel>Producto</DataList.ItemLabel>
-                    <Grid templateColumns="repeat(3, 1fr)" gap="4">
-                        {entrySelected.items.map(item => (
-                            <Box key={item.id} display="flex" flexDirection="column" textAlign="center" width="100px">
-                                <Image src={item.variant.image} h="100px" w="400px" fit="contain" />
-                                <Stack display="flex" flexDirection="column" textAlign="initial" justifyContent="flex-end" width="100%" height="100%">
-                                    <Strong fontWeight="semibold" textStyle="sm">{item.variant.product.name} {item.variant.product.brand}</Strong>
-                                    <Text color="fg.muted" textStyle="sm">Codigo: {item.variant.code}</Text>
-                                    <Text color="fg.muted" textStyle="sm">Cantidad: {item.quantity}</Text>
-                                    <Text color="fg.muted" textStyle="sm">Precio Unitario: $ {new Intl.NumberFormat("es-AR").format(item.purchasePrice)}</Text>
-                                </Stack>
-                            </Box>
-                        ))}
-                    </Grid>
-                </DataList.Item>
-                <DataList.Item pt="4">
-                    <DataList.ItemLabel>Precio Final</DataList.ItemLabel>
-                    <DataList.ItemValue>$ {new Intl.NumberFormat("es-AR").format(entrySelected.total)}</DataList.ItemValue>
-                </DataList.Item>
-            </DataList.Root>
-        </Box>
-    )
-}
 
 function StockEntriesPage() {
     const { getAllStockEntries, stockEntries, deleteEntry, totalPages } = useStockEntries()
@@ -96,8 +58,12 @@ function StockEntriesPage() {
                                 <Table.Cell>{entry.user.username}</Table.Cell>
                                 <Table.Cell>{entry.date.slice(0, 10)}</Table.Cell>
                                 <Table.Cell>
-                                    <Modal trigger={<Button size="sm" variant="surface" onClick={() => { handleEntrySelected(entry) }}>+Info</Button>}>
-                                        <EntrySelectedModal entrySelected={entrySelected} />
+                                    <Modal title="Detalle de entrada" trigger={
+                                        <Button size="sm" variant="surface" onClick={() => { handleEntrySelected(entry) }}>
+                                            <BsInfoCircle />
+                                        </Button>
+                                    }>
+                                        <EntryModal entrySelected={entrySelected} />
                                     </Modal>
                                 </Table.Cell>
                                 {entry.items.map((item) => (
@@ -114,13 +80,13 @@ function StockEntriesPage() {
                                 <Table.Cell>$ {new Intl.NumberFormat("es-AR").format(entry.total)}</Table.Cell>
                                 <Table.Cell>{entry.motive}</Table.Cell>
                                 <Table.Cell>
-                                    <Modal size={"sm"} trigger={
+                                    <Modal size={"sm"} title={"Eliminar entrada"} trigger={
                                         <Button colorPalette="red">
                                             <LuTrash2 />
                                         </Button>
-                                    }>
-                                        <h2 >Está seguro que desea eliminar esta entrada?</h2>
-                                        <Button onClick={() => { deleteEntry(entry.id) }}>Eliminar</Button>
+                                    } footer={<Button onClick={() => { deleteEntry(entry.id) }}>Eliminar</Button>}>
+                                        <p >Está seguro que desea eliminar esta entrada?</p>
+                                        <p >Se eliminará esta cantidad del stock y no podrá restablecer esta entrada</p>
                                     </Modal>
                                 </Table.Cell>
                             </Table.Row>
