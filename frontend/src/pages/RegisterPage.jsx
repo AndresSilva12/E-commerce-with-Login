@@ -1,11 +1,12 @@
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { userSchema } from '../../../validation/userSchema'
-import { useUser } from '../hooks/useUser.js'
-import { Toaster } from "../components/ui/toaster"
-import { toast } from "../utils/notifyToast.js";
 import { Button, Card, Field, Input, Stack, Box, NumberInput } from "@chakra-ui/react"
 import { PasswordInput } from "../components/ui/password-input"
+import { userSchema } from "../../../validation/userSchema"
+import ErrorMessage from "../components/ErrorMessage"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { Toaster } from "../components/ui/toaster"
+import { toast } from "../utils/notifyToast.js";
+import { useUser } from "../hooks/useUser.js"
+import { useForm } from "react-hook-form"
 
 function RegisterPage() {
   const { createUser } = useUser()
@@ -23,67 +24,67 @@ function RegisterPage() {
   }
 
   return (
-    <>
-      <Box display="flex" justifyContent="center" height="90vh" alignItems="center">
-        <Card.Root width="1/3" margin="auto">
-          <Card.Body >
-            <form onSubmit={handleSubmit(onValid, onInvalid)} >
-              <Stack align="flex-start" maxW="sm" >
-                <Field.Root invalid={!!errors.username} >
-                  <Field.Label>Username</Field.Label>
-                  <Input {...register("username")} size="sm" />
-                  <Field.ErrorText>{errors.username?.message}</Field.ErrorText>
-                </Field.Root>
+    <Box display="flex" justifyContent="center" height="90vh" paddingTop="80px" alignItems="center">
+      <Card.Root maxWidth="1/3" height="550px" maxHeight="550px" margin="auto">
+        <Card.Body >
+          <form onSubmit={handleSubmit(onValid, onInvalid)}>
+            <Stack align="flex-start" maxW="sm">
+              <Field.Root invalid={!!errors.username} >
+                <Field.Label>Usuario</Field.Label>
+                <Input {...register("username")} size="sm" />
+                <ErrorMessage error={errors.username} />
+              </Field.Root>
 
-                <Field.Root invalid={!!errors.password} >
-                  <Field.Label>Password</Field.Label>
-                  <PasswordInput {...register("password")} size="sm" />
-                  <Field.ErrorText>{errors.password?.message}</Field.ErrorText>
-                </Field.Root>
+              <Field.Root invalid={!!errors.password} >
+                <Field.Label>Contraseña</Field.Label>
+                <PasswordInput {...register("password")} size="sm" />
+                <ErrorMessage error={errors.password} />
+              </Field.Root>
 
-                <Field.Root invalid={!!errors.email} >
-                  <Field.Label>Email</Field.Label>
-                  <Input {...register("email")} size="sm" placeholder="me@example.com" />
-                  <Field.ErrorText>{errors.email?.message}</Field.ErrorText>
-                </Field.Root>
+              <Field.Root invalid={!!errors.email} >
+                <Field.Label>Email</Field.Label>
+                <Input {...register("email")} size="sm" placeholder="me@example.com" />
+                <ErrorMessage error={errors.email} />
+              </Field.Root>
 
+              <Box display="flex" width="full" gap="4">
                 <Field.Root invalid={!!errors.phoneNumber} >
-                  <Field.Label>PhoneNumber</Field.Label>
+                  <Field.Label>Teléfono</Field.Label>
                   <Input {...register("phoneNumber")} size="sm" />
-                  <Field.ErrorText>{errors.phoneNumber?.message}</Field.ErrorText>
+                  <ErrorMessage error={errors.phoneNumber} />
                 </Field.Root>
-
-                <Box display="flex" width="full" gap="4">
-                  <Field.Root invalid={!!errors.name} >
-                    <Field.Label>Name</Field.Label>
-                    <Input {...register("name")} size="sm" />
-                    <Field.ErrorText>{errors.name?.message}</Field.ErrorText>
-                  </Field.Root>
-
-                  <Field.Root invalid={!!errors.lastName} >
-                    <Field.Label>LastName</Field.Label>
-                    <Input {...register("lastName")} size="sm" />
-                    <Field.ErrorText>{errors.lastName?.message}</Field.ErrorText>
-                  </Field.Root>
-                </Box>
 
                 <Field.Root invalid={!!errors.age} >
-                  <Field.Label>Age</Field.Label>
+                  <Field.Label>Edad</Field.Label>
                   <NumberInput.Root defaultValue="10" >
                     <NumberInput.Control />
                     <NumberInput.Input  {...register("age")} />
                   </NumberInput.Root>
-                  <Field.ErrorText>{errors.age?.message}</Field.ErrorText>
+                  <ErrorMessage error={errors.age} />
+                </Field.Root>
+              </Box>
+
+              <Box display="flex" width="full" gap="4">
+                <Field.Root invalid={!!errors.name} >
+                  <Field.Label>Nombre</Field.Label>
+                  <Input {...register("name")} size="sm" />
+                  <ErrorMessage error={errors.name} />
                 </Field.Root>
 
-                <Button type="submit">Submit</Button>
-              </Stack>
-            </form>
-          </Card.Body>
-        </Card.Root>
-      </Box>
+                <Field.Root invalid={!!errors.lastName} >
+                  <Field.Label>Apellido</Field.Label>
+                  <Input {...register("lastName")} size="sm" />
+                  <ErrorMessage error={errors.lastName} />
+                </Field.Root>
+              </Box>
+
+              <Button type="submit">Submit</Button>
+            </Stack>
+          </form>
+        </Card.Body>
+      </Card.Root>
       <Toaster />
-    </>
+    </Box>
   )
 }
 
