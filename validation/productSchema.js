@@ -13,7 +13,9 @@ export const productSchema = z.object({
     .regex(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/, "Debe incluir solo letras y espacios")
     .transform((val) => val.toLowerCase().trim()),
   salePrice: z.coerce
-    .number()
+    .number({
+      invalid_type_error: "Formato no valido" 
+    })
     .min(1, "El precio de venta es obligatorio")
     .gte(1, "El precio de venta debe ser mayor a 0"),
   brand: z
