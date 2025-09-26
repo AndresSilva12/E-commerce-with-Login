@@ -12,6 +12,8 @@ import {
 export const toaster = createToaster({
   placement: 'bottom-start',
   pauseOnPageIdle: true,
+  overlap: true,
+  max: 1,
 })
 
 export const Toaster = () => {
