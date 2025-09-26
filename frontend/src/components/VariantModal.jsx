@@ -1,11 +1,12 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 import { toast } from "../utils/notifyToast.js";
 import { variantSchemaWithOutProductId } from '../../../validation/productVariantsSchema.js'
 import { useState, useRef, useEffect } from 'react'
 import { useVariants } from '../hooks/useVariants.js'
-import { Button, Field, Fieldset, Input, FileUpload, NumberInput, Box } from "@chakra-ui/react"
+import { Button, Field, Fieldset, Input, FileUpload, NumberInput, Box, Stack } from "@chakra-ui/react"
 import { LuImageUp } from "react-icons/lu";
+import ErrorMessage from './ErrorMessage.jsx';
 
 
 function VariantModal({ onSubmitVariant, variants, variantUpdate, productUpdate }) {
@@ -13,7 +14,7 @@ function VariantModal({ onSubmitVariant, variants, variantUpdate, productUpdate 
     const fileInputRef = useRef(null)
     const { getOneVariant } = useVariants()
     const [purchasePrice, setPurchasePrice] = useState(1)
-    const { register, handleSubmit, reset, formState: { errors }, setError } = useForm({
+    const { register, handleSubmit, reset, formState: { errors }, setError, control } = useForm({
         mode: 'onChange',
         resolver: zodResolver(variantUpdate ? variantSchemaWithOutProductId.partial() : variantSchemaWithOutProductId),
         defaultValues: variantUpdate
@@ -66,14 +67,21 @@ function VariantModal({ onSubmitVariant, variants, variantUpdate, productUpdate 
         toast("Por favor ingrese todos los datos", "error")
     }
 
-    const handleImageChange = (e) => {
-        if (!e.target.files[0].type.startsWith("image/")) {
-            toast("Por favor ingrese un archivo con formato imagen", "error")
-            fileInputRef.current.value = null
+    const handleImageChange = (e, field) => {
+        const file = e.target.files[0]
+
+        if (!file) {
+            field.onChange("")
             return
         }
-        const file = e.target.files[0]
+
+        if (!e.target.files[0].type.startsWith("image/")) {
+            toast("Por favor ingrese un archivo con formato imagen", "error")
+            field.onChange("")
+            return
+        }
         setImage(file)
+        field.onChange(file)
     }
 
     return (
@@ -82,6 +90,12 @@ function VariantModal({ onSubmitVariant, variants, variantUpdate, productUpdate 
             handleSubmit(isValid, isInvalid)(e)
         }}>
             <Fieldset.Root size="lg" maxW="md">
+                <Stack>
+                    <Fieldset.Legend>Crear/Editar variantes</Fieldset.Legend>
+                    <Fieldset.HelperText>
+                        Por favor al terminar de {variantUpdate ? 'editar' : 'crear'} su variante dar click en '{variantUpdate ? 'Actualizar' : 'Crear'} variante'
+                    </Fieldset.HelperText>
+                </Stack>
                 <Fieldset.Content>
                     <Field.Root invalid={!!errors.code}>
                         <Box display="flex" justifyContent="space-between" width="full">
@@ -113,12 +127,12 @@ function VariantModal({ onSubmitVariant, variants, variantUpdate, productUpdate 
                             <Field.Root invalid={!!errors.stock} >
                                 <Box display="flex" justifyContent="space-between" width="full">
                                     <Field.Label>Stock</Field.Label>
-                                    <Field.ErrorText>{errors.stock?.message}</Field.ErrorText>
                                 </Box>
                                 <NumberInput.Root defaultValue="1" >
                                     <NumberInput.Control />
                                     <NumberInput.Input  {...register("stock")} />
                                 </NumberInput.Root>
+                                <ErrorMessage error={errors.stock} />
                             </Field.Root>
                         )}
                         {!variantUpdate && productUpdate && (
@@ -134,19 +148,43 @@ function VariantModal({ onSubmitVariant, variants, variantUpdate, productUpdate 
                         )}
                     </Box>
 
-                    <FileUpload.Root accept='image/*' onChange={handleImageChange} ref={fileInputRef}>
-                        <FileUpload.HiddenInput />
-                        <FileUpload.Trigger asChild>
-                            <Button variant="outline" size="sm">
-                                <LuImageUp />
-                                Subir Imagen
-                            </Button>
-                        </FileUpload.Trigger>
-                        <FileUpload.List />
-                    </FileUpload.Root>
+                    <Field.Root invalid={!!errors.image}>
+                        <Controller
+                            control={control}
+                            name="image"
+                            render={({ field }) => (
+                                <FileUpload.Root accept='image/*' value={field.value ? [field.value] : []} onChange={(e) => {
+                                    const file = e.target.files[0]
+
+                                    if (!file) {
+                                        field.onChange("")
+                                        return
+                                    }
+
+                                    if (!e.target.files[0].type.startsWith("image/")) {
+                                        toast("Por favor ingrese un archivo con formato imagen", "error")
+                                        field.onChange("")
+                                        return
+                                    }
+                                    setImage(file)
+                                    field.onChange(file)
+                                }} ref={fileInputRef}>
+                                    <FileUpload.HiddenInput />
+                                    <FileUpload.Trigger asChild>
+                                        <Button variant="outline" size="sm">
+                                            <LuImageUp />
+                                            Subir Imagen
+                                        </Button>
+                                    </FileUpload.Trigger>
+                                    <FileUpload.List />
+                                </FileUpload.Root>
+                            )}
+                        />
+                        <ErrorMessage error={errors.image} />
+                    </Field.Root>
                 </Fieldset.Content>
 
-                <Button type="submit" alignSelf="flex-start" >
+                <Button type="submit" alignSelf="flex-start" backgroundColor="teal" color="white" >
                     {variantUpdate ? 'Actualizar variante' : 'Crear variante'}
                 </Button>
             </Fieldset.Root>

@@ -1,4 +1,4 @@
-import { Button, Accordion, Box, Avatar, Span, Field, Fieldset, Input, InputGroup, NumberInput, Select, Text, Stack, Portal, createListCollection } from "@chakra-ui/react"
+import { Button, Accordion, Box, Avatar, Span, Field, Fieldset, Input, InputGroup, NumberInput, Select, Text, Textarea, Stack, Portal, createListCollection } from "@chakra-ui/react"
 import { productSchema, updateProductSchema } from '../../../validation/productSchema.js'
 import { useStockEntries } from '../hooks/useStockEntries.js'
 import { useCategories } from '../hooks/useCategories.js'
@@ -9,24 +9,23 @@ import { uploadImage } from '../utils/uploads.js'
 import { toast } from "../utils/notifyToast.js";
 import VariantModal from './VariantModal.jsx'
 import { useEffect, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 import isEqual from 'lodash.isequal'
+import ErrorMessage from "./ErrorMessage"
 
 function ProductModal({ productUpdate, onSubmit, closeModal }) {
-    const { register, handleSubmit, reset, formState: { errors }, setError, watch } = useForm({
+    const { register, handleSubmit, reset, formState: { errors }, setError, watch, control } = useForm({
         mode: 'onChange',
         resolver: zodResolver(productUpdate ? updateProductSchema : productSchema),
         defaultValues: productUpdate
     })
     const { updateProduct, createProduct } = useProducts()
     const { createVariant, updateVariant } = useVariants()
-    const { getCategories, categories } = useCategories()
+    const { getCategories } = useCategories()
     const [variants, setVariants] = useState([])
     const [variantUpdate, setVariantUpdate] = useState()
     const [purchasePrice, setPurchasePrice] = useState(1)
     const [categoriesCollection, setCategoriesCollection] = useState()
-    const [categorySelected, setCategorySelected] = useState()
-    const [categorySelectedName, setCategorySelectedName] = useState()
     const [ganancia, setGanancia] = useState(0)
     const { createEntry } = useStockEntries()
 
@@ -84,21 +83,8 @@ function ProductModal({ productUpdate, onSubmit, closeModal }) {
         }
     }, [productUpdate, reset])
 
-    useEffect(() => {
-        if (productUpdate?.categoryId && categoriesCollection?.items) {
-            const categoryExist = categoriesCollection.items.find(c => c.value === productUpdate.categoryId)
-            if (categoryExist) {
-                setCategorySelected(productUpdate.categoryId)
-                setCategorySelectedName(categoryExist.label)
-            }
-        }
-    }, [productUpdate, categoriesCollection])
-
     const onValid = async (data) => {
-        const fullProduct = {
-            ...data,
-            categoryId: Array.isArray(categorySelected) ? categorySelected[0] : categorySelected
-        }
+        const fullProduct = { ...data }
 
         if (!productUpdate) {
             fullProduct.variants = variants.length > 0 ? variants.map(({ localId, ...rest }) => rest) : []
@@ -115,6 +101,10 @@ function ProductModal({ productUpdate, onSubmit, closeModal }) {
             ? await updateProduct(fullProduct, productUpdate, setError)
             : await createProduct(fullProduct, setError)
 
+        if (!result.success) {
+            console.log(result)
+            return
+        }
 
         if (!productUpdate) {
             const variantes = productUpdate ? result.product.variants : result.variants
@@ -136,9 +126,8 @@ function ProductModal({ productUpdate, onSubmit, closeModal }) {
         closeModal()
     }
 
-    const onInvalid = (error) => {
-        console.log(error)
-        toast("error", "error")
+    const onInvalid = () => {
+        toast("Por favor ingrese todos los datos", "error")
     }
 
 
@@ -200,17 +189,17 @@ function ProductModal({ productUpdate, onSubmit, closeModal }) {
                             <Field.Root invalid={!!errors.name}>
                                 <Box display="flex" justifyContent="space-between" width="full">
                                     <Field.Label>Nombre</Field.Label>
-                                    <Field.ErrorText>{errors.name?.message}</Field.ErrorText>
                                 </Box>
                                 <Input {...register("name")} width="200px" />
+                                <ErrorMessage error={errors.name} />
                             </Field.Root>
 
                             <Field.Root invalid={!!errors.brand}>
                                 <Box display="flex" justifyContent="space-between" width="full">
                                     <Field.Label>Marca</Field.Label>
-                                    <Field.ErrorText>{errors.brand?.message}</Field.ErrorText>
                                 </Box>
                                 <Input {...register("brand")} width="200px" />
+                                <ErrorMessage error={errors.brand} />
                             </Field.Root>
                         </Box>
 
@@ -218,13 +207,13 @@ function ProductModal({ productUpdate, onSubmit, closeModal }) {
                             <Field.Root invalid={!!errors.salePrice}>
                                 <Box display="flex" justifyContent="space-between">
                                     <Field.Label>Precio de venta</Field.Label>
-                                    <Field.ErrorText>{errors.salePrice?.message}</Field.ErrorText>
                                 </Box>
                                 <NumberInput.Root defaultValue={productUpdate ? productUpdate.salePrice : 0} width="140px" {...register("salePrice")}>
                                     <InputGroup startElement="$">
                                         <NumberInput.Input />
                                     </InputGroup>
                                 </NumberInput.Root>
+                                <ErrorMessage error={errors.salePrice} />
                             </Field.Root>
 
                             {productUpdate && (
@@ -255,48 +244,53 @@ function ProductModal({ productUpdate, onSubmit, closeModal }) {
                         </Box>
 
                         {categoriesCollection && (
-                            <Select.Root
-                                value={categorySelected ? [{ value: categorySelected }] : []}
-                                onValueChange={({ value }) => {
-                                    setCategorySelected(value)
-                                    const category = categoriesCollection.items.find(c => c.value === value[0])
-                                    setCategorySelectedName(category?.label || '')
-                                }}
-                                collection={categoriesCollection}>
-                                <Select.HiddenSelect />
-                                <Select.Control>
-                                    <Select.Trigger>
-                                        <Select.ValueText>
-                                            {categorySelectedName || 'Seleccione una categoria'}
-                                        </Select.ValueText>
-                                    </Select.Trigger>
-                                    <Select.IndicatorGroup>
-                                        <Select.Indicator />
-                                    </Select.IndicatorGroup>
-                                </Select.Control>
-                                <Portal>
-                                    <Select.Positioner>
-                                        <Select.Content zIndex="99999">
-                                            {categoriesCollection?.items?.map((category) => (
-                                                <Select.Item item={category} key={category.value}>
-                                                    {category.label}
-                                                    <Select.ItemIndicator />
-                                                </Select.Item>
-                                            ))}
-                                        </Select.Content>
-                                    </Select.Positioner>
-                                </Portal>
-                            </Select.Root>
+                            <Field.Root invalid={!!errors.categoryId}>
+                                <Controller
+                                    control={control}
+                                    name="categoryId"
+                                    render={({ field }) => (
+                                        <Select.Root
+                                            name={field.name}
+                                            value={field.value ? [field.value] : []}
+                                            onValueChange={({ value }) => { field.onChange(value[0]) }}
+                                            onInteractOutside={field.onBlur}
+                                            collection={categoriesCollection}>
+                                            <Select.HiddenSelect />
+                                            <Select.Control>
+                                                <Select.Trigger>
+                                                    <Select.ValueText placeholder="seleccione una categoria" />
+                                                </Select.Trigger>
+                                                <Select.IndicatorGroup>
+                                                    <Select.Indicator />
+                                                </Select.IndicatorGroup>
+                                            </Select.Control>
+                                            <Portal>
+                                                <Select.Positioner>
+                                                    <Select.Content zIndex="99999">
+                                                        {categoriesCollection?.items?.map((category) => (
+                                                            <Select.Item item={category} key={category.value}>
+                                                                {category.label}
+                                                                <Select.ItemIndicator />
+                                                            </Select.Item>
+                                                        ))}
+                                                    </Select.Content>
+                                                </Select.Positioner>
+                                            </Portal>
+                                        </Select.Root>
+                                    )}
+                                />
+                                <ErrorMessage error={errors.categoryId} />
+                            </Field.Root>
                         )}
 
                         <Field.Root>
-                            <Field.Label>Descripción</Field.Label>
-                            <Input {...register("description")} />
+                            <Field.Label>Descripción (opcional)</Field.Label>
+                            <Textarea placeholder="..." {...register("description")} />
                         </Field.Root>
 
                     </Fieldset.Content>
 
-                    <Box height="200px" overflowY="scroll">
+                    <Box height="150px" overflowY="scroll">
                         {variants && variants.map((variant, index) => (
                             <Accordion.Root collapsible key={index} size="sm" onClick={() => { handleUpdate(variant) }}>
                                 <Accordion.Item >
@@ -321,7 +315,7 @@ function ProductModal({ productUpdate, onSubmit, closeModal }) {
                         ))}
                     </Box>
                 </Fieldset.Root>
-                <Box display="flex" width="full" paddingY="10px" justifyContent="space-between">
+                <Box display="flex" width="full" paddingY="10px" justifyContent="start" gap="4">
                     <Button type="submit" alignSelf="flex-start" >
                         {productUpdate ? 'Actualizar' : 'Crear'}
                     </Button>

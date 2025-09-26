@@ -558,7 +558,7 @@ function ProductsPage() {
                 </GridItem >
 
             </Grid >
-            <Modal size={"xl"} trigger={
+            <Modal size="xl" trigger={
                 <Button position="fixed" right="0" bottom="0" size="lg" margin="1rem" colorPalette="teal" onClick={handleCreate} display="flex" justifyContent="center" gap="0">
                     <LuShirt />
                     <Text margin="0px" paddingLeft="0px">+</Text>
