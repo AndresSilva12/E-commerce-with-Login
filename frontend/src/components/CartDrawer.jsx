@@ -1,4 +1,4 @@
-import { Button, Card, Image, Text, Box, CloseButton, Drawer, Portal, NumberInput, Field, Select, createListCollection, HStack, Badge } from "@chakra-ui/react"
+import { Button, Card, Image, Text, Box, CloseButton, Drawer, Portal, NumberInput, Field, Select, createListCollection, HStack, Avatar, Badge } from "@chakra-ui/react"
 import { useCart } from "../context/CartContext";
 import { useState } from "react";
 import { LuTrash2 } from "react-icons/lu";
@@ -30,16 +30,16 @@ function CartDrawer({ trigger }) {
             <Portal>
                 <Drawer.Backdrop />
                 <Drawer.Positioner>
-                    <Drawer.Content>
+                    <Drawer.Content >
                         <Drawer.Header>
                             <Drawer.Title>Carrito</Drawer.Title>
                             <Button variant="outline" onClick={() => { clearCart() }}>Limpiar Carrito</Button>
                         </Drawer.Header>
-                        <Drawer.Body paddingX="4">
+                        <Drawer.Body>
                             <Box display="flex" flexDirection="column" gap="4" height="full">
                                 {cart && cart.map((cartItem) => (
-                                    <Card.Root flexDirection="row" overflow="hidden" maxW="xs" justifyContent="space-between" key={cartItem.id}>
-                                        <Image src={cartItem.variants.image} h="full" w="2/6" fit="contain" />
+                                    <Card.Root flexDirection="row" height="100px" justifyContent="space-between" key={cartItem.variants.id}>
+                                        <Image src={cartItem.variants.image} h="full" w="2/6" fit="cover" borderBottomLeftRadius="6px" borderTopLeftRadius="6px" />
                                         <Box display="flex" justifyContent="space-between" w="4/6" marginLeft="8px">
                                             <Card.Body padding="0px">
                                                 <Card.Title>{cartItem.name}</Card.Title>
@@ -49,17 +49,15 @@ function CartDrawer({ trigger }) {
                                                     <Badge>{cartItem.variants.color}</Badge>
                                                 </HStack>
                                             </Card.Body>
-                                            <Card.Footer display="flex" flexDirection="column" padding="0px">
+                                            <Card.Footer display="flex" flexDirection="column" justifyContent="space-between" padding="0px" width="1/3">
                                                 <Field.Root invalid={cartItem.variants.stock < cartItem.variants.quantity || cartItem.variants.quantity <= 0}>
                                                     <NumberInput.Root
-                                                        maxW="70px"
                                                         value={cartItem.variants.quantity}
                                                         onValueChange={(e) => handleUpdateQuantity(e.value, cartItem.variants.id)}
                                                     >
                                                         <NumberInput.Control />
                                                         <NumberInput.Input />
                                                     </NumberInput.Root>
-                                                    <Field.ErrorText>{cartItem.variants.quantity <= 0 ? 'Debe llevar almenos 1' : 'Cantidad por encima del stock disponible'}</Field.ErrorText>
                                                 </Field.Root>
                                                 <Button onClick={() => removeFromCart(cartItem.variants.id)}>
                                                     <LuTrash2 />
@@ -71,12 +69,12 @@ function CartDrawer({ trigger }) {
                             </Box>
                         </Drawer.Body>
                         <Drawer.Footer display="flex" flexDirection="column">
-                            <Select.Root collection={motives} value={motive} defaultValue={["Venta"]} onValueChange={(e) => { setMotive(e.value) }} size="sm" width="320px">
+                            <Select.Root collection={motives} value={motive} defaultValue={["Venta"]} onValueChange={(e) => { setMotive(e.value) }} size="sm" >
                                 <Select.HiddenSelect />
                                 <Select.Label>Motivo</Select.Label>
                                 <Select.Control>
                                     <Select.Trigger>
-                                        <Select.ValueText placeholder="Motivo" />
+                                        <Select.ValueText placeholder="Venta" />
                                     </Select.Trigger>
                                     <Select.IndicatorGroup>
                                         <Select.Indicator />
