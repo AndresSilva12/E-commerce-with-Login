@@ -68,7 +68,7 @@ function Dashboard() {
                     <Box width="1/4" display="flex" flexDirection="column" justifyContent="center" gap="2">
                         <ChartPie value={chartGastos} />
                         <Box width="full" height="50px" display="flex" justifyContent="center">
-                            <Modal size={"sm"} trigger={<Button onClick={() => { setExpenseUpdate(null) }}>Agregar nuevo gasto</Button>}>
+                            <Modal size={"sm"} title="Crear nuevo gasto" trigger={<Button onClick={() => { setExpenseUpdate(null) }}>Agregar nuevo gasto</Button>}>
                                 {({ closeModal }) => (
                                     <ExpenseModal expenseUpdate={expenseUpdate} onSubmitExpense={() => {
                                         closeModal()
@@ -116,7 +116,7 @@ function Dashboard() {
                                 <Table.Cell>$ {new Intl.NumberFormat("es-AR").format(expense.amount)}</Table.Cell>
                                 <Table.Cell>
                                     <Box display="flex" gap="2">
-                                        <Modal size={"sm"} trigger={
+                                        <Modal size={"sm"} title="Editar Gasto" trigger={
                                             <Button onClick={() => { setExpenseUpdate(expense) }}>
                                                 <LuSquarePen />
                                             </Button>
