@@ -14,86 +14,7 @@ import { LuShirt, LuShoppingCart, LuSquarePen, LuPackagePlus } from "react-icons
 import { LuChevronLeft, LuChevronRight } from "react-icons/lu"
 import { RiProhibitedLine } from "react-icons/ri";
 import { FaFilter, FaFilterCircleXmark } from "react-icons/fa6";
-
-
-export function ModalStockUpdate({ variantUpdate, closeModal }) {
-    const { handleSubmit } = useForm()
-    const [purchasePrice, setPurchasePrice] = useState(1)
-    const [motive, setMotive] = useState("")
-    const [stockEntry, setStockEntry] = useState(1)
-    const { createEntry } = useStockEntries()
-
-    const motives = createListCollection({
-        items: [
-            { label: "Stock Inicial", value: "Stock Inicial" },
-            { label: "Reingreso", value: "Reingreso" },
-        ],
-    })
-
-    const onValid = async () => {
-        const entryData = {
-            items: [{
-                variantId: variantUpdate.id,
-                quantity: Number(stockEntry),
-                purchasePrice: Number(purchasePrice)
-            }],
-            motive: String(motive),
-            total: Number(stockEntry) * Number(purchasePrice)
-        }
-        await createEntry(entryData)
-        closeModal()
-    }
-
-    return (
-        <form onSubmit={handleSubmit(onValid)}>
-            <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" gap="2">
-                <Box display="flex" gap="2">
-                    <Field.Root >
-                        <Field.Label>Cant. Ingreso</Field.Label>
-                        <NumberInput.Root value={stockEntry} onValueChange={(e) => { setStockEntry(e.value) }}>
-                            <NumberInput.Control />
-                            <NumberInput.Input />
-                        </NumberInput.Root>
-                    </Field.Root>
-                    <Field.Root >
-                        <Field.Label>Precio de compra</Field.Label>
-                        <NumberInput.Root value={purchasePrice} onValueChange={(e) => { setPurchasePrice(e.value) }}>
-                            <NumberInput.Control />
-                            <NumberInput.Input />
-                        </NumberInput.Root>
-                    </Field.Root>
-                </Box>
-                <Field.Root alignItems="center">
-                    <Select.Root collection={motives} value={motive} defaultValue={["Reingreso"]} onValueChange={(e) => { setMotive(e.value) }} size="sm" width="320px">
-                        <Select.HiddenSelect />
-                        <Select.Label>Motivo</Select.Label>
-                        <Select.Control>
-                            <Select.Trigger>
-                                <Select.ValueText placeholder="Motivo" />
-                            </Select.Trigger>
-                            <Select.IndicatorGroup>
-                                <Select.Indicator />
-                            </Select.IndicatorGroup>
-                        </Select.Control>
-                        <Portal color="red">
-                            <Select.Positioner>
-                                <Select.Content zIndex="9999">
-                                    {motives.items.map((motive) => (
-                                        <Select.Item item={motive} key={motive.value}>
-                                            {motive.label}
-                                            <Select.ItemIndicator />
-                                        </Select.Item>
-                                    ))}
-                                </Select.Content>
-                            </Select.Positioner>
-                        </Portal>
-                    </Select.Root>
-                </Field.Root>
-                <Button type="submit" width="1/5">Actualizar</Button>
-            </Box>
-        </form>
-    )
-}
+import StockModalUpdate from "../components/StockModalUpdate";
 
 function ProductsPage() {
     const [productUpdate, setProductUpdate] = useState(null)
@@ -512,7 +433,7 @@ function ProductsPage() {
                                                     <Button colorPalette="green" onClick={() => { handleCart(variant) }}>
                                                         <LuShoppingCart />
                                                     </Button>
-                                                    <Modal size={"sm"} trigger={
+                                                    <Modal size={"sm"} title="Ingresar stock" trigger={
                                                         <NumberInput.Control onClick={() => setVariantUpdate(variant)}>
                                                             <IconButton variant="outline" size="sm">
                                                                 <LuPackagePlus />
@@ -521,7 +442,7 @@ function ProductsPage() {
                                                         </NumberInput.Control>
                                                     }>
                                                         {({ closeModal }) => (
-                                                            <ModalStockUpdate variantUpdate={variantUpdate} closeModal={closeModal} />
+                                                            <StockModalUpdate variantUpdate={variantUpdate} closeModal={closeModal} />
                                                         )}
                                                     </Modal>
                                                 </HStack>

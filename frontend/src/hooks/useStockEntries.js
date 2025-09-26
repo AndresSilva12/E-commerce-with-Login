@@ -57,6 +57,7 @@ export function useStockEntries () {
             for (const variant of data.updatedVariants){
                 updateVariantContext(variant.id, variant)
             }
+            return {success: true, entry: data}
         }
         catch (error) {
             console.log(error)
