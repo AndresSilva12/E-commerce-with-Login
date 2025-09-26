@@ -45,8 +45,12 @@ export const variantSchema = z.object({
     .trim()
     .min(1, "El id es obligatorio")
   ,
-  image: z.union([z.string(), z.any()]).optional()
-  ,
+  image: z.union([
+    z.string().url("La imagen debe ser una URL válida"),
+    z.any().refine((file) => file instanceof File, {
+      message: "La imagen del producto es obligatoria",
+    }),
+  ]),
 });
 
 export const updateVariantSchema = z.object({
