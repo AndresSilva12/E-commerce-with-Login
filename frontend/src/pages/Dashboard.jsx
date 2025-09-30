@@ -128,13 +128,12 @@ function Dashboard() {
                                                 }} />
                                             )}
                                         </Modal>
-                                        <Modal size={"sm"} trigger={
+                                        <Modal size={"sm"} title="Eliminar gasto" trigger={
                                             <Button colorPalette="red">
                                                 <LuTrash2 />
                                             </Button>
-                                        }>
+                                        } footer={<Button onClick={() => { handleDeleteExpense(expense.id) }}>Eliminar</Button>}>
                                             <h2 >Está seguro que desea eliminar este gasto?</h2>
-                                            <Button onClick={() => { handleDeleteExpense(expense.id) }}>Eliminar</Button>
                                         </Modal>
                                     </Box>
                                 </Table.Cell>

@@ -36,7 +36,7 @@ function ProductsDisabledPage() {
 
                         <Box display="flex" justifyContent="center" gap="4">
 
-                            <Modal trigger={
+                            <Modal title="Habilitar variante" trigger={
                                 <Button colorPalette="green" flex="1" >
                                     Habilitar
                                     <FaCheckCircle />

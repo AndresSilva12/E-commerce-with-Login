@@ -186,7 +186,6 @@ function ProductsPage() {
     const handleChangeSort = (value) => {
         const valueClear = value.toString()
         const valueSplit = valueClear.split("-")
-        console.log(value)
         if (filters.sortBy != null) {
             setFilters((prev) => {
                 const newFilter = { ...prev }
@@ -414,10 +413,11 @@ function ProductsPage() {
                                                 )}
                                             </Modal>
 
-                                            <Modal trigger={
+                                            <Modal title="Deshabilitar variante" trigger={
                                                 <Button colorPalette="red" flex="1" >
                                                     <RiProhibitedLine />
-                                                </Button>}>
+                                                </Button>
+                                            }>
                                                 {({ closeModal }) => (
                                                     <>
                                                         <h2 >Está seguro que desea deshabilitar esta variante?</h2>
