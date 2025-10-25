@@ -1,50 +1,12 @@
 import { Fragment, useEffect, useState } from "react";
 import { useSales } from "../hooks/useSales.js";
-import { Button, Table, Box, DataList, Image, Grid, GridItem, Stack, Text, Strong, ButtonGroup, IconButton, Pagination } from "@chakra-ui/react";
-import Calendar from "react-calendar";
+import { Button, Table, Box, Grid, GridItem, ButtonGroup, IconButton, Pagination } from "@chakra-ui/react";
 import { Toaster } from "../components/ui/toaster";
 import Modal from "../components/Modal.jsx";
-
-export function SaleSelectedModal({ saleSelected }) {
-    return (
-        <Box>
-            <DataList.Root orientation="horizontal" divideY="1px" maxW="md">
-                <DataList.Item pt="4">
-                    <DataList.ItemLabel>Vendedor</DataList.ItemLabel>
-                    <DataList.ItemValue>{saleSelected.user.name} {saleSelected.user.lastName}</DataList.ItemValue>
-                </DataList.Item>
-                <DataList.Item pt="4">
-                    <DataList.ItemLabel>Fecha</DataList.ItemLabel>
-                    <DataList.ItemValue>{saleSelected.date}</DataList.ItemValue>
-                </DataList.Item>
-                <DataList.Item pt="4">
-                    <DataList.ItemLabel>Motivo</DataList.ItemLabel>
-                    <DataList.ItemValue>{saleSelected.motive}</DataList.ItemValue>
-                </DataList.Item>
-                <DataList.Item pt="4">
-                    <DataList.ItemLabel>Producto/s</DataList.ItemLabel>
-                    <Grid templateColumns="repeat(3, 1fr)" gap="4">
-                        {saleSelected.items.map(item => (
-                            <Box key={item.id} display="flex" flexDirection="column" textAlign="center" width="100px">
-                                <Image src={item.variant.image} h="100px" w="400px" fit="contain" />
-                                <Stack display="flex" flexDirection="column" textAlign="initial" justifyContent="flex-end" width="100%" height="100%">
-                                    <Strong fontWeight="semibold" textStyle="sm">{item.variant.product.name} {item.variant.product.brand}</Strong>
-                                    <Text color="fg.muted" textStyle="sm">Codigo: {item.variant.code}</Text>
-                                    <Text color="fg.muted" textStyle="sm">Cantidad: {item.quantity}</Text>
-                                    <Text color="fg.muted" textStyle="sm">Precio Unitario: $ {new Intl.NumberFormat("es-AR").format(item.unitPrice)}</Text>
-                                </Stack>
-                            </Box>
-                        ))}
-                    </Grid>
-                </DataList.Item>
-                <DataList.Item pt="4">
-                    <DataList.ItemLabel>Precio Final</DataList.ItemLabel>
-                    <DataList.ItemValue>$ {new Intl.NumberFormat("es-AR").format(saleSelected.totalPrice)}</DataList.ItemValue>
-                </DataList.Item>
-            </DataList.Root>
-        </Box>
-    )
-}
+import SaleModal from "../components/SaleModal.jsx";
+import DateFilters from "../components/DateFilters";
+import { BsInfoCircle } from "react-icons/bs";
+import { LuTrash2, LuChevronLeft, LuChevronRight } from "react-icons/lu";
 
 function SalesPage() {
     const { getAllSales, sales, deleteSale, totalPages } = useSales()
@@ -61,17 +23,6 @@ function SalesPage() {
         setSaleSelected(sale)
     }
 
-    const handleChangeDate = (value, selected) => {
-        const year = value.getFullYear()
-        const month = value.getMonth() + 1
-        const minDay = value.getDate()
-        selected === "month"
-            ? setFilters({ year: year, month: month })
-            : selected === "day"
-                ? setFilters({ year: year, month: month, minDay: minDay })
-                : setFilters({ year: year })
-    }
-
     const handleChangePage = (page) => {
         setPage(page)
         setFilters((prev) => ({ ...prev, page: page }))
@@ -79,17 +30,11 @@ function SalesPage() {
 
     return (
         <Grid templateColumns="repeat(8, 1fr)" templateRows="repeat(10, 1fr)">
-            <GridItem rowSpan={10} colSpan={1} padding="4" bg="black" display="flex" flexDirection="column" justifyContent="center" gap="4" position="fixed" top="50px" zIndex="50" bottom="0">
-                <Box width="240px">
-                    <Calendar
-                        onClickMonth={(value, e) => { handleChangeDate(value, "month") }}
-                        onClickYear={(value, e) => { handleChangeDate(value, "year") }}
-                        onClickDay={(value, e) => { handleChangeDate(value, "day") }}
-                    />
-                </Box>
+            <GridItem rowSpan={10} colSpan={1} padding="4" bg="black" width="290px" display="flex" flexDirection="column" gap="4" position="fixed" top="70px" zIndex="50" bottom="0" borderRightColor={'gray.500'} borderRightWidth="2px">
+                <DateFilters setFilters={setFilters} />
             </GridItem>
-            <GridItem rowSpan={9} colSpan={7} display="flex" flexDirection="column" marginLeft="260px" marginTop="60px" width="92%">
-                <Table.Root marginLeft="10px" size="sm" striped width="99%">
+            <GridItem rowSpan={9} colSpan={7} display="flex" flexDirection="column" marginLeft="260px" marginTop="80px" width="92%">
+                <Table.Root marginLeft="60px" size="sm" striped width="90%">
                     <Table.Header>
                         <Table.Row>
                             <Table.ColumnHeader>Vendedor</Table.ColumnHeader>
@@ -105,11 +50,15 @@ function SalesPage() {
                     <Table.Body>
                         {sales && sales.map((sale) => (
                             <Table.Row key={sale.id}>
-                                <Table.Cell>{sale.user.name} {sale.user.lastName}</Table.Cell>
+                                <Table.Cell>{sale.user.username}</Table.Cell>
                                 <Table.Cell>{sale.date.slice(0, 10)}</Table.Cell>
                                 <Table.Cell>
-                                    <Modal trigger={<Button size="sm" variant="surface" onClick={() => { handleSaleSelected(sale) }}>+Info</Button>}>
-                                        <SaleSelectedModal saleSelected={saleSelected} />
+                                    <Modal size="lg" title="Detalle de venta" trigger={
+                                        <Button size="sm" variant="surface" onClick={() => { handleSaleSelected(sale) }}>
+                                            <BsInfoCircle />
+                                        </Button>
+                                    }>
+                                        <SaleModal saleSelected={saleSelected} />
                                     </Modal>
                                 </Table.Cell>
                                 <Table.Cell>
@@ -133,9 +82,14 @@ function SalesPage() {
                                 <Table.Cell>$ {new Intl.NumberFormat("es-AR").format(sale.totalPrice)}</Table.Cell>
                                 <Table.Cell>{sale.motive}</Table.Cell>
                                 <Table.Cell>
-                                    <Modal size={"sm"} trigger={<Button backgroundColor={"red.700"}>Delete</Button>}>
-                                        <h2 >Está seguro que desea eliminar esta venta?</h2>
-                                        <Button onClick={() => { deleteSale(sale.id) }}>Eliminar</Button>
+                                    <Modal size={"sm"} title={"Eliminar venta"} trigger={
+                                        <Button colorPalette="red">
+                                            <LuTrash2 />
+                                        </Button>
+                                    } footer={<Button onClick={() => { deleteSale(sale.id) }}>Eliminar</Button>}>
+                                        <p>Está seguro que desea eliminar esta venta?</p>
+                                        <p>Se restablecerá el stock y no podrá recuperar esta venta</p>
+
                                     </Modal>
                                 </Table.Cell>
                             </Table.Row>
@@ -147,11 +101,13 @@ function SalesPage() {
                         <ButtonGroup gap="4" size="sm" variant="ghost">
                             <Pagination.PrevTrigger asChild>
                                 <IconButton>
+                                    <LuChevronLeft />
                                 </IconButton>
                             </Pagination.PrevTrigger>
                             <Pagination.PageText />
                             <Pagination.NextTrigger asChild>
                                 <IconButton>
+                                    <LuChevronRight />
                                 </IconButton>
                             </Pagination.NextTrigger>
                         </ButtonGroup>

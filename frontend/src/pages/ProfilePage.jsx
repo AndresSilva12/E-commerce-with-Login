@@ -39,7 +39,7 @@ function ProfilePage() {
                         <form onSubmit={handleSubmit(onValid, onInvalid)} >
                             <Stack align="flex-start" maxW="sm" >
                                 <Field.Root invalid={!!errors.username} >
-                                    <Field.Label>Username</Field.Label>
+                                    <Field.Label>Usuario</Field.Label>
                                     <Input {...register("username")} size="sm" />
                                     <Field.ErrorText>{errors.username?.message}</Field.ErrorText>
                                 </Field.Root>
@@ -65,13 +65,13 @@ function ProfilePage() {
 
                                 <Box display="flex" width="full" gap="4">
                                     <Field.Root invalid={!!errors.name} >
-                                        <Field.Label>Name</Field.Label>
+                                        <Field.Label>Nombre</Field.Label>
                                         <Input {...register("name")} size="sm" />
                                         <Field.ErrorText>{errors.name?.message}</Field.ErrorText>
                                     </Field.Root>
 
                                     <Field.Root invalid={!!errors.lastName} >
-                                        <Field.Label>LastName</Field.Label>
+                                        <Field.Label>Apellido</Field.Label>
                                         <Input {...register("lastName")} size="sm" />
                                         <Field.ErrorText>{errors.lastName?.message}</Field.ErrorText>
                                     </Field.Root>
@@ -79,7 +79,7 @@ function ProfilePage() {
 
                                 <Box display="flex" width="full" gap="4">
                                     <Field.Root invalid={!!errors.age} >
-                                        <Field.Label>Age</Field.Label>
+                                        <Field.Label>Edad</Field.Label>
                                         <NumberInput.Root defaultValue="10" >
                                             <NumberInput.Control />
                                             <NumberInput.Input  {...register("age")} />
@@ -88,7 +88,7 @@ function ProfilePage() {
                                     </Field.Root>
 
                                     <Field.Root invalid={!!errors.phoneNumber} >
-                                        <Field.Label>PhoneNumber</Field.Label>
+                                        <Field.Label>Teléfono</Field.Label>
                                         <Input {...register("phoneNumber")} size="sm" />
                                         <Field.ErrorText>{errors.phoneNumber?.message}</Field.ErrorText>
                                     </Field.Root>

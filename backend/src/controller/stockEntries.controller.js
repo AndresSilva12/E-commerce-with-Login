@@ -33,6 +33,13 @@ export const createStockEntry = async(req, res) => {
                         stock: {
                             increment: item.quantity
                         }
+                    },
+                    include: {
+                        product:{
+                            include: {
+                                category: true
+                            }
+                        }
                     }
                 })
                 variantsUpdates.push(variantWithStockUpdated)
@@ -101,7 +108,7 @@ export const deleteEntry = async(req, res) =>{
         const result = await prisma.$transaction( async(tx) => {
             const stockEntry = req.stockEntry
             const variantsThatNotExist = {}
-            const variantsWithLowStock = {}
+            const lowStock = {}
             for (const item of stockEntry.items){
                 const variantExist = await tx.productVariant.findFirst({where: {id: item.variantId}})
                 if (!variantExist){
@@ -109,11 +116,11 @@ export const deleteEntry = async(req, res) =>{
                     continue
                 }
                 if (variantExist.stock < item.quantity){
-                    variantsWithLowStock[item.variantId] = `Error, stock de ${variantExist.code} por debajo de la cantidad ${item.quantity}`
+                    return res.status(400).json({error: `Stock de '${variantExist.code}' por debajo de la cantidad`})
                 }
             }
             if (Object.keys(variantsThatNotExist).length > 0) throw new Error(JSON.stringify(variantsThatNotExist))
-            if (Object.keys(variantsWithLowStock).length > 0) throw new Error(JSON.stringify(variantsWithLowStock))
+            if (Object.keys(lowStock).length > 0) throw new Error(JSON.stringify(lowStock))
 
             const entryDeleted = await tx.stockEntry.delete({
                 where: {
@@ -137,7 +144,6 @@ export const deleteEntry = async(req, res) =>{
         })
         return res.json({entryDeleted: result.entryDeleted, variantsUpdates: result.variantsUpdates})
     } catch (error) {
-        console.log(error);
-        return res.status(500).json({ error: "Error interno durante el proceso" });
+        return res.status(500).json({ error: error });
     }
 }

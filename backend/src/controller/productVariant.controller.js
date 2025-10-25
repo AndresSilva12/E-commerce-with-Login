@@ -141,7 +141,14 @@ export const updateVariant = async(req, res) => {
             where: {
                 id: idParsed
             },
-            data: req.body
+            data: req.body,
+            include: {
+                product: {
+                    include: {
+                        category: true
+                    }
+                }
+            }
         })
         return res.json(variantUpdated)
     } catch (error) {

@@ -22,7 +22,7 @@ export function useExpenses () {
                 handleAuth(res, data, setIsAuthenticated, navigate)
                 return
             }
-            toast("Gasto registrada con exito!")
+            toast("Gasto registrado con exito!")
             return data
         } catch (error) {
             console.log(error.message)

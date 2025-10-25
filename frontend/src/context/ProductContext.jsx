@@ -65,10 +65,10 @@ export function ProductProvider({ children }) {
 
             setVariants(data.variants)
             setAvailableFilters({
-                colors: data.filters.colors,
-                sizes: data.filters.sizes,
-                brands: data.filters.brands,
-                categories: data.filters.categories
+                colors: data.filters.colors.sort(),
+                sizes: data.filters.sizes.sort(),
+                brands: data.filters.brands.sort(),
+                categories: data.filters.categories.sort()
             })
 
             setTotalPages(data.pagination.totalPages)
@@ -190,12 +190,8 @@ export function ProductProvider({ children }) {
         setProducts(prev => prev.map(product => product.id === productId ? { ...product, variants: [...product.variants, newVariant] } : product))
     }
 
-    const deleteVariantToProduct = (productId, variantId) => {
-        setProducts(prev => prev.map(product => product.id === productId ? { ...product, variants: product.variants.filter(v => v.id !== variantId) } : product))
-    }
-
-    const updateVariantToProduct = (productId, variantId, variantUpdated) => {
-        setProducts(prev => prev.map(product => product.id === productId ? { ...product, variants: product.variants.map(v => v.id === variantId ? variantUpdated : v) } : product))
+    const updateVariantContext = (variantId, variantUpdated) => {
+        setVariants(prev => prev.map(v => v.id === variantId ? variantUpdated : v))
     }
 
     useEffect(() => {
@@ -212,14 +208,14 @@ export function ProductProvider({ children }) {
             createProduct,
             updateProduct,
             variants,
+            setVariants,
             fetchVariants,
             filters,
             setFilters,
             availableFilters,
             totalPages,
             addVariantToProduct,
-            deleteVariantToProduct,
-            updateVariantToProduct
+            updateVariantContext
         }}>
             {children}
         </ProductContext.Provider>

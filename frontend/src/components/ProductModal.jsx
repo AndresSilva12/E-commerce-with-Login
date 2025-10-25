@@ -1,4 +1,4 @@
-import { Button, Accordion, Box, Avatar, Span, Field, Fieldset, Input, InputGroup, NumberInput, Select, Text, Stack, Portal, createListCollection } from "@chakra-ui/react"
+import { Button, Accordion, Box, Avatar, Span, Field, Fieldset, Input, InputGroup, NumberInput, Select, Text, Textarea, Stack, Portal, createListCollection } from "@chakra-ui/react"
 import { productSchema, updateProductSchema } from '../../../validation/productSchema.js'
 import { useStockEntries } from '../hooks/useStockEntries.js'
 import { useCategories } from '../hooks/useCategories.js'
@@ -9,29 +9,48 @@ import { uploadImage } from '../utils/uploads.js'
 import { toast } from "../utils/notifyToast.js";
 import VariantModal from './VariantModal.jsx'
 import { useEffect, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 import isEqual from 'lodash.isequal'
+import ErrorMessage from "./ErrorMessage"
 
 function ProductModal({ productUpdate, onSubmit, closeModal }) {
-    const { register, handleSubmit, reset, formState: { errors }, setError } = useForm({
+    const { register, handleSubmit, reset, formState: { errors }, setError, watch, control } = useForm({
         mode: 'onChange',
         resolver: zodResolver(productUpdate ? updateProductSchema : productSchema),
         defaultValues: productUpdate
     })
     const { updateProduct, createProduct } = useProducts()
     const { createVariant, updateVariant } = useVariants()
-    const { getCategories, categories } = useCategories()
+    const { getCategories } = useCategories()
     const [variants, setVariants] = useState([])
     const [variantUpdate, setVariantUpdate] = useState()
     const [purchasePrice, setPurchasePrice] = useState(1)
     const [categoriesCollection, setCategoriesCollection] = useState()
-    const [categorySelected, setCategorySelected] = useState()
-    const [categorySelectedName, setCategorySelectedName] = useState()
+    const [ganancia, setGanancia] = useState(0)
     const { createEntry } = useStockEntries()
 
     useEffect(() => {
         fetchCategories()
     }, [])
+
+    useEffect(() => {
+        if (productUpdate) {
+            const salePrice = Number(watch("salePrice"))
+            if (!salePrice || salePrice <= 0) {
+                setGanancia(0)
+                return
+            }
+            const cost = productUpdate.cost
+            setGanancia(((salePrice - cost) / salePrice * 100).toFixed(2))
+        } else {
+            const salePrice = Number(watch("salePrice"))
+            if (!salePrice || salePrice <= 0) {
+                setGanancia(0)
+                return
+            }
+            setGanancia(((salePrice - purchasePrice) / salePrice * 100).toFixed(2))
+        }
+    }, [productUpdate, watch("salePrice"), purchasePrice])
 
     const fetchCategories = async () => {
         const categoriesFetch = await getCategories()
@@ -64,56 +83,51 @@ function ProductModal({ productUpdate, onSubmit, closeModal }) {
         }
     }, [productUpdate, reset])
 
-    useEffect(() => {
-        if (productUpdate?.categoryId && categoriesCollection?.items) {
-            const categoryExist = categoriesCollection.items.find(c => c.value === productUpdate.categoryId)
-            if (categoryExist) {
-                setCategorySelected(productUpdate.categoryId)
-                setCategorySelectedName(categoryExist.label)
-            }
-        }
-    }, [productUpdate, categoriesCollection])
-
     const onValid = async (data) => {
-        const fullProduct = {
-            ...data,
-            categoryId: Array.isArray(categorySelected) ? categorySelected[0] : categorySelected,
-            variants: variants.length > 0 ? variants.map(({ localId, ...rest }) => rest) : []
-        }
-        for (const variant of fullProduct.variants) {
-            if (variant.image instanceof File) {
-                const imageUrl = await uploadImage(variant.image)
-                variant.image = imageUrl
+        const fullProduct = { ...data }
+
+        if (!productUpdate) {
+            fullProduct.variants = variants.length > 0 ? variants.map(({ localId, ...rest }) => rest) : []
+
+            for (const variant of fullProduct.variants) {
+                if (variant.image instanceof File) {
+                    const imageUrl = await uploadImage(variant.image)
+                    variant.image = imageUrl
+                }
             }
         }
+
         const result = productUpdate
             ? await updateProduct(fullProduct, productUpdate, setError)
             : await createProduct(fullProduct, setError)
 
         if (!result.success) {
-            return { error: "Error interno del servidor" }
+            console.log(result)
+            return
         }
 
-        const variantes = productUpdate ? result.product.variants : result.variants
-        for (const variant of variantes) {
-            const variantFound = fullProduct.variants.find(v => v.code === variant.code)
-            const entryData = {
-                items: [{
-                    variantId: variant.id,
-                    quantity: variantFound.stock,
-                    purchasePrice: purchasePrice
-                }],
-                motive: "Stock Inicial",
-                total: variantFound.stock * purchasePrice
+        if (!productUpdate) {
+            const variantes = productUpdate ? result.product.variants : result.variants
+            for (const variant of variantes) {
+                const variantFound = fullProduct.variants.find(v => v.code === variant.code)
+                const entryData = {
+                    items: [{
+                        variantId: variant.id,
+                        quantity: variantFound.stock,
+                        purchasePrice: purchasePrice
+                    }],
+                    motive: "Stock Inicial",
+                    total: variantFound.stock * purchasePrice
+                }
+                createEntry(entryData)
             }
-            createEntry(entryData)
         }
         onSubmit()
         closeModal()
     }
 
     const onInvalid = () => {
-        toast("por favor ingrese todos los datos", "error")
+        toast("Por favor ingrese todos los datos", "error")
     }
 
 
@@ -174,93 +188,109 @@ function ProductModal({ productUpdate, onSubmit, closeModal }) {
                         <Box display="flex">
                             <Field.Root invalid={!!errors.name}>
                                 <Box display="flex" justifyContent="space-between" width="full">
-                                    <Field.Label>Name</Field.Label>
-                                    <Field.ErrorText>{errors.name?.message}</Field.ErrorText>
+                                    <Field.Label>Nombre</Field.Label>
                                 </Box>
                                 <Input {...register("name")} width="200px" />
+                                <ErrorMessage error={errors.name} />
                             </Field.Root>
 
                             <Field.Root invalid={!!errors.brand}>
                                 <Box display="flex" justifyContent="space-between" width="full">
-                                    <Field.Label>Brand</Field.Label>
-                                    <Field.ErrorText>{errors.brand?.message}</Field.ErrorText>
+                                    <Field.Label>Marca</Field.Label>
                                 </Box>
                                 <Input {...register("brand")} width="200px" />
+                                <ErrorMessage error={errors.brand} />
                             </Field.Root>
                         </Box>
 
-                        <Box display="flex" justifyContent="space-between">
+                        <Box display="flex" justifyContent="initial">
                             <Field.Root invalid={!!errors.salePrice}>
-                                <Box display="flex" justifyContent="space-between" width="full">
-                                    <Field.Label>Sale Price</Field.Label>
-                                    <Field.ErrorText>{errors.salePrice?.message}</Field.ErrorText>
+                                <Box display="flex" justifyContent="space-between">
+                                    <Field.Label>Precio de venta</Field.Label>
                                 </Box>
-                                <NumberInput.Root defaultValue="10" width="200px" {...register("salePrice")}>
-                                    <NumberInput.Control />
+                                <NumberInput.Root defaultValue={productUpdate ? productUpdate.salePrice : 0} width="140px" {...register("salePrice")}>
                                     <InputGroup startElement="$">
                                         <NumberInput.Input />
                                     </InputGroup>
                                 </NumberInput.Root>
+                                <ErrorMessage error={errors.salePrice} />
                             </Field.Root>
 
+                            {productUpdate && (
+                                <Box padding="5" width="190px">
+                                    <Text>Ganancia:</Text>
+                                    <Text color="green">{(!isFinite(ganancia) || isNaN(ganancia)) ? 0 : ganancia.toString().slice(0, 4)} %</Text>
+                                </Box>
+                            )}
+
                             {!productUpdate && (
-                                <Field.Root>
-                                    <Box display="flex" justifyContent="space-between" width="full">
-                                        <Field.Label>Purchase Price</Field.Label>
+                                <Box display="flex" justifyContent="initial">
+                                    <Field.Root>
+                                        <Box>
+                                            <Field.Label>Precio de compra</Field.Label>
+                                        </Box>
+                                        <NumberInput.Root value={purchasePrice} onValueChange={(e) => { setPurchasePrice(e.value) }} width="140px">
+                                            <InputGroup startElement="$">
+                                                <NumberInput.Input />
+                                            </InputGroup>
+                                        </NumberInput.Root>
+                                    </Field.Root>
+                                    <Box padding="5">
+                                        <Text>Ganancia:</Text>
+                                        <Text color="green">{(!isFinite(ganancia) || isNaN(ganancia)) ? 0 : ganancia.toString().slice(0, 4)} %</Text>
                                     </Box>
-                                    <NumberInput.Root value={purchasePrice} onValueChange={(e) => { setPurchasePrice(e.value) }} width="200px">
-                                        <NumberInput.Control />
-                                        <InputGroup startElement="$">
-                                            <NumberInput.Input />
-                                        </InputGroup>
-                                    </NumberInput.Root>
-                                </Field.Root>
+                                </Box>
                             )}
                         </Box>
 
                         {categoriesCollection && (
-                            <Select.Root
-                                value={categorySelected ? [{ value: categorySelected }] : []}
-                                onValueChange={({ value }) => {
-                                    setCategorySelected(value)
-                                    const category = categoriesCollection.items.find(c => c.value === value[0])
-                                    setCategorySelectedName(category?.label || '')
-                                }}
-                                collection={categoriesCollection}>
-                                <Select.HiddenSelect />
-                                <Select.Control>
-                                    <Select.Trigger>
-                                        <Select.ValueText>
-                                            {categorySelectedName || 'Seleccione una categoria'}
-                                        </Select.ValueText>
-                                    </Select.Trigger>
-                                    <Select.IndicatorGroup>
-                                        <Select.Indicator />
-                                    </Select.IndicatorGroup>
-                                </Select.Control>
-                                <Portal>
-                                    <Select.Positioner>
-                                        <Select.Content zIndex="99999">
-                                            {categoriesCollection?.items?.map((category) => (
-                                                <Select.Item item={category} key={category.value}>
-                                                    {category.label}
-                                                    <Select.ItemIndicator />
-                                                </Select.Item>
-                                            ))}
-                                        </Select.Content>
-                                    </Select.Positioner>
-                                </Portal>
-                            </Select.Root>
+                            <Field.Root invalid={!!errors.categoryId}>
+                                <Controller
+                                    control={control}
+                                    name="categoryId"
+                                    render={({ field }) => (
+                                        <Select.Root
+                                            name={field.name}
+                                            value={field.value ? [field.value] : []}
+                                            onValueChange={({ value }) => { field.onChange(value[0]) }}
+                                            onInteractOutside={field.onBlur}
+                                            collection={categoriesCollection}>
+                                            <Select.HiddenSelect />
+                                            <Select.Control>
+                                                <Select.Trigger>
+                                                    <Select.ValueText placeholder="seleccione una categoria" />
+                                                </Select.Trigger>
+                                                <Select.IndicatorGroup>
+                                                    <Select.Indicator />
+                                                </Select.IndicatorGroup>
+                                            </Select.Control>
+                                            <Portal>
+                                                <Select.Positioner>
+                                                    <Select.Content zIndex="99999">
+                                                        {categoriesCollection?.items?.map((category) => (
+                                                            <Select.Item item={category} key={category.value}>
+                                                                {category.label}
+                                                                <Select.ItemIndicator />
+                                                            </Select.Item>
+                                                        ))}
+                                                    </Select.Content>
+                                                </Select.Positioner>
+                                            </Portal>
+                                        </Select.Root>
+                                    )}
+                                />
+                                <ErrorMessage error={errors.categoryId} />
+                            </Field.Root>
                         )}
 
                         <Field.Root>
-                            <Field.Label>Description</Field.Label>
-                            <Input {...register("description")} />
+                            <Field.Label>Descripción (opcional)</Field.Label>
+                            <Textarea placeholder="..." {...register("description")} />
                         </Field.Root>
 
                     </Fieldset.Content>
 
-                    <Box height="200px" overflowY="scroll">
+                    <Box height="150px" overflowY="scroll">
                         {variants && variants.map((variant, index) => (
                             <Accordion.Root collapsible key={index} size="sm" onClick={() => { handleUpdate(variant) }}>
                                 <Accordion.Item >
@@ -272,7 +302,7 @@ function ProductModal({ productUpdate, onSubmit, closeModal }) {
                                             </Avatar.Root>
                                             <Stack gap="1">
                                                 {productUpdate && <Span flex="1">{productUpdate.name} {productUpdate.brand}</Span>}
-                                                <Text fontSize="sm" color="fg.muted">Codigo: {variant.code} Size: {variant.size}</Text>
+                                                <Text fontSize="sm" color="fg.muted">Codigo: {variant.code} Talle: {variant.size}</Text>
                                                 <Text fontSize="sm" color="fg.muted">Color: {variant.color} Stock: {variant.stock}</Text>
                                             </Stack>
                                         </Accordion.ItemTrigger>
@@ -285,7 +315,7 @@ function ProductModal({ productUpdate, onSubmit, closeModal }) {
                         ))}
                     </Box>
                 </Fieldset.Root>
-                <Box display="flex" width="full" paddingY="10px" justifyContent="space-between">
+                <Box display="flex" width="full" paddingY="10px" justifyContent="start" gap="4">
                     <Button type="submit" alignSelf="flex-start" >
                         {productUpdate ? 'Actualizar' : 'Crear'}
                     </Button>
@@ -293,7 +323,7 @@ function ProductModal({ productUpdate, onSubmit, closeModal }) {
                 </Box>
             </form>
             <VariantModal onSubmitVariant={(data) => { onSubmitVariant(data) }} variants={variants} variantUpdate={variantUpdate} productUpdate={productUpdate} />
-        </Box>
+        </Box >
     )
 }
 

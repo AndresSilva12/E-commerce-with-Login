@@ -12,7 +12,10 @@ export const expensesSchema = z.object({
     .regex(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/, "Debe incluir solo letras y espacios")
     .transform((val) => val.toLowerCase().trim()),
     amount: z.coerce
-    .number()
+    .number({
+      invalid_type_error: "El monto debe ser un número"
+    })
+    .int("El monto debe ser un número entero")
     .min(1, "El monto es obligatorio")
     .gte(1, "El monto debe ser mayor a 0"),
 })

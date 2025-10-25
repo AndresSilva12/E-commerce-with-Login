@@ -45,11 +45,22 @@ export const variantSchema = z.object({
     .trim()
     .min(1, "El id es obligatorio")
   ,
-  image: z.union([z.string(), z.any()]).optional()
-  ,
+  image: z.union([
+    z.string().url("La imagen debe ser una URL válida"),
+    z.any().refine((file) => file instanceof File, {
+      message: "La imagen del producto es obligatoria",
+    }),
+  ]),
 });
 
-export const updateVariantSchema = variantSchema.partial();
+export const updateVariantSchema = z.object({
+  id: z.string().cuid().optional(),
+  code: z.string().trim().optional(),
+  size: z.string().trim().optional(),
+  color: z.string().trim().optional(),
+  image: z.union([z.string(), z.any()]).optional(),
+  stock: z.number().optional(),
+});
 
 export const variantSchemaWithOutProductId = variantSchema.omit({
   productId: true,

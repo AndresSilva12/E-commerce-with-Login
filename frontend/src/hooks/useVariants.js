@@ -10,7 +10,7 @@ import { handleAuth } from "../utils/auth.js";
 export function useVariants () {
     const navigate = useNavigate()
     const { setIsAuthenticated } = useContext(AuthContext)
-    const { updateVariantToProduct, fetchVariants} = useProducts()
+    const { updateVariantContext, fetchVariants, setVariants} = useProducts()
     const {createEntry} = useStockEntries()
     const [variantsDisabled, setVariantsDisabled] = useState([])
 
@@ -115,8 +115,8 @@ export function useVariants () {
                 return
             }
             
+            setVariants(prev => prev.filter(v => v.id !== id))
             toast("variante deshabilitada con exito!")
-            fetchVariants()
         } catch (error) {
             console.log(error.message)
         }
@@ -140,7 +140,6 @@ export function useVariants () {
     
             toast("variante habilitada con exito!")
             fetchVariantsDisabled()
-            fetchVariants()
         } catch (error) {
             console.log(error.message)
         }
@@ -165,7 +164,7 @@ export function useVariants () {
                 handleAuth(res, data, setIsAuthenticated, navigate)
                 return {success: false, errors: data.errors}
             }
-            await updateVariantToProduct(data.productId, data.id, data)
+            await updateVariantContext(data.id, data)
             toast("variante actualizada con exito!")
             return data
         }

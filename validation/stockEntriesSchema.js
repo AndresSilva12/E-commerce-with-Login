@@ -24,3 +24,19 @@ export const stockEntriesSchema = z.object({
     ,
     motive: z.string()
 })
+
+export const newStockEntrySchema = z.object({
+    quantity: z.preprocess((val) => Number(val),
+        z.number({ invalid_type_error: "La cantidad debe ser un número" })
+        .int("La cantidad debe ser un número entero")
+        .gte(1, "La cantidad debe ser mayor a 0")
+    ),
+    purchasePrice: z.preprocess((val) => Number(val),
+        z.number({ invalid_type_error: "El precio por unidad debe ser un número" })
+        .int("El precio por unidad debe ser un número entero")
+        .gte(1, "El precio por unidad debe ser mayor a 0")
+    ),
+    motive: z.string({
+        required_error: "El motivo es obligatorio",
+    })
+})

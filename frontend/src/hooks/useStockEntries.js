@@ -10,7 +10,7 @@ export function useStockEntries () {
     const [stockEntries, setStockEntries] = useState([])
     const [totalPages, setTotalPages] = useState()
     const navigate = useNavigate()
-    const {updateVariantToProduct} = useProducts()
+    const {updateVariantContext} = useProducts()
     const {setIsAuthenticated} = useContext(AuthContext)
 
     const getAllStockEntries = async(query) => {
@@ -55,9 +55,9 @@ export function useStockEntries () {
 
             setStockEntries((prev) => ([...prev, data]))
             for (const variant of data.updatedVariants){
-                updateVariantToProduct(variant.productId, variant.id, variant)
+                updateVariantContext(variant.id, variant)
             }
-            
+            return {success: true, entry: data}
         }
         catch (error) {
             console.log(error)
@@ -76,13 +76,18 @@ export function useStockEntries () {
             const data = await res.json()
             
             if (!res.ok){
-                handleAuth(res, data, setIsAuthenticated, navigate)
-                return
+                const authError = handleAuth(res, data, setIsAuthenticated, navigate)
+                if (!authError){
+                    toast(data.error, "error")
+                }
+                return {success: false}
             }
     
             setStockEntries((prev) => (prev.filter(e => e.id !== id)))
             toast("Entrada eliminada con exito!")
+            return {success: true}
         } catch (error) {
+            console.log("hubo un error")
             console.log(error.message)
         }
     }
