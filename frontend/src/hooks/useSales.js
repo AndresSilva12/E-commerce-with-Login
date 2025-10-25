@@ -25,6 +25,7 @@ export function useSales () {
 
             setSales(data.allSales)
             setTotalPages(data.pagination.totalPages)
+            console.log(data)
         } catch (error) {
             console.log(error.message)
         }
