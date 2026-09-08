@@ -147,7 +147,7 @@ export const getCurrentUser = async(req, res) => {
 
 
 export const loginUser = async (req, res) => {
-  const { id, role } = req.body;
+  const { id, role } = req.user;
   const accessToken = jwt.sign({ id : id, role: role}, process.env.JWT_ACCESS_SECRET, { expiresIn: "12m" });
   res.cookie("accessToken", accessToken, {
     httpOnly: true,

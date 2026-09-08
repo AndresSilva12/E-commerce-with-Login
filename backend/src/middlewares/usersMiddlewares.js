@@ -162,12 +162,6 @@ export const validateUpdateUser = async (req, res, next) => {
             
             if (Object.keys(errors).length > 0) return res.status(400).json({errors})
 
-            req.passwordHashed = userExist.password
-            req.body.id = userExist.id
-            req.body.username = usernameClean
-            req.body.password = passwordClean
-            req.body.role = userExist.role
-
             req.user = userExist
             next()
         }
