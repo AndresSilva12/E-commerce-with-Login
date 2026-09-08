@@ -9,7 +9,7 @@ router.post('/register', validateCreateUsers, createUser)
 
 router.post('/login', validateLoginUser, loginUser)
 
-router.post('/refresh-token', authenticate, refreshSesion)
+router.post('/refresh-token', refreshSesion)
 
 router.post('/logout', authenticate, logoutUser)
 
