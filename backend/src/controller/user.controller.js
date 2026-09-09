@@ -135,14 +135,14 @@ export const deleteMyUser = async (req, res) => {
 
 export const getCurrentUser = async(req, res) => {
   const {id, role} = req.user
-  const user = await prisma.users.findFirst({
+  const user = await prisma.users.findUnique({
     where: {
       id: id
     }
   })
+  if (!user) return res.status(404).json({error: "Usuario inexistente"})
   if (role !== user.role) return res.status(403).json({error: "Error. Los datos de sesión no coinciden"})
-  const publicUser = convertToUserPublic(user)
-  res.status(200).json(publicUser)
+  res.status(200).json(convertToUserPublic(user))
 };
 
 
