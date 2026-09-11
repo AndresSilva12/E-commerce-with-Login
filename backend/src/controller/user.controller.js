@@ -13,7 +13,7 @@ export const createUser = async (req, res) => {
         role: "ADMIN"
       }
     })
-    const newRole = countAdmin < process.env.MAX_ADMINS_AT_START ? "ADMIN" : "USER"
+    const newRole = countAdmin < Number(process.env.MAX_ADMINS_AT_START) ? "ADMIN" : "USER"
     const newUser = await prisma.users.create({
       data: {
         username: username,
