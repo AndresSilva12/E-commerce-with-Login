@@ -128,7 +128,7 @@ export const getCurrentUser = async(req, res) => {
 };
 
 
-export const loginUser = async (req, res) => {
+export const loginUser = (req, res) => {
   const { id, role } = req.user;
   const accessToken = jwt.sign({ id : id, role: role}, process.env.JWT_ACCESS_SECRET, { expiresIn: "12m" });
   res.cookie("accessToken", accessToken, {
@@ -143,8 +143,7 @@ export const loginUser = async (req, res) => {
     sameSite: "strict",
     maxAge: 1000 * 60 * 60 * 24 * 7
   })
-  const publicUser = convertToUserPublic(req.user)
-  return res.status(200).json(publicUser);
+  return res.status(200).json(convertToUserPublic(req.user));
 };
 
 export const refreshSesion = async (req, res) => {

@@ -162,7 +162,7 @@ export const validateUpdateUser = async (req, res, next) => {
             
             if (!passwordClean) errors.password = "La contraseña es obligatoria"
 
-            const passwordIsValid = bcrypt.compareSync(passwordClean, userExist.password)
+            const passwordIsValid = await bcrypt.compare(passwordClean, userExist.password)
             if (!passwordIsValid) errors.password = "Contraseña Incorrecta"
             
             if (Object.keys(errors).length > 0) return res.status(400).json({errors})
