@@ -8,7 +8,12 @@ export const validateCreateUsers = async (req, res, next) => {
         const errors = {}
         const parsed = userSchema.safeParse(req.body)
 
-        if (!parsed.success) return res.status(400).json({error: errors})
+        if (!parsed.success) {
+            for (const error of parsed.error.errors){
+                errors[error.path] = error.message
+            }
+            return res.status(400).json({error: errors})
+        }
 
         const {username, email, phoneNumber} = parsed.data
 
