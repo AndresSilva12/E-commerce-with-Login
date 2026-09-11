@@ -189,7 +189,7 @@ export const changeRol = async(req, res) => {
       res.clearCookie("refreshToken");
       return res.status(200).json({logout: true,message: "Rol cambiado y sesión cerrada",});
     }
-    return res.status(200).json(userWithRolChanged)
+    return res.status(200).json(convertToUserPublic(userWithRolChanged))
   } catch (error) {
     return res.status(500).json({error: "Error interno durante el proceso"})
   }
