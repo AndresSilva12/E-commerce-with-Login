@@ -12,7 +12,7 @@ export const validateCreateCategory = async (req, res, next) => {
             return res.status(400).json({errors})
         }
         const {name} = parsed.data
-        const categoryExist = await prisma.category.findFirst({
+        const categoryExist = await prisma.category.findUnique({
             where:{
                 name: name
             }
@@ -29,7 +29,7 @@ export const validateCreateCategory = async (req, res, next) => {
 export const validateCategoryExist = async (req, res, next) => {
     try {
         const id = req.params.id
-        const categoryExist = await prisma.category.findFirst({
+        const categoryExist = await prisma.category.findUnique({
             where: {
                 id: id
             }
@@ -56,7 +56,7 @@ export const validateUpdateCategory = async(req, res, next) => {
         }
 
         const {name} = parsed.data
-        const categoryExist = await prisma.category.findFirst({
+        const categoryExist = await prisma.category.findUnique({
             where:{
                 name: name
             }

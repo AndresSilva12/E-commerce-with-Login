@@ -31,7 +31,7 @@ export const createCategory = async(req, res) => {
 export const getUniqueCategory = async(req, res) => {
     try {
         const {id} = req.params
-        const uniqueCategory = await prisma.category.findFirst({
+        const uniqueCategory = await prisma.category.findUnique({
             where:{
                 id: id
             }
