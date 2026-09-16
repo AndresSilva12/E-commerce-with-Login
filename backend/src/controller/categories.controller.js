@@ -9,7 +9,7 @@ export const getAllCategories = async(req, res) => {
                 }
             ]
         })
-        return res.json(categories)
+        return res.status(200).json(categories)
     }catch (error) {
         console.log(error)
     }
@@ -22,7 +22,7 @@ export const createCategory = async(req, res) => {
                 name: req.body.name
             }
         })
-        return res.json(newCategory)
+        return res.status(200).json(newCategory)
     } catch (error) {
         console.log(error)
     }
@@ -36,7 +36,7 @@ export const getUniqueCategory = async(req, res) => {
                 id: id
             }
         })
-        return res.json(uniqueCategory)
+        return res.status(200).json(uniqueCategory)
     } catch (error) {
         console.log(error)
     }
@@ -52,7 +52,7 @@ export const updateCategory = async(req, res) => {
                 name: req.body.name
             }
         })
-        return res.json(categoryUpdated)
+        return res.status(200).json(categoryUpdated)
     } catch (error) {
         return res.status(500).json({error: "Error interno del servidor"})
     }
