@@ -13,7 +13,7 @@ export const createUser = async (req, res) => {
         role: "ADMIN"
       }
     })
-    const newRole = countAdmin < process.env.MAX_ADMINS_AT_START ? "ADMIN" : "USER"
+    const newRole = countAdmin < Number(process.env.MAX_ADMINS_AT_START) ? "ADMIN" : "USER"
     const newUser = await prisma.users.create({
       data: {
         username: username,
@@ -26,7 +26,7 @@ export const createUser = async (req, res) => {
         role: newRole
       },
     });
-    return res.json(convertToUserPublic(newUser));
+    return res.status(200).json(convertToUserPublic(newUser));
   } catch (error) {
     return res.status(500).json({ error: "Error interno al crear el usuario" });
   }
@@ -36,12 +36,9 @@ export const getAllUsers = async (req, res) => {
   try {
     const users = await prisma.users.findMany();
     const usersPublic = users.map((user) => convertToUserPublic(user));
-    return res.json(usersPublic);
+    return res.status(200).json(usersPublic);
   } catch (error) {
-    console.log(error);
-    return res
-      .status(500)
-      .json({ error: "Error interno al traer los usuarios" });
+    return res.status(500).json({ error: "Error interno al traer los usuarios" });
   }
 };
 
@@ -52,18 +49,14 @@ export const getOneUser = async (req, res) => {
         id: req.params.id,
       },
     });
-    return res.json(convertToUserPublic(user));
+    return res.status(200).json(convertToUserPublic(user));
   } catch (error) {
-    console.log(error);
-    return res
-      .status(500)
-      .json({ error: "Error interno al intentar traer el usuario" });
+    return res.status(500).json({ error: "Error interno al intentar traer el usuario" });
   }
 };
 
 export const deleteUserSelected = async (req, res) => {
   try {
-    if (req.user.role !== 'ADMIN') return res.status(403).json({error: "No cuenta con los permisos para eliminar este usuario"})
     const userDeleted = await prisma.users.delete({
       where: {
         id: req.params.id,
@@ -71,17 +64,12 @@ export const deleteUserSelected = async (req, res) => {
     });
     if (req.user.id === userDeleted.id) {
       res.clearCookie("accessToken");
-      return res.status(200).json({
-        logout: true,
-        message: "Cuenta eliminada y sesión cerrada",
-      });
+      res.clearCookie("refreshToken");
+      return res.status(200).json({logout: true,message: "Cuenta eliminada y sesión cerrada",});
     }
-    return res.json(convertToUserPublic(userDeleted));
+    return res.status(200).json(convertToUserPublic(userDeleted));
   } catch (error) {
-    console.log(error);
-    return res
-      .status(500)
-      .json({ error: "Error interno durante la eliminacion de usuario" });
+    return res.status(500).json({ error: "Error interno durante la eliminacion de usuario" });
   }
 };
 
@@ -106,10 +94,7 @@ export const updateMyUser = async (req, res) => {
     });
     return res.json(convertToUserPublic(userUpdated));
   } catch (error) {
-    console.log(error);
-    return res
-      .status(500)
-      .json({ error: "Error interno durante la actualizacion de usuario" });
+    return res.status(500).json({ error: "Error interno durante la actualizacion de usuario" });
   }
 };
 
@@ -123,31 +108,28 @@ export const deleteMyUser = async (req, res) => {
     if (userDeleted) {
       res.clearCookie("accessToken");
       res.clearCookie("refreshToken");
-      return res.status(200).json({
-        logout: true,
-        message: "Cuenta eliminada y sesión cerrada",
-      });
+      return res.status(200).json({logout: true,message: "Cuenta eliminada y sesión cerrada",});
     }
   } catch (error) {
-    console.log(error)
+    return res.status(500).json({error: "Error interno durante la eliminacion de usuario"})
   }
 }
 
 export const getCurrentUser = async(req, res) => {
   const {id, role} = req.user
-  const user = await prisma.users.findFirst({
+  const user = await prisma.users.findUnique({
     where: {
       id: id
     }
   })
+  if (!user) return res.status(404).json({error: "Usuario inexistente"})
   if (role !== user.role) return res.status(403).json({error: "Error. Los datos de sesión no coinciden"})
-  const publicUser = convertToUserPublic(user)
-  res.status(200).json(publicUser)
+  res.status(200).json(convertToUserPublic(user))
 };
 
 
-export const loginUser = async (req, res) => {
-  const { id, role } = req.body;
+export const loginUser = (req, res) => {
+  const { id, role } = req.user;
   const accessToken = jwt.sign({ id : id, role: role}, process.env.JWT_ACCESS_SECRET, { expiresIn: "12m" });
   res.cookie("accessToken", accessToken, {
     httpOnly: true,
@@ -161,8 +143,7 @@ export const loginUser = async (req, res) => {
     sameSite: "strict",
     maxAge: 1000 * 60 * 60 * 24 * 7
   })
-  const publicUser = convertToUserPublic(req.user)
-  return res.json(publicUser);
+  return res.status(200).json(convertToUserPublic(req.user));
 };
 
 export const refreshSesion = async (req, res) => {
@@ -187,7 +168,7 @@ export const refreshSesion = async (req, res) => {
 export const logoutUser = (req, res) => {
   res.clearCookie("accessToken");
   res.clearCookie("refreshToken");
-  return res.json("Logout realizado con exito!");
+  return res.status(200).json("Logout realizado con exito!");
 };
 
 
@@ -204,12 +185,10 @@ export const changeRol = async(req, res) => {
     })
     if (req.user.id === req.userExist.id){
       res.clearCookie("accessToken");
-      return res.status(200).json({
-        logout: true,
-        message: "Rol cambiado y sesión cerrada",
-      });
+      res.clearCookie("refreshToken");
+      return res.status(200).json({logout: true,message: "Rol cambiado y sesión cerrada",});
     }
-    return res.json(userWithRolChanged)
+    return res.status(200).json(convertToUserPublic(userWithRolChanged))
   } catch (error) {
     return res.status(500).json({error: "Error interno durante el proceso"})
   }

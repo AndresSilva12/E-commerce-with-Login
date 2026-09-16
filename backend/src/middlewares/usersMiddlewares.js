@@ -8,7 +8,12 @@ export const validateCreateUsers = async (req, res, next) => {
         const errors = {}
         const parsed = userSchema.safeParse(req.body)
 
-        if (!parsed.success) return res.status(400).json({error: errors})
+        if (!parsed.success) {
+            for (const error of parsed.error.errors){
+                errors[error.path] = error.message
+            }
+            return res.status(400).json({error: errors})
+        }
 
         const {username, email, phoneNumber} = parsed.data
 
@@ -157,16 +162,10 @@ export const validateUpdateUser = async (req, res, next) => {
             
             if (!passwordClean) errors.password = "La contraseña es obligatoria"
 
-            const passwordIsValid = bcrypt.compareSync(passwordClean, userExist.password)
+            const passwordIsValid = await bcrypt.compare(passwordClean, userExist.password)
             if (!passwordIsValid) errors.password = "Contraseña Incorrecta"
             
             if (Object.keys(errors).length > 0) return res.status(400).json({errors})
-
-            req.passwordHashed = userExist.password
-            req.body.id = userExist.id
-            req.body.username = usernameClean
-            req.body.password = passwordClean
-            req.body.role = userExist.role
 
             req.user = userExist
             next()
