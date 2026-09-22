@@ -8,7 +8,7 @@ import { TbCategoryPlus } from "react-icons/tb";
 import { LuSquarePen } from "react-icons/lu";
 
 function Categories() {
-    const { categories, getCategories } = useCategories()
+    const { categories, getCategories, createCategory, updateCategory } = useCategories()
     const [categoryUpdate, setCategoryUpdate] = useState()
     useEffect(() => {
         getCategories()
@@ -35,7 +35,7 @@ function Categories() {
                                     <LuSquarePen />
                                 </Button>}>
                                     {({ closeModal }) => (
-                                        <CategoriesModal closeModal={closeModal} categoryUpdate={categoryUpdate} />
+                                        <CategoriesModal closeModal={closeModal} categoryUpdate={categoryUpdate} updateCategory={updateCategory}/>
                                     )}
                                 </Modal>
                             </Table.Cell>
@@ -47,7 +47,7 @@ function Categories() {
                 <TbCategoryPlus />
             </Button>}>
                 {({ closeModal }) => (
-                    <CategoriesModal closeModal={closeModal} categoryUpdate={categoryUpdate} />
+                    <CategoriesModal closeModal={closeModal} categoryUpdate={categoryUpdate} createCategory={createCategory}/>
                 )}
             </Modal>
             <Toaster />
