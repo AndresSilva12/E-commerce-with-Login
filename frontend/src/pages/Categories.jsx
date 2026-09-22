@@ -4,11 +4,11 @@ import { useCategories } from "../hooks/useCategories.js";
 import Modal from "../components/Modal"
 import CategoriesModal from "../components/CategoriesModal"
 import { Toaster } from "../components/ui/toaster";
-import { TbCategoryPlus } from "react-icons/tb";
+import { TbCategoryPlus, TbTrash } from "react-icons/tb";
 import { LuSquarePen } from "react-icons/lu";
 
 function Categories() {
-    const { categories, getCategories, createCategory, updateCategory } = useCategories()
+    const { categories, getCategories, createCategory, updateCategory, deleteCategory } = useCategories()
     const [categoryUpdate, setCategoryUpdate] = useState()
     useEffect(() => {
         getCategories()
@@ -24,6 +24,7 @@ function Categories() {
                     <Table.Row>
                         <Table.ColumnHeader>Categoria</Table.ColumnHeader>
                         <Table.ColumnHeader>Editar</Table.ColumnHeader>
+                        <Table.ColumnHeader>Eliminar</Table.ColumnHeader>
                     </Table.Row>
                 </Table.Header>
                 <Table.Body>
@@ -38,6 +39,11 @@ function Categories() {
                                         <CategoriesModal closeModal={closeModal} categoryUpdate={categoryUpdate} updateCategory={updateCategory}/>
                                     )}
                                 </Modal>
+                            </Table.Cell>
+                            <Table.Cell>
+                                <Button onClick={() => { deleteCategory(category.id) }}>
+                                    <TbTrash />
+                                </Button>
                             </Table.Cell>
                         </Table.Row>
                     ))}

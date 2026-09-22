@@ -69,3 +69,17 @@ export const validateUpdateCategory = async(req, res, next) => {
         return res.status(500).json({error: "Error interno del servidor"})
     }
 }
+
+export const validateCategoryHasNoProducts = async(req, res, next) => {
+    try {
+        const products = await prisma.products.findMany({
+            where: {
+                categoryId: req.category.id
+            }
+        })
+        if (products.length > 0) return res.status(400).json({error: "No se puede eliminar la categoría porque tiene productos asociados"})
+        next()
+    } catch (error) {
+        return res.status(500).json({error: "Error interno del servidor"})
+    }
+}

@@ -93,10 +93,28 @@ export function useCategories () {
         }   
     }
 
+    const deleteCategory = async (id) => {
+        try {
+            const res = await fetch(`http://localhost:3000/api/category/${id}`,{
+                method: "DELETE",
+                credentials: "include"
+            })
+            const data = await res.json()
+            if (res.ok) {
+                setCategories((prev) => (prev.filter(c => c.id !== id)))
+                toast("Categoría eliminada con exito!")
+            } else {
+                toast(data.error || "Error al eliminar la categoría", "error")
+            }
+        } catch (error) {
+            console.log(error.message)
+        }
+    }
     return {
         categories,
         getCategories,
         createCategory,
-        updateCategory
+        updateCategory,
+        deleteCategory
     }
 }

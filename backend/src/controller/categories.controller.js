@@ -57,3 +57,16 @@ export const updateCategory = async(req, res) => {
         return res.status(500).json({error: "Error interno del servidor"})
     }
 }
+
+export const deleteCategory = async(req, res) => {
+    try {
+        const categoryDeleted = await prisma.category.delete({
+            where: {
+                id: req.category.id
+            }
+        })
+        return res.status(200).json(categoryDeleted)
+    } catch (error) {
+        return res.status(500).json({error: "Error interno del servidor"})
+    }
+}
