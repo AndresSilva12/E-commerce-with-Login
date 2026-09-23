@@ -97,7 +97,7 @@ model stockEntry {
 
 model category {
   id String @id @default(cuid())
-  name String
+  name String @unique
   products products[]
 }
 

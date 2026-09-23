@@ -4,11 +4,9 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from "react-hook-form";
 import { categorySchema } from "../../../validation/categorySchema.js"
 import { toast } from "../utils/notifyToast.js";
-import { useCategories } from "../hooks/useCategories.js";
 import ErrorMessage from "./ErrorMessage";
 
-function CategoriesModal({ categoryUpdate, closeModal }) {
-    const { createCategory, updateCategory } = useCategories()
+function CategoriesModal({ categoryUpdate, closeModal, createCategory, updateCategory }) {
     const { register, handleSubmit, reset, formState: { errors }, setError } = useForm({
         resolver: zodResolver(categorySchema)
     })

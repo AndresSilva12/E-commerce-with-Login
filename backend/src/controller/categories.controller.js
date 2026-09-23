@@ -9,7 +9,7 @@ export const getAllCategories = async(req, res) => {
                 }
             ]
         })
-        return res.json(categories)
+        return res.status(200).json(categories)
     }catch (error) {
         console.log(error)
     }
@@ -22,7 +22,7 @@ export const createCategory = async(req, res) => {
                 name: req.body.name
             }
         })
-        return res.json(newCategory)
+        return res.status(200).json(newCategory)
     } catch (error) {
         console.log(error)
     }
@@ -31,12 +31,12 @@ export const createCategory = async(req, res) => {
 export const getUniqueCategory = async(req, res) => {
     try {
         const {id} = req.params
-        const uniqueCategory = await prisma.category.findFirst({
+        const uniqueCategory = await prisma.category.findUnique({
             where:{
                 id: id
             }
         })
-        return res.json(uniqueCategory)
+        return res.status(200).json(uniqueCategory)
     } catch (error) {
         console.log(error)
     }
@@ -52,7 +52,20 @@ export const updateCategory = async(req, res) => {
                 name: req.body.name
             }
         })
-        return res.json(categoryUpdated)
+        return res.status(200).json(categoryUpdated)
+    } catch (error) {
+        return res.status(500).json({error: "Error interno del servidor"})
+    }
+}
+
+export const deleteCategory = async(req, res) => {
+    try {
+        const categoryDeleted = await prisma.category.delete({
+            where: {
+                id: req.category.id
+            }
+        })
+        return res.status(200).json(categoryDeleted)
     } catch (error) {
         return res.status(500).json({error: "Error interno del servidor"})
     }

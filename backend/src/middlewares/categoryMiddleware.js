@@ -12,7 +12,7 @@ export const validateCreateCategory = async (req, res, next) => {
             return res.status(400).json({errors})
         }
         const {name} = parsed.data
-        const categoryExist = await prisma.category.findFirst({
+        const categoryExist = await prisma.category.findUnique({
             where:{
                 name: name
             }
@@ -29,7 +29,7 @@ export const validateCreateCategory = async (req, res, next) => {
 export const validateCategoryExist = async (req, res, next) => {
     try {
         const id = req.params.id
-        const categoryExist = await prisma.category.findFirst({
+        const categoryExist = await prisma.category.findUnique({
             where: {
                 id: id
             }
@@ -56,7 +56,7 @@ export const validateUpdateCategory = async(req, res, next) => {
         }
 
         const {name} = parsed.data
-        const categoryExist = await prisma.category.findFirst({
+        const categoryExist = await prisma.category.findUnique({
             where:{
                 name: name
             }
@@ -64,6 +64,20 @@ export const validateUpdateCategory = async(req, res, next) => {
         if (categoryExist && categoryExist.id !== req.category.id) return res.status(400).json({errors: {name: `La categoría ya existe`}})
 
         req.body = parsed.data
+        next()
+    } catch (error) {
+        return res.status(500).json({error: "Error interno del servidor"})
+    }
+}
+
+export const validateCategoryHasNoProducts = async(req, res, next) => {
+    try {
+        const products = await prisma.products.findMany({
+            where: {
+                categoryId: req.category.id
+            }
+        })
+        if (products.length > 0) return res.status(400).json({error: "No se puede eliminar la categoría porque tiene productos asociados"})
         next()
     } catch (error) {
         return res.status(500).json({error: "Error interno del servidor"})
